@@ -1,0 +1,53 @@
+import React from 'react';
+import { Absence, Employee, AbsenceType } from '../types';
+import Avatar from './Avatar';
+import { UserMinus, Trash2 } from 'lucide-react';
+
+interface AbsenceCardProps {
+    absence: Absence;
+    employee?: Employee;
+    absenceType?: AbsenceType;
+    onClick: () => void;
+    onDelete: (absenceId: string) => void;
+}
+
+const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceType, onClick, onDelete }) => {
+    if (!employee || !absenceType) return null;
+
+    const { color, name: absenceName } = absenceType;
+
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent onClick from firing
+        if (window.confirm('Are you sure you want to delete this absence?')) {
+            onDelete(absence.id);
+        }
+    };
+
+    return (
+        <div
+            onClick={onClick}
+            style={{ borderLeftColor: color }}
+            className={`p-2 rounded-lg mb-2 cursor-pointer border-l-4 group relative bg-gray-100 dark:bg-blue-night-800/50 shadow-sm hover:shadow-md transition-all duration-200 ease-in-out`}
+        >
+            <div className="flex items-center">
+                <Avatar name={employee.name} src={employee.avatarUrl} className="w-6 h-6 rounded-full mr-2 opacity-70"/>
+                <div className="truncate">
+                     <p className="font-semibold text-sm text-gray-700 dark:text-gray-200 truncate">{employee.name}</p>
+                     <div className="flex items-center">
+                        <UserMinus size={12} className="mr-1.5 text-gray-500 dark:text-gray-400"/>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{absenceName}</p>
+                    </div>
+                </div>
+            </div>
+            <button 
+                onClick={handleDeleteClick}
+                className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="Delete absence"
+            >
+                <Trash2 size={14} />
+            </button>
+        </div>
+    );
+};
+
+export default AbsenceCard;

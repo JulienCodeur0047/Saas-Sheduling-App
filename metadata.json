@@ -1,0 +1,5 @@
+{
+  "name": "Quick Shift - Employee Scheduling",
+  "description": "A modern, simple, and intuitive shift scheduling platform for small to medium businesses. This application provides an interactive calendar to manage employee shifts with drag-and-drop functionality, an employee roster, and a dashboard with key metrics.",
+  "requestFramePermissions": []
+}
