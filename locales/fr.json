@@ -190,8 +190,10 @@
     "emailLabel": "Adresse e-mail",
     "passwordLabel": "Mot de passe",
     "fullNameLabel": "Nom complet",
-    "selectedPlanLabel": "Plan sélectionné",
-    "createAccountButton": "Créer le compte & Continuer",
+    "selectedPlanLabel": "Choisissez votre plan",
+    "createAccountButton": "Créer un compte gratuit",
+    "goToPayment": "Continuer vers le paiement",
+    "redirectToPayment": "Redirection vers la page de paiement...",
     "paymentDetails": "Détails de paiement",
     "cardholderName": "Nom du titulaire",
     "cardNumber": "Numéro de carte",
@@ -213,7 +215,19 @@
     "activitySectorOther": "Autre",
     "companyNameLabel": "Nom de l'entreprise",
     "companyNamePlaceholder": "Entrez le nom de l'entreprise ou le nom complet",
-    "addressLabel": "Adresse (Optionnel)"
+    "companyNameRequired": "Le nom de l'entreprise ou le nom complet est requis.",
+    "addressLabel": "Adresse (Optionnel)",
+    "features": {
+      "title": "Libérez le potentiel de votre équipe",
+      "feature1Title": "Planification Intuitive",
+      "feature1Desc": "Créez et gérez les shifts sans effort avec notre calendrier glisser-déposer.",
+      "feature2Title": "Gestion Centralisée",
+      "feature2Desc": "Conservez toutes les informations des employés, les rôles et les disponibilités en un seul lieu accessible.",
+      "feature3Title": "Tableau de Bord Analytique",
+      "feature3Desc": "Obtenez des informations précieuses sur vos opérations avec des analyses et des rapports en temps réel.",
+      "feature4Title": "Suivi des Absences et Congés",
+      "feature4Desc": "Approuvez et suivez les demandes de congé des employés directement dans le planning."
+    }
   },
   "modals": {
     "save": "Enregistrer",

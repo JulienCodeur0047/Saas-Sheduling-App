@@ -190,8 +190,10 @@
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "fullNameLabel": "Full Name",
-    "selectedPlanLabel": "Selected Plan",
-    "createAccountButton": "Create Account & Continue",
+    "selectedPlanLabel": "Choose Your Plan",
+    "createAccountButton": "Create Free Account",
+    "goToPayment": "Continue to Payment",
+    "redirectToPayment": "Redirecting to payment page...",
     "paymentDetails": "Payment Details",
     "cardholderName": "Cardholder Name",
     "cardNumber": "Card Number",
@@ -213,7 +215,19 @@
     "activitySectorOther": "Other",
     "companyNameLabel": "Company Name",
     "companyNamePlaceholder": "Enter company or full name",
-    "addressLabel": "Address (Optional)"
+    "companyNameRequired": "Company Name or Full Name is required.",
+    "addressLabel": "Address (Optional)",
+    "features": {
+      "title": "Unlock Your Team's Potential",
+      "feature1Title": "Intuitive Scheduling",
+      "feature1Desc": "Effortlessly create and manage shifts with our drag-and-drop calendar.",
+      "feature2Title": "Centralized Management",
+      "feature2Desc": "Keep all employee information, roles, and availability in one accessible place.",
+      "feature3Title": "Insightful Dashboard",
+      "feature3Desc": "Gain valuable insights into your operations with real-time analytics and reports.",
+      "feature4Title": "Absence & Time-Off Tracking",
+      "feature4Desc": "Approve and track employee leave requests directly within the schedule."
+    }
   },
   "modals": {
     "save": "Save",

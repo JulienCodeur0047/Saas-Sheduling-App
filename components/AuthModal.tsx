@@ -3,7 +3,7 @@ import Modal from './Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
-import { Briefcase, Check } from 'lucide-react';
+import { Briefcase, Check, Calendar, Users, BarChart3, CalendarOff } from 'lucide-react';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -12,7 +12,49 @@ interface AuthModalProps {
     initialPlan?: Plan;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'login', initialPlan = 'Gratuit' }) => {
+const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => void }> = ({ selectedPlan, onSelect }) => {
+    const { t } = useLanguage();
+    const plans: Plan[] = ['Gratuit', 'Pro', 'Pro Plus'];
+    const planKeys: { [key in Plan]: string } = {
+        'Gratuit': 'freePlan',
+        'Pro': 'proPlan',
+        'Pro Plus': 'proPlusPlan',
+    };
+
+    return (
+        <div className="grid grid-cols-3 gap-2">
+            {plans.map(plan => {
+                const planKey = planKeys[plan];
+                const isSelected = selectedPlan === plan;
+                return (
+                    <div
+                        key={plan}
+                        onClick={() => onSelect(plan)}
+                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50' : 'border-gray-200 dark:border-blue-night-700 hover:border-gray-400'}`}
+                    >
+                        <p className="font-bold text-sm">{t(`pricing.${planKey}Name`)}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{t(`pricing.${planKey}Price`)}</p>
+                    </div>
+                )
+            })}
+        </div>
+    );
+};
+
+const FeatureItem: React.FC<{icon: React.ReactNode, title: string, description: string}> = ({icon, title, description}) => (
+    <div className="flex items-start">
+        <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-night-800">
+            {icon}
+        </div>
+        <div className="ml-4">
+            <p className="text-base font-semibold text-gray-800 dark:text-gray-200">{title}</p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{description}</p>
+        </div>
+    </div>
+);
+
+
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'login', initialPlan = 'Pro' }) => {
     const [view, setView] = useState(initialView);
     const { login, register } = useAuth();
     const { t } = useLanguage();
@@ -54,12 +96,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         }
     };
 
-    const handleRegister = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-
+        
         const finalCompanyName = companyName.trim() || name.trim();
+        if (!finalCompanyName) {
+            setError(t('auth.companyNameRequired'));
+            return;
+        }
 
+        if (plan !== 'Gratuit') {
+            console.log(`User ${email} is proceeding to payment for plan: ${plan}. Company: ${finalCompanyName}`);
+            // In a real app, save form state and redirect to a payment page.
+            // For now, we just close the modal as a simulation of the next step.
+            alert(t('auth.redirectToPayment'));
+            onClose();
+            return;
+        }
+
+        // Handle free plan registration directly
         const registrationData = {
             name,
             email,
@@ -88,6 +144,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline">${t('auth.signUp')}</button>` })
         : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline">${t('auth.signIn')}</button>` });
 
+    const planDetails: { [key in Plan]: { key: string; featureCount: number } } = {
+        'Gratuit': { key: 'freePlan', featureCount: 3 },
+        'Pro': { key: 'proPlan', featureCount: 4 },
+        'Pro Plus': { key: 'proPlusPlan', featureCount: 4 },
+    };
+    const selectedPlanDetails = planDetails[plan];
+    const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={title} size="5xl">
@@ -118,7 +181,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             <button type="submit" className="w-full button-primary mt-4">{t('auth.signIn')}</button>
                         </form>
                     ) : (
-                        <form onSubmit={handleRegister} className="space-y-4 overflow-y-auto pr-2">
+                        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-2 -mr-2">
                             <h4 className="font-semibold border-b dark:border-blue-night-700 pb-1">{t('profile.profileDetails')}</h4>
                             <div>
                                 <label htmlFor="register-name" className="label-style">{t('auth.fullNameLabel')}</label>
@@ -170,74 +233,62 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </div>
 
                             <h4 className="font-semibold border-b dark:border-blue-night-700 pb-1 pt-2">{t('auth.selectedPlanLabel')}</h4>
-                            <div>
-                                <select id="plan" name="plan" value={plan} onChange={e => setPlan(e.target.value as Plan)} className="input-style appearance-none">
-                                    <option value="Gratuit">{t('pricing.freePlanName')} - {t('pricing.freePlanPrice')}{t('pricing.perMonth')}</option>
-                                    <option value="Pro">{t('pricing.proPlanName')} - {t('pricing.proPlanPrice')}{t('pricing.perMonth')}</option>
-                                    <option value="Pro Plus">{t('pricing.proPlusPlanName')} - {t('pricing.proPlusPlanPrice')}{t('pricing.perMonth')}</option>
-                                </select>
+                            <PlanSelector selectedPlan={plan} onSelect={setPlan} />
+                            
+                            <div className="mt-2 p-3 bg-gray-50 dark:bg-blue-night-950 rounded-lg">
+                                <h5 className="font-bold text-base">{t(`pricing.${selectedPlanDetails.key}Name`)} - {t(`pricing.${selectedPlanDetails.key}Desc`)}</h5>
+                                <ul className="mt-2 space-y-2 text-sm">
+                                    {selectedPlanFeatures.map((feature, index) => (
+                                         <li key={index} className="flex items-start">
+                                            <Check size={16} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" /> 
+                                            <span>{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
 
-                            <button type="submit" className="w-full button-primary mt-4">{t('auth.createAccountButton')}</button>
+                            <button type="submit" className="w-full button-primary mt-4">
+                                {plan === 'Gratuit' ? t('auth.createAccountButton') : t('auth.goToPayment')}
+                            </button>
                         </form>
                     )}
                 </div>
                 
-                {/* Right side: Info/Payment */}
-                <div className="hidden md:flex flex-col">
-                    {view === 'login' && (
-                        <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-blue-night-950 p-8 rounded-lg h-full">
+                {/* Right side: Info */}
+                <div className="hidden md:flex flex-col bg-gray-50 dark:bg-blue-night-950 p-8 rounded-lg h-full">
+                    {view === 'login' ? (
+                        <div className="flex flex-col items-center justify-center h-full">
                             <Briefcase className="w-16 h-16 text-blue-600" />
                             <h3 className="mt-4 text-2xl font-bold text-center text-gray-800 dark:text-white">{t('appName')}</h3>
                             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
                                 {t('landingPage.heroSubtitle')}
                             </p>
                         </div>
-                    )}
-
-                    {view === 'register' && (
-                        <div className="bg-gray-50 dark:bg-blue-night-950 p-6 rounded-lg h-full flex flex-col justify-center">
-                            {plan === 'Gratuit' ? (
-                                <div>
-                                    <h3 className="text-xl font-bold">{t('pricing.freePlanName')}</h3>
-                                    <p className="mt-2 text-gray-500 dark:text-gray-400">{t('pricing.freePlanDesc')}</p>
-                                    <ul className="mt-6 space-y-3 text-sm">
-                                        <li className="flex items-center"><Check size={16} className="text-green-500 mr-2 flex-shrink-0" /> <span>{t('pricing.freePlanFeature1')}</span></li>
-                                        <li className="flex items-center"><Check size={16} className="text-green-500 mr-2 flex-shrink-0" /> <span>{t('pricing.freePlanFeature2')}</span></li>
-                                        <li className="flex items-center"><Check size={16} className="text-green-500 mr-2 flex-shrink-0" /> <span>{t('pricing.freePlanFeature3')}</span></li>
-                                    </ul>
-                                </div>
-                            ) : (
-                                <div>
-                                    <h3 className="text-xl font-bold mb-4">{t('auth.paymentDetails')}</h3>
-                                    <div className="p-3 border dark:border-blue-night-700 rounded-md mb-4 bg-white dark:bg-blue-night-900">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="font-semibold">{plan === 'Pro' ? t('pricing.proPlanName') : t('pricing.proPlusPlanName')}</span>
-                                            <span className="font-bold">{plan === 'Pro' ? t('pricing.proPlanPrice') : t('pricing.proPlusPlanPrice')}{t('pricing.perMonth')}</span>
-                                        </div>
-                                    </div>
-                                    <form className="space-y-3">
-                                        <div>
-                                            <label htmlFor="cardName" className="label-style !text-xs">{t('auth.cardholderName')}</label>
-                                            <input id="cardName" type="text" placeholder="John Doe" className="input-style !py-2 !text-sm" />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="cardNumber" className="label-style !text-xs">{t('auth.cardNumber')}</label>
-                                            <input id="cardNumber" type="text" placeholder="•••• •••• •••• ••••" className="input-style !py-2 !text-sm" />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <label htmlFor="cardExpiry" className="label-style !text-xs">{t('auth.expiryDate')}</label>
-                                                <input id="cardExpiry" type="text" placeholder="MM/YY" className="input-style !py-2 !text-sm" />
-                                            </div>
-                                            <div>
-                                                <label htmlFor="cardCvc" className="label-style !text-xs">{t('auth.cvc')}</label>
-                                                <input id="cardCvc" type="text" placeholder="•••" className="input-style !py-2 !text-sm" />
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            )}
+                    ) : (
+                        <div className="flex flex-col justify-center h-full">
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
+                            <div className="space-y-5">
+                                <FeatureItem 
+                                    icon={<Calendar size={24} className="text-blue-500"/>}
+                                    title={t('auth.features.feature1Title')}
+                                    description={t('auth.features.feature1Desc')}
+                                />
+                                <FeatureItem 
+                                    icon={<Users size={24} className="text-blue-500"/>}
+                                    title={t('auth.features.feature2Title')}
+                                    description={t('auth.features.feature2Desc')}
+                                />
+                                <FeatureItem 
+                                    icon={<BarChart3 size={24} className="text-blue-500"/>}
+                                    title={t('auth.features.feature3Title')}
+                                    description={t('auth.features.feature3Desc')}
+                                />
+                                <FeatureItem 
+                                    icon={<CalendarOff size={24} className="text-blue-500"/>}
+                                    title={t('auth.features.feature4Title')}
+                                    description={t('auth.features.feature4Desc')}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
