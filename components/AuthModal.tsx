@@ -153,8 +153,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={title} size="5xl">
-            <div className="grid md:grid-cols-2 md:gap-12 min-h-[550px] text-gray-900 dark:text-gray-100">
+        <Modal isOpen={isOpen} onClose={onClose} title={title} size="4xl">
+            <div className={`grid md:grid-cols-2 md:gap-10 ${view === 'register' ? 'min-h-[550px]' : ''} text-gray-900 dark:text-gray-100`}>
                 {/* Left side: Form */}
                 <div className="flex flex-col">
                     <div className="text-center mb-4">
@@ -178,7 +178,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <label htmlFor="login-password" className="label-style">{t('auth.passwordLabel')}</label>
                                 <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
                             </div>
-                            <button type="submit" className="w-full button-primary mt-4">{t('auth.signIn')}</button>
+                             <div className="text-right">
+                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline" onClick={(e) => {e.preventDefault(); alert('Password reset link would be sent!');}}>
+                                    {t('auth.forgotPassword')}
+                                </a>
+                            </div>
+                            <button type="submit" className="w-full button-primary">{t('auth.signIn')}</button>
+                            
+                            <div className="flex items-center my-4">
+                                <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                                <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('auth.orSeparator')}</span>
+                                <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <button type="button" onClick={() => alert('Logging in with Google...')} className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-transparent text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-night-800">
+                                    {t('auth.continueWithGoogle')}
+                                </button>
+                                <button type="button" onClick={() => alert('Logging in with Facebook...')} className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-transparent text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-night-800">
+                                    {t('auth.continueWithFacebook')}
+                                </button>
+                            </div>
                         </form>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-2 -mr-2">
