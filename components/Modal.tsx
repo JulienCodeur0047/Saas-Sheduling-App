@@ -1,4 +1,5 @@
 
+
 import React, { ReactNode } from 'react';
 import { X } from 'lucide-react';
 
@@ -7,10 +8,21 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  size?: 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'md' }) => {
   if (!isOpen) return null;
+
+  const sizeClasses = {
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    '5xl': 'max-w-5xl',
+  };
 
   return (
     <div 
@@ -18,7 +30,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-blue-night-900 rounded-xl shadow-2xl w-full max-w-md m-4 p-6 relative transform transition-all duration-300 ease-out scale-95 animate-scale-in"
+        className={`bg-white dark:bg-blue-night-900 rounded-xl shadow-2xl w-full m-4 p-6 relative transform transition-all duration-300 ease-out scale-95 animate-scale-in ${sizeClasses[size]}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-blue-night-800">

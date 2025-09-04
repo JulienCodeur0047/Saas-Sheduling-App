@@ -67,12 +67,19 @@ export type View = 'dashboard' | 'schedule' | 'employees' | 'settings' | 'profil
 
 export type Plan = 'Gratuit' | 'Pro' | 'Pro Plus';
 
+export type BusinessType = 'Individual' | 'Company' | 'Other';
+export type ActivitySector = 'Individual' | 'Health' | 'Technology' | 'Administration' | 'Finance' | 'Commerce' | 'Social' | 'Other';
+
 export interface User {
     id: string;
     name: string;
     email: string;
     plan: Plan;
     avatarUrl: string | null;
+    businessType: BusinessType;
+    companyName: string;
+    activitySector?: ActivitySector;
+    address?: string;
 }
 
 export interface Subscription {

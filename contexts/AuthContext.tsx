@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo } from 'react';
-import { User, Plan, Subscription, Payment } from '../types';
+import { User, Plan, Subscription, Payment, BusinessType, ActivitySector } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -7,7 +7,7 @@ interface AuthContextType {
   paymentHistory: Payment[];
   login: (email: string, pass: string) => boolean;
   logout: () => void;
-  register: (name: string, email: string, pass: string, plan: Plan) => boolean;
+  register: (userData: Omit<User, 'id' | 'avatarUrl'>, pass: string) => boolean;
   updateUser: (updatedData: Partial<User>) => void;
 }
 
@@ -15,7 +15,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // In a real app, this would be an API call. We'll simulate a user database.
 const FAKE_USERS: User[] = [
-    { id: 'user-1', name: 'Admin User', email: 'admin@quickshift.com', plan: 'Pro Plus', avatarUrl: null }
+    { 
+        id: 'user-1', 
+        name: 'Admin User', 
+        email: 'admin@quickshift.com', 
+        plan: 'Pro Plus', 
+        avatarUrl: null,
+        businessType: 'Company',
+        companyName: 'Quick Shift Inc.',
+        activitySector: 'Technology',
+        address: '123 Tech Lane, CA'
+    }
 ];
 
 const FAKE_SUBSCRIPTION: Subscription = {
@@ -50,17 +60,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
-  const register = (name: string, email: string, pass: string, plan: Plan): boolean => {
-    const exists = FAKE_USERS.some(u => u.email.toLowerCase() === email.toLowerCase());
+  const register = (userData: Omit<User, 'id' | 'avatarUrl'>, pass: string): boolean => {
+    const exists = FAKE_USERS.some(u => u.email.toLowerCase() === userData.email.toLowerCase());
     if (exists) {
         return false; // User already exists
     }
     const newUser: User = {
         id: `user-${Date.now()}`,
-        name,
-        email,
-        plan,
         avatarUrl: null,
+        ...userData,
     };
     FAKE_USERS.push(newUser);
     setUser(newUser);
