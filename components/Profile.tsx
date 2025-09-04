@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { User, Edit, Upload, CreditCard, FileText, Lock } from 'lucide-react';
+import { Edit, Upload, Lock, Gem } from 'lucide-react';
 import Avatar from './Avatar';
 
 const ProfileCard: React.FC<{ children: React.ReactNode, title: string }> = ({ children, title }) => (
@@ -80,10 +80,36 @@ const Profile: React.FC = () => {
                             </div>
                         )}
                         <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
+                        <div className="mt-2 inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/50 px-3 py-1 text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                            <Gem size={14} className="mr-1.5" />
+                            {user.plan} {t('profile.plan')}
+                        </div>
                     </div>
                 </div>
             </ProfileCard>
             
+             {/* Company Information */}
+            <ProfileCard title={t('profile.companyInformation')}>
+                <div className="space-y-4 text-sm">
+                    <div className="flex justify-between items-center py-2 border-b dark:border-blue-night-800">
+                        <span className="font-medium text-gray-500 dark:text-gray-400">{t('profile.companyName')}</span>
+                        <span className="font-semibold text-right">{user.companyName}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-blue-night-800">
+                        <span className="font-medium text-gray-500 dark:text-gray-400">{t('profile.businessType')}</span>
+                        <span className="font-semibold">{t(`auth.businessType${user.businessType}`)}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b dark:border-blue-night-800">
+                        <span className="font-medium text-gray-500 dark:text-gray-400">{t('profile.activitySector')}</span>
+                        <span className="font-semibold">{user.activitySector ? t(`auth.activitySector${user.activitySector.replace(/\s/g, '')}`) : t('profile.notProvided')}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                        <span className="font-medium text-gray-500 dark:text-gray-400">{t('profile.address')}</span>
+                        <span className="font-semibold text-right">{user.address || t('profile.notProvided')}</span>
+                    </div>
+                </div>
+            </ProfileCard>
+
              {/* Security */}
              <ProfileCard title={t('profile.security')}>
                 <div className="flex justify-between items-center">
@@ -103,7 +129,7 @@ const Profile: React.FC = () => {
                 <ProfileCard title={t('profile.subscription')}>
                     <div className="bg-blue-50 dark:bg-blue-night-800/50 p-4 rounded-lg mb-4 flex justify-between items-center">
                         <div>
-                            <p className="font-bold text-lg text-blue-800 dark:text-blue-200">{subscription.plan} Plan</p>
+                            <p className="font-bold text-lg text-blue-800 dark:text-blue-200">{subscription.plan} {t('profile.plan')}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.renewsOn')} {subscription.renewalDate.toLocaleDateString()}</p>
                         </div>
                         <p className="text-2xl font-bold">$20<span className="text-sm font-normal text-gray-500">/mo</span></p>

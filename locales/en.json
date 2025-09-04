@@ -95,6 +95,13 @@
   "profile": {
     "title": "My Profile",
     "profileDetails": "Profile Details",
+    "companyInformation": "Company Information",
+    "companyName": "Company Name",
+    "businessType": "Business Type",
+    "activitySector": "Sector of Activity",
+    "address": "Address",
+    "notProvided": "Not provided",
+    "plan": "Plan",
     "security": "Security",
     "password": "Password",
     "passwordLastChanged": "Last changed: 3 months ago",
