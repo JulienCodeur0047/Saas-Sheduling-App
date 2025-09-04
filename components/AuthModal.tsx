@@ -3,7 +3,7 @@ import Modal from './Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
-import { Briefcase, Check, Calendar, Users, BarChart3, CalendarOff } from 'lucide-react';
+import { Briefcase, Check, Calendar, Users, BarChart3, CalendarOff, MailCheck } from 'lucide-react';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -11,6 +11,8 @@ interface AuthModalProps {
     initialView?: 'login' | 'register';
     initialPlan?: Plan;
 }
+
+type AuthView = 'login' | 'register' | 'forgotPassword' | 'forgotPasswordSuccess';
 
 const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => void }> = ({ selectedPlan, onSelect }) => {
     const { t } = useLanguage();
@@ -55,7 +57,7 @@ const FeatureItem: React.FC<{icon: React.ReactNode, title: string, description: 
 
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'login', initialPlan = 'Pro' }) => {
-    const [view, setView] = useState(initialView);
+    const [authView, setAuthView] = useState<AuthView>(initialView);
     const { login, register } = useAuth();
     const { t } = useLanguage();
     const [error, setError] = useState('');
@@ -72,12 +74,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
 
     useEffect(() => {
         if (isOpen) {
-            setView(initialView);
+            setAuthView(initialView);
             setPlan(initialPlan);
             setError('');
             // Reset fields
             setName('');
-            setEmail('');
+            setEmail(authView === 'login' ? email : ''); // Keep email if coming back to login
             setPassword('');
             setBusinessType('Company');
             setActivitySector('');
@@ -95,8 +97,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
             onClose();
         }
     };
+    
+    const handleForgotPassword = (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        // Simulate API call
+        console.log(`Password reset requested for: ${email}`);
+        // For security, always show success to prevent user enumeration
+        setAuthView('forgotPasswordSuccess');
+    };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         
@@ -133,14 +144,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         }
     };
 
-    const toggleView = () => {
-        setError('');
-        setView(view === 'login' ? 'register' : 'login');
+    const getTitle = () => {
+        switch (authView) {
+            case 'login': return t('auth.welcomeBack');
+            case 'register': return t('auth.createAccount');
+            case 'forgotPassword': return t('auth.forgotPasswordTitle');
+            case 'forgotPasswordSuccess': return t('auth.resetLinkSentTitle');
+            default: return '';
+        }
     };
     
-    const title = view === 'login' ? t('auth.welcomeBack') : t('auth.createAccount');
-
-    const toggleText = view === 'login' 
+    const toggleText = authView === 'login' 
         ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline">${t('auth.signUp')}</button>` })
         : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline">${t('auth.signIn')}</button>` });
 
@@ -153,22 +167,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={title} size="4xl">
-            <div className={`grid md:grid-cols-2 md:gap-10 ${view === 'register' ? 'min-h-[550px]' : ''} text-gray-900 dark:text-gray-100`}>
+        <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="4xl">
+            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' ? 'min-h-[550px]' : ''} text-gray-900 dark:text-gray-100`}>
                 {/* Left side: Form */}
                 <div className="flex flex-col">
-                    <div className="text-center mb-4">
-                        <p 
-                            className="text-sm text-gray-600 dark:text-gray-400"
-                            onClick={(e) => { if((e.target as HTMLElement).tagName === 'BUTTON') toggleView()}}
-                            dangerouslySetInnerHTML={{ __html: toggleText }}
-                        >
-                        </p>
-                    </div>
+                     {(authView === 'login' || authView === 'register') && (
+                        <div className="text-center mb-4">
+                            <p 
+                                className="text-sm text-gray-600 dark:text-gray-400"
+                                onClick={(e) => { if((e.target as HTMLElement).tagName === 'BUTTON') setAuthView(authView === 'login' ? 'register' : 'login')}}
+                                dangerouslySetInnerHTML={{ __html: toggleText }}
+                            >
+                            </p>
+                        </div>
+                    )}
 
                     {error && <p className="mb-4 text-center text-sm text-red-500 bg-red-100 dark:bg-red-900/30 py-2 rounded-md">{error}</p>}
                     
-                    {view === 'login' ? (
+                    {authView === 'login' && (
                         <form onSubmit={handleLogin} className="space-y-4 flex-grow flex flex-col justify-center">
                             <div>
                                 <label htmlFor="login-email" className="label-style">{t('auth.emailLabel')}</label>
@@ -179,7 +195,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
                             </div>
                              <div className="text-right">
-                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline" onClick={(e) => {e.preventDefault(); alert('Password reset link would be sent!');}}>
+                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword'); setError('');}}>
                                     {t('auth.forgotPassword')}
                                 </a>
                             </div>
@@ -192,16 +208,25 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </div>
                             
                             <div className="space-y-3">
-                                <button type="button" onClick={() => alert('Logging in with Google...')} className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-transparent text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-night-800">
+                                <button 
+                                    type="button" 
+                                    className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-transparent text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-night-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled
+                                    title="Coming soon"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" className="mr-2 flex-shrink-0">
+                                        <path d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z" fill="#4285F4"/>
+                                        <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853"/>
+                                        <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29H0.957275C0.347727 8.51727 0 10.035 0 11.29C0 8.70682 0.527273 6.26318 1.42636 4.95818L4.335 7.20636C4.13636 7.74636 4.03364 8.32318 4.03364 8.95C4.03364 8.40682 3.78409 7.83 3.96409 7.29V10.71Z" fill="#FBBC05"/>
+                                        <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
+                                    </svg>
                                     {t('auth.continueWithGoogle')}
-                                </button>
-                                <button type="button" onClick={() => alert('Logging in with Facebook...')} className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-transparent text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-night-800">
-                                    {t('auth.continueWithFacebook')}
                                 </button>
                             </div>
                         </form>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-2 -mr-2">
+                    )}
+                    {authView === 'register' && (
+                        <form onSubmit={handleRegister} className="space-y-4 overflow-y-auto pr-2 -mr-2">
                             <h4 className="font-semibold border-b dark:border-blue-night-700 pb-1">{t('profile.profileDetails')}</h4>
                             <div>
                                 <label htmlFor="register-name" className="label-style">{t('auth.fullNameLabel')}</label>
@@ -272,19 +297,43 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </button>
                         </form>
                     )}
+                    {authView === 'forgotPassword' && (
+                        <form onSubmit={handleForgotPassword} className="space-y-4 flex-grow flex flex-col justify-center">
+                            <p className="text-sm text-center text-gray-600 dark:text-gray-400">{t('auth.forgotPasswordInstruction')}</p>
+                            <div>
+                                <label htmlFor="forgot-email" className="label-style">{t('auth.emailLabel')}</label>
+                                <input id="forgot-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
+                            </div>
+                            <button type="submit" className="w-full button-primary">{t('auth.sendResetLink')}</button>
+                            <div className="text-center">
+                                <button type="button" onClick={() => setAuthView('login')} className="font-semibold text-blue-600 hover:underline text-sm">
+                                    {t('auth.backToLogin')}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                    {authView === 'forgotPasswordSuccess' && (
+                        <div className="flex flex-col items-center justify-center text-center h-full py-8">
+                            <div className="p-4 bg-green-100 dark:bg-green-900/50 rounded-full">
+                                <MailCheck className="w-12 h-12 text-green-600 dark:text-green-400" />
+                            </div>
+                            <h3 className="mt-4 text-xl font-bold">{t('auth.resetLinkSentTitle')}</h3>
+                            <p
+                                className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                                dangerouslySetInnerHTML={{
+                                    __html: t('auth.resetLinkSentBody', { email: `<strong class="font-medium">${email}</strong>` })
+                                }}
+                            />
+                            <button onClick={() => setAuthView('login')} className="mt-6 w-full button-primary">
+                                {t('auth.backToLogin')}
+                            </button>
+                        </div>
+                    )}
                 </div>
                 
                 {/* Right side: Info */}
                 <div className="hidden md:flex flex-col bg-gray-50 dark:bg-blue-night-950 p-8 rounded-lg h-full">
-                    {view === 'login' ? (
-                        <div className="flex flex-col items-center justify-center h-full">
-                            <Briefcase className="w-16 h-16 text-blue-600" />
-                            <h3 className="mt-4 text-2xl font-bold text-center text-gray-800 dark:text-white">{t('appName')}</h3>
-                            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                                {t('landingPage.heroSubtitle')}
-                            </p>
-                        </div>
-                    ) : (
+                    {authView === 'register' ? (
                         <div className="flex flex-col justify-center h-full">
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
                             <div className="space-y-5">
@@ -309,6 +358,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                     description={t('auth.features.feature4Desc')}
                                 />
                             </div>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full">
+                            <Briefcase className="w-16 h-16 text-blue-600" />
+                            <h3 className="mt-4 text-2xl font-bold text-center text-gray-800 dark:text-white">{t('appName')}</h3>
+                            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                                {t('landingPage.heroSubtitle')}
+                            </p>
                         </div>
                     )}
                 </div>
