@@ -32,7 +32,7 @@ const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => voi
                     <div
                         key={plan}
                         onClick={() => onSelect(plan)}
-                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50' : 'border-gray-200 dark:border-blue-night-700 hover:border-gray-400'}`}
+                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${isSelected ? 'border-blue-600 dark:border-blue-night-300 bg-blue-50 dark:bg-blue-night-800' : 'border-gray-200 dark:border-blue-night-700 hover:border-gray-400'}`}
                     >
                         <p className="font-bold text-sm">{t(`pricing.${planKey}Name`)}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{t(`pricing.${planKey}Price`)}</p>
@@ -155,8 +155,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     };
     
     const toggleText = authView === 'login' 
-        ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline">${t('auth.signUp')}</button>` })
-        : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline">${t('auth.signIn')}</button>` });
+        ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-night-200">${t('auth.signUp')}</button>` })
+        : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-night-200">${t('auth.signIn')}</button>` });
 
     const planDetails: { [key in Plan]: { key: string; featureCount: number } } = {
         'Gratuit': { key: 'freePlan', featureCount: 3 },
@@ -165,6 +165,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     };
     const selectedPlanDetails = planDetails[plan];
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
+
+    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300";
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="5xl">
@@ -195,11 +197,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
                             </div>
                              <div className="text-right">
-                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword'); setError('');}}>
+                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-night-200" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword'); setError('');}}>
                                     {t('auth.forgotPassword')}
                                 </a>
                             </div>
-                            <button type="submit" className="w-full button-primary">{t('auth.signIn')}</button>
+                            <button type="submit" className={buttonPrimaryClasses}>{t('auth.signIn')}</button>
                             
                             <div className="flex items-center my-4">
                                 <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
@@ -292,7 +294,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 </ul>
                             </div>
 
-                            <button type="submit" className="w-full button-primary mt-4">
+                            <button type="submit" className={`${buttonPrimaryClasses} mt-4`}>
                                 {plan === 'Gratuit' ? t('auth.createAccountButton') : t('auth.goToPayment')}
                             </button>
                         </form>
@@ -304,9 +306,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <label htmlFor="forgot-email" className="label-style">{t('auth.emailLabel')}</label>
                                 <input id="forgot-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
                             </div>
-                            <button type="submit" className="w-full button-primary">{t('auth.sendResetLink')}</button>
+                            <button type="submit" className={buttonPrimaryClasses}>{t('auth.sendResetLink')}</button>
                             <div className="text-center">
-                                <button type="button" onClick={() => setAuthView('login')} className="font-semibold text-blue-600 hover:underline text-sm">
+                                <button type="button" onClick={() => setAuthView('login')} className="font-semibold text-blue-600 hover:underline dark:text-blue-night-200 text-sm">
                                     {t('auth.backToLogin')}
                                 </button>
                             </div>
@@ -324,7 +326,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                     __html: t('auth.resetLinkSentBody', { email: `<strong class="font-medium">${email}</strong>` })
                                 }}
                             />
-                            <button onClick={() => setAuthView('login')} className="mt-6 w-full button-primary">
+                            <button onClick={() => setAuthView('login')} className={`mt-6 ${buttonPrimaryClasses}`}>
                                 {t('auth.backToLogin')}
                             </button>
                         </div>
@@ -338,22 +340,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
                             <div className="space-y-5">
                                 <FeatureItem 
-                                    icon={<Calendar size={24} className="text-blue-500"/>}
+                                    icon={<Calendar size={24} className="text-blue-500 dark:text-blue-night-300"/>}
                                     title={t('auth.features.feature1Title')}
                                     description={t('auth.features.feature1Desc')}
                                 />
                                 <FeatureItem 
-                                    icon={<Users size={24} className="text-blue-500"/>}
+                                    icon={<Users size={24} className="text-blue-500 dark:text-blue-night-300"/>}
                                     title={t('auth.features.feature2Title')}
                                     description={t('auth.features.feature2Desc')}
                                 />
                                 <FeatureItem 
-                                    icon={<BarChart3 size={24} className="text-blue-500"/>}
+                                    icon={<BarChart3 size={24} className="text-blue-500 dark:text-blue-night-300"/>}
                                     title={t('auth.features.feature3Title')}
                                     description={t('auth.features.feature3Desc')}
                                 />
                                 <FeatureItem 
-                                    icon={<CalendarOff size={24} className="text-blue-500"/>}
+                                    icon={<CalendarOff size={24} className="text-blue-500 dark:text-blue-night-300"/>}
                                     title={t('auth.features.feature4Title')}
                                     description={t('auth.features.feature4Desc')}
                                 />
@@ -361,7 +363,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full">
-                            <Briefcase className="w-16 h-16 text-blue-600" />
+                            <Briefcase className="w-16 h-16 text-blue-600 dark:text-blue-night-200" />
                             <h3 className="mt-4 text-2xl font-bold text-center text-gray-800 dark:text-white">{t('appName')}</h3>
                             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
                                 {t('landingPage.heroSubtitle')}
@@ -375,8 +377,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                 .dark .label-style { color: #D1D5DB; }
                 .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
                 .dark .input-style { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
-                .button-primary { padding: 0.625rem 1.25rem; background-color: #2563EB; color: #FFFFFF; font-weight: 600; border-radius: 0.375rem; transition-property: background-color; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-                .button-primary:hover { background-color: #1D4ED8; }
             `}</style>
         </Modal>
     );

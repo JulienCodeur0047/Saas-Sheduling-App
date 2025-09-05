@@ -40,6 +40,11 @@ const Profile: React.FC = () => {
     if (!user) {
         return <div>Loading profile...</div>;
     }
+    
+    const buttonPrimarySmClasses = "inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 text-sm";
+    const buttonPrimaryClasses = `inline-flex items-center px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300`;
+    const buttonSecondaryClasses = "inline-flex items-center px-5 py-2.5 bg-gray-200 text-gray-800 font-semibold rounded-md transition-colors hover:bg-gray-300 dark:bg-blue-night-700 dark:text-blue-night-100 dark:hover:bg-blue-night-600";
+
 
     return (
         <div className="space-y-8 max-w-4xl mx-auto">
@@ -53,7 +58,7 @@ const Profile: React.FC = () => {
                         <button 
                             type="button" 
                             onClick={() => fileInputRef.current?.click()} 
-                            className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full hover:bg-blue-700 transition-colors"
+                            className="absolute bottom-0 right-0 bg-blue-600 dark:bg-blue-night-200 text-white dark:text-blue-night-900 p-1.5 rounded-full hover:bg-blue-700 dark:hover:bg-blue-night-300 transition-colors"
                             aria-label="Upload new avatar"
                         >
                             <Upload size={16} />
@@ -69,18 +74,18 @@ const Profile: React.FC = () => {
                                     onChange={(e) => setName(e.target.value)}
                                     className="input-style"
                                 />
-                                <button onClick={handleNameSave} className="button-primary-sm">{t('modals.save')}</button>
+                                <button onClick={handleNameSave} className={buttonPrimarySmClasses}>{t('modals.save')}</button>
                             </div>
                         ) : (
                              <div className="flex items-center space-x-3 justify-center md:justify-start">
                                 <h4 className="text-2xl font-bold">{user.name}</h4>
-                                <button onClick={() => setIsEditingName(true)} className="text-gray-500 hover:text-blue-600">
+                                <button onClick={() => setIsEditingName(true)} className="text-gray-500 hover:text-blue-600 dark:hover:text-blue-night-300">
                                     <Edit size={18} />
                                 </button>
                             </div>
                         )}
                         <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
-                        <div className="mt-2 inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/50 px-3 py-1 text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                        <div className="mt-2 inline-flex items-center rounded-full bg-yellow-100 dark:bg-blue-night-800 px-3 py-1 text-sm font-semibold text-yellow-800 dark:text-blue-night-300">
                             <Gem size={14} className="mr-1.5" />
                             {user.plan} {t('profile.plan')}
                         </div>
@@ -117,7 +122,7 @@ const Profile: React.FC = () => {
                         <p className="font-medium">{t('profile.password')}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('profile.passwordLastChanged')}</p>
                     </div>
-                    <button className="button-secondary">
+                    <button className={buttonSecondaryClasses}>
                         <Lock size={16} className="mr-2" />
                         {t('profile.changePassword')}
                     </button>
@@ -129,7 +134,7 @@ const Profile: React.FC = () => {
                 <ProfileCard title={t('profile.subscription')}>
                     <div className="bg-blue-50 dark:bg-blue-night-800/50 p-4 rounded-lg mb-4 flex justify-between items-center">
                         <div>
-                            <p className="font-bold text-lg text-blue-800 dark:text-blue-200">{subscription.plan} {t('profile.plan')}</p>
+                            <p className="font-bold text-lg text-blue-800 dark:text-blue-night-200">{subscription.plan} {t('profile.plan')}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.renewsOn')} {subscription.renewalDate.toLocaleDateString()}</p>
                         </div>
                         <p className="text-2xl font-bold">$20<span className="text-sm font-normal text-gray-500">/mo</span></p>
@@ -139,8 +144,8 @@ const Profile: React.FC = () => {
                         <div><span className="font-semibold block">{t('profile.nextPayment')}</span> {subscription.nextPaymentDate.toLocaleDateString()}</div>
                     </div>
                     <div className="mt-6 flex space-x-2 justify-end">
-                        <button className="button-secondary">{t('profile.cancelSubscription')}</button>
-                        <button className="button-primary">{t('profile.upgradePlan')}</button>
+                        <button className={buttonSecondaryClasses}>{t('profile.cancelSubscription')}</button>
+                        <button className={buttonPrimaryClasses}>{t('profile.upgradePlan')}</button>
                     </div>
                 </ProfileCard>
             )}
@@ -178,14 +183,6 @@ const Profile: React.FC = () => {
             <style>{`
                 .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
                 .dark .input-style { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
-                .button-primary { display: inline-flex; align-items: center; padding: 0.625rem 1.25rem; background-color: #2563EB; color: #FFFFFF; font-weight: 600; border-radius: 0.375rem; transition: background-color 150ms; }
-                .button-primary:hover { background-color: #1D4ED8; }
-                .button-primary-sm { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background-color: #2563EB; color: #FFFFFF; font-weight: 600; border-radius: 0.375rem; transition: background-color 150ms; }
-                .button-primary-sm:hover { background-color: #1D4ED8; }
-                .button-secondary { display: inline-flex; align-items: center; padding: 0.625rem 1.25rem; background-color: #E5E7EB; color: #1F2937; font-weight: 600; border-radius: 0.375rem; transition: background-color 150ms; }
-                .dark .button-secondary { background-color: #374151; color: #F9FAFB; }
-                .button-secondary:hover { background-color: #D1D5DB; }
-                .dark .button-secondary:hover { background-color: #4B5563; }
             `}</style>
         </div>
     );

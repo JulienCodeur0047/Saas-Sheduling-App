@@ -181,10 +181,10 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
                  </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title={t('dashboard.totalEmployees')} value={totalEmployees.toString()} icon={<Users className="text-blue-500" />} />
-                <StatCard title={t('dashboard.shiftsThisWeek')} value={totalShifts.toString()} icon={<Clock className="text-green-500" />} />
-                <StatCard title={t('dashboard.totalHoursScheduled')} value={`${totalHours.toFixed(1)}h`} icon={<Hourglass className="text-yellow-500" />} />
-                <StatCard title={t('dashboard.absencesThisWeek')} value={totalAbsences.toString()} icon={<CalendarOff className="text-red-500" />} />
+                <StatCard title={t('dashboard.totalEmployees')} value={totalEmployees.toString()} icon={<Users className="text-blue-500 dark:text-blue-night-300" />} />
+                <StatCard title={t('dashboard.shiftsThisWeek')} value={totalShifts.toString()} icon={<Clock className="text-green-500 dark:text-blue-night-300" />} />
+                <StatCard title={t('dashboard.totalHoursScheduled')} value={`${totalHours.toFixed(1)}h`} icon={<Hourglass className="text-yellow-500 dark:text-blue-night-300" />} />
+                <StatCard title={t('dashboard.absencesThisWeek')} value={totalAbsences.toString()} icon={<CalendarOff className="text-red-500 dark:text-blue-night-300" />} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
@@ -220,7 +220,7 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
                                     <span className="text-gray-500 dark:text-gray-400">{role.hours.toFixed(1)}h</span>
                                 </div>
                                 <div className="w-full bg-gray-200 dark:bg-blue-night-800 rounded-full h-2.5">
-                                    <div className="bg-blue-600 h-2.5 rounded-full" style={{width: `${(role.hours / maxHours) * 100}%`}}></div>
+                                    <div className="bg-blue-600 dark:bg-blue-night-400 h-2.5 rounded-full" style={{width: `${(role.hours / maxHours) * 100}%`}}></div>
                                 </div>
                             </div>
                         ))}

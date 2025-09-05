@@ -2,6 +2,7 @@ import React from 'react';
 import { Absence, Employee, AbsenceType } from '../types';
 import Avatar from './Avatar';
 import { UserMinus, Trash2 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface AbsenceCardProps {
     absence: Absence;
@@ -12,9 +13,11 @@ interface AbsenceCardProps {
 }
 
 const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceType, onClick, onDelete }) => {
+    const { theme } = useTheme();
     if (!employee || !absenceType) return null;
 
     const { color, name: absenceName } = absenceType;
+    const absenceColor = theme === 'dark' ? '#adb5bd' : color;
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent onClick from firing
@@ -26,7 +29,7 @@ const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceTyp
     return (
         <div
             onClick={onClick}
-            style={{ borderLeftColor: color }}
+            style={{ borderLeftColor: absenceColor }}
             className={`p-2 rounded-lg mb-2 cursor-pointer border-l-4 group relative bg-gray-100 dark:bg-blue-night-800/50 shadow-sm hover:shadow-md transition-all duration-200 ease-in-out`}
         >
             <div className="flex items-center">

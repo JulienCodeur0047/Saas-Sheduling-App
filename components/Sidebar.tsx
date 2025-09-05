@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout, isCol
   return (
     <aside className={`bg-blue-night-950 text-white flex flex-col border-r border-blue-night-900 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'}`}>
       <div className="flex items-center justify-center h-20 border-b border-blue-night-900">
-        <Briefcase className="w-8 h-8 text-blue-400 flex-shrink-0" />
+        <Briefcase className="w-8 h-8 text-blue-400 dark:text-blue-night-300 flex-shrink-0" />
         <h1 className={`text-2xl font-bold ml-3 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${isCollapsed ? 'opacity-0 hidden' : 'opacity-100'}`}>{t('appName')}</h1>
       </div>
       <nav className="flex-1 px-2 py-4">
@@ -92,8 +92,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout, isCol
                     <p className="font-semibold text-sm truncate">{user?.name}</p>
                     <p className="text-xs text-blue-night-300 truncate">{user?.email}</p>
                     <div className="flex items-center mt-1">
-                      <Gem size={12} className="text-yellow-400 mr-1.5"/>
-                      <p className="text-xs font-bold text-yellow-400">{user?.plan}</p>
+                      <Gem size={12} className="text-yellow-400 dark:text-blue-night-400 mr-1.5"/>
+                      <p className="text-xs font-bold text-yellow-400 dark:text-blue-night-400">{user?.plan}</p>
                     </div>
                 </div>
             </div>

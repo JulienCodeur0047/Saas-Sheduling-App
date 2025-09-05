@@ -313,10 +313,10 @@ export default function App() {
         return permissions.canAccessDashboard
           ? <Dashboard employees={employees} shifts={shifts} absences={absences} absenceTypes={absenceTypes} roles={roles} />
           : <div className="text-center p-8 bg-white dark:bg-blue-night-900 rounded-lg shadow-md max-w-lg mx-auto">
-              <Gem size={48} className="mx-auto text-yellow-500 mb-4" />
+              <Gem size={48} className="mx-auto text-yellow-500 dark:text-blue-night-400 mb-4" />
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{t('upgrade.dashboardTitle')}</h2>
               <p className="mt-2 text-gray-600 dark:text-gray-400">{t('upgrade.dashboardDesc')}</p>
-              <button className="mt-6 bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">{t('upgrade.upgradeButton')}</button>
+              <button className="mt-6 bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">{t('upgrade.upgradeButton')}</button>
             </div>;
       case 'schedule':
         return <ScheduleCalendar 

@@ -17,10 +17,10 @@ interface ShiftCardProps {
 }
 
 const roleColors: { [key: string]: string } = {
-    'Manager': 'border-red-500',
-    'Cashier': 'border-green-500',
-    'Stocker': 'border-blue-500',
-    'Clerk': 'border-yellow-500',
+    'Manager': 'border-red-500 dark:border-blue-night-500',
+    'Cashier': 'border-green-500 dark:border-blue-night-400',
+    'Stocker': 'border-blue-500 dark:border-blue-night-300',
+    'Clerk': 'border-yellow-500 dark:border-blue-night-200',
 };
 
 const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect }) => {
@@ -84,14 +84,14 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
     }
     
     // Assigned Shift Card (original component)
-    const colorClass = roleColors[employee.role] || 'border-gray-500';
+    const colorClass = roleColors[employee.role] || 'border-gray-500 dark:border-blue-night-600';
 
     return (
         <div
             draggable={!isSelectionModeActive}
             onDragStart={(e) => onDragStart(e, shift.id)}
             onClick={handleCardClick}
-            className={`p-3 rounded-lg mb-2 cursor-pointer border-l-4 group relative ${colorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-800' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-200 ease-in-out transform hover:-translate-y-1`}
+            className={`p-3 rounded-lg mb-2 cursor-pointer border-l-4 group relative ${colorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-200 ease-in-out transform hover:-translate-y-1`}
         >
             {isSelectionModeActive && (
                 <input 

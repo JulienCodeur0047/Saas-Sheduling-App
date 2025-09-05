@@ -29,7 +29,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
             key={plan.key}
             className={`rounded-xl p-8 border transition-transform duration-300 flex flex-col ${
               plan.isFeatured 
-                ? 'bg-blue-night-900 text-white border-blue-700 scale-105 shadow-2xl' 
+                ? 'bg-blue-night-900 text-white border-blue-700 dark:border-blue-night-700 scale-105 shadow-2xl' 
                 : 'bg-white dark:bg-blue-night-900 border-gray-200 dark:border-blue-night-800 hover:scale-105'
             }`}
           >
@@ -43,7 +43,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               <ul className="mt-8 space-y-4">
                 {features.map((feature) => (
                   <li key={feature} className="flex items-start">
-                    <Check className={`w-5 h-5 mr-3 flex-shrink-0 ${plan.isFeatured ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <Check className={`w-5 h-5 mr-3 flex-shrink-0 ${plan.isFeatured ? 'text-blue-400 dark:text-blue-night-300' : 'text-blue-600 dark:text-blue-night-400'}`} />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -53,8 +53,8 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               onClick={() => onSelectPlan(planName)}
               className={`w-full mt-8 py-3 px-6 rounded-lg font-semibold transition-colors duration-300 ${
                 plan.isFeatured
-                  ? 'bg-white text-blue-600 hover:bg-gray-200'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-white text-blue-600 hover:bg-gray-200 dark:text-blue-night-900 dark:hover:bg-blue-night-200'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300'
               }`}
             >
               {t('pricing.choosePlan')}

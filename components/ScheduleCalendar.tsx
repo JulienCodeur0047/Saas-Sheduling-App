@@ -11,6 +11,7 @@ import ExportModal from './ExportModal';
 import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const getWeekDays = (date: Date): Date[] => {
     const startOfWeek = new Date(date);
@@ -94,6 +95,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     
     const { permissions } = useAuth();
     const { t } = useLanguage();
+    const { theme } = useTheme();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [draggedShiftId, setDraggedShiftId] = useState<string | null>(null);
     const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
@@ -255,8 +257,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     <h2 className="text-xl md:text-2xl font-bold text-center w-64">{headerTitle}</h2>
                     <button onClick={handleNext} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-blue-night-800 transition-colors"><ChevronRight /></button>
                      <div className="flex items-center bg-gray-200 dark:bg-blue-night-800 rounded-lg p-1 ml-4">
-                        <button onClick={() => setView('week')} className={`px-3 py-1 text-sm rounded-md transition-colors ${view === 'week' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 dark:text-gray-300'}`}>{t('schedule.week')}</button>
-                        <button onClick={() => setView('month')} className={`px-3 py-1 text-sm rounded-md transition-colors ${view === 'month' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 dark:text-gray-300'}`}>{t('schedule.month')}</button>
+                        <button onClick={() => setView('week')} className={`px-3 py-1 text-sm rounded-md transition-colors ${view === 'week' ? 'bg-blue-600 dark:bg-blue-night-200 dark:text-blue-night-900 text-white shadow' : 'text-gray-600 dark:text-gray-300'}`}>{t('schedule.week')}</button>
+                        <button onClick={() => setView('month')} className={`px-3 py-1 text-sm rounded-md transition-colors ${view === 'month' ? 'bg-blue-600 dark:bg-blue-night-200 dark:text-blue-night-900 text-white shadow' : 'text-gray-600 dark:text-gray-300'}`}>{t('schedule.month')}</button>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -266,7 +268,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                         title={!permissions.canExport ? t('tooltips.proFeature') : ''}
                         className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canExport ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700'}`}
                      >
-                        {!permissions.canExport && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400" />}
+                        {!permissions.canExport && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <Download size={20} className="mr-2" />
                         {t('schedule.export')}
                     </button>
@@ -276,11 +278,11 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                         title={!permissions.canAddAbsence ? t('tooltips.proFeature') : ''}
                         className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canAddAbsence ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
                     >
-                        {!permissions.canAddAbsence && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400" />}
+                        {!permissions.canAddAbsence && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <UserMinus size={20} className="mr-2" />
                         {t('schedule.addAbsence')}
                     </button>
-                    <button onClick={() => openAddShiftModal(new Date())} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    <button onClick={() => openAddShiftModal(new Date())} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
                         <Plus size={20} className="mr-2" />
                         {t('schedule.addShift')}
                     </button>
@@ -385,18 +387,19 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                 onClick={() => openDayDetailModal(day)}
                                 className={`relative border-r border-b dark:border-blue-night-800 p-2 flex flex-col cursor-pointer hover:bg-gray-100 dark:hover:bg-blue-night-800 transition-colors
                                 ${isCurrentMonth ? 'bg-white dark:bg-blue-night-900' : 'bg-gray-50 dark:bg-blue-night-950 text-gray-400'}`}>
-                                <div className={`flex justify-center items-center w-6 h-6 rounded-full text-sm ${isToday ? 'bg-blue-600 text-white' : ''}`}>
+                                <div className={`flex justify-center items-center w-6 h-6 rounded-full text-sm ${isToday ? 'bg-blue-600 dark:bg-blue-night-200 text-white dark:text-blue-night-900' : ''}`}>
                                     {day.getDate()}
                                 </div>
                                 <div className="flex-grow mt-2 space-y-1">
                                      {shiftsForDay.slice(0, 2).map(shift => {
                                         const emp = employees.find(e => e.id === shift.employeeId);
-                                        const roleColor = emp ? (roles.find(r => r.name === emp.role) ? 'bg-blue-500' : 'bg-gray-400') : 'bg-gray-400'; // Simplified color logic
+                                        const roleColor = emp ? (roles.find(r => r.name === emp.role) ? 'bg-blue-500 dark:bg-blue-night-500' : 'bg-gray-400 dark:bg-blue-night-700') : 'bg-gray-400 dark:bg-blue-night-700';
                                         return <div key={shift.id} className={`h-1.5 w-full rounded-full ${roleColor}`}></div>
                                      })}
                                      {absencesForDay.slice(0, 1).map(absence => {
                                          const at = absenceTypes.find(t => t.id === absence.absenceTypeId);
-                                         return <div key={absence.id} className={`h-1.5 w-full rounded-full`} style={{backgroundColor: at?.color || '#ccc'}}></div>
+                                         const absenceColor = theme === 'dark' ? '#adb5bd' : at?.color;
+                                         return <div key={absence.id} className={`h-1.5 w-full rounded-full`} style={{backgroundColor: absenceColor || '#ccc'}}></div>
                                      })}
                                      {shiftsForDay.length + absencesForDay.length > 3 && 
                                         <div className="text-xs text-gray-500 dark:text-gray-400">+{shiftsForDay.length + absencesForDay.length - 3} more</div>
@@ -471,7 +474,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                              }
                         </div>
                         <div className="mt-4 pt-4 border-t dark:border-blue-night-700 flex justify-end">
-                            <button onClick={() => { setDayDetailModal({isOpen: false, date: null}); openAddShiftModal(dayDetailModal.date!); }} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                            <button onClick={() => { setDayDetailModal({isOpen: false, date: null}); openAddShiftModal(dayDetailModal.date!); }} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
                                 <Plus size={20} className="mr-2" />
                                 {t('schedule.addShift')}
                             </button>

@@ -25,7 +25,7 @@ const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan
     <header className="sticky top-0 bg-white/80 dark:bg-blue-night-950/80 backdrop-blur-sm z-40">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <div className="flex items-center">
-          <Briefcase className="w-8 h-8 text-blue-600" />
+          <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-night-200" />
           <h1 className="text-2xl font-bold ml-3 text-gray-800 dark:text-white">{t('appName')}</h1>
         </div>
         <nav className="hidden md:flex items-center space-x-8">
@@ -39,7 +39,7 @@ const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan
             <LogIn size={16} className="mr-2" />
             {t('landingPage.login')}
           </button>
-          <button onClick={() => onRegisterClick('Pro')} className="hidden md:block bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+          <button onClick={() => onRegisterClick('Pro')} className="hidden md:block bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
             {t('landingPage.getStarted')}
           </button>
         </div>
@@ -72,7 +72,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
             <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white"
               dangerouslySetInnerHTML={{
                 __html: t('landingPage.heroTitle', {
-                  simplified: `<span class="text-blue-600">${t('landingPage.heroTitleSimplified')}</span>`
+                  simplified: `<span class="text-blue-600 dark:text-blue-night-200">${t('landingPage.heroTitleSimplified')}</span>`
                 })
               }}
             >
@@ -80,7 +80,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
             <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-gray-600 dark:text-gray-400">
               {t('landingPage.heroSubtitle')}
             </p>
-            <button onClick={() => onRegisterClick('Gratuit')} className="mt-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform duration-300 transform hover:scale-105">
+            <button onClick={() => onRegisterClick('Gratuit')} className="mt-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform duration-300 transform hover:scale-105 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
               {t('landingPage.startForFree')}
             </button>
           </div>
@@ -96,22 +96,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
                 </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <FeatureCard icon={<Calendar size={24} className="text-blue-600"/>} title={t('landingPage.interactiveCalendarTitle')}>
+                <FeatureCard icon={<Calendar size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.interactiveCalendarTitle')}>
                     {t('landingPage.interactiveCalendarDesc')}
                 </FeatureCard>
-                <FeatureCard icon={<Users size={24} className="text-blue-600"/>} title={t('landingPage.personnelManagementTitle')}>
+                <FeatureCard icon={<Users size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.personnelManagementTitle')}>
                     {t('landingPage.personnelManagementDesc')}
                 </FeatureCard>
-                <FeatureCard icon={<BarChart size={24} className="text-blue-600"/>} title={t('landingPage.completeDashboardTitle')}>
+                <FeatureCard icon={<BarChart size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.completeDashboardTitle')}>
                     {t('landingPage.completeDashboardDesc')}
                 </FeatureCard>
-                <FeatureCard icon={<FileDown size={24} className="text-blue-600"/>} title={t('landingPage.easyExportTitle')}>
+                <FeatureCard icon={<FileDown size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.easyExportTitle')}>
                     {t('landingPage.easyExportDesc')}
                 </FeatureCard>
-                 <FeatureCard icon={<Smartphone size={24} className="text-blue-600"/>} title={t('landingPage.mobileAppTitle')}>
+                 <FeatureCard icon={<Smartphone size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.mobileAppTitle')}>
                     {t('landingPage.mobileAppDesc')}
                 </FeatureCard>
-                <FeatureCard icon={<Globe size={24} className="text-blue-600"/>} title={t('landingPage.multiSiteTitle')}>
+                <FeatureCard icon={<Globe size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.multiSiteTitle')}>
                     {t('landingPage.multiSiteDesc')}
                 </FeatureCard>
             </div>

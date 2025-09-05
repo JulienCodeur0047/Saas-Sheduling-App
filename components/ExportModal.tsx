@@ -56,10 +56,10 @@ interface ExportModalProps {
 const ExportOptionCard: React.FC<{ title: string; description: string; icon: React.ReactNode; isSelected: boolean; onClick: () => void; }> = ({ title, description, icon, isSelected, onClick }) => (
     <div
         onClick={onClick}
-        className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50' : 'border-gray-200 dark:border-blue-night-800 hover:border-gray-300 dark:hover:border-blue-night-700'}`}
+        className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${isSelected ? 'border-blue-600 dark:border-blue-night-300 bg-blue-50 dark:bg-blue-night-800' : 'border-gray-200 dark:border-blue-night-800 hover:border-gray-300 dark:hover:border-blue-night-700'}`}
     >
         <div className="flex items-center">
-            <div className="mr-4 text-blue-600 dark:text-blue-400">{icon}</div>
+            <div className="mr-4 text-blue-600 dark:text-blue-night-300">{icon}</div>
             <div>
                 <h4 className="font-bold text-lg">{title}</h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
@@ -370,7 +370,7 @@ const ExportModal: React.FC<ExportModalProps> = (props) => {
                         type="button"
                         onClick={handleExport}
                         disabled={isGenerating || !startDate || !endDate}
-                        className="w-full sm:w-auto flex justify-center items-center px-6 py-2.5 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto flex justify-center items-center px-6 py-2.5 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:bg-blue-400 dark:disabled:bg-blue-night-700 disabled:cursor-not-allowed"
                     >
                         {isGenerating ? <><Loader2 className="animate-spin mr-2" size={18} /> {t('modals.generating')}</> : t('modals.generateExport')}
                     </button>

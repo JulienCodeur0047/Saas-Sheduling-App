@@ -18,7 +18,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete 
     >
         <div className="text-center flex-grow">
             <div className="relative inline-block">
-                 <Avatar name={employee.name} src={employee.avatarUrl} className="w-20 h-20 rounded-full border-2 border-blue-500 mx-auto" />
+                 <Avatar name={employee.name} src={employee.avatarUrl} className="w-20 h-20 rounded-full border-2 border-blue-500 dark:border-blue-night-500 mx-auto" />
             </div>
             <h3 className="mt-2 text-lg font-bold text-gray-800 dark:text-white truncate">{employee.name}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{employee.email}</p>
@@ -27,7 +27,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete 
                 <span>{employee.phone}</span>
             </div>
             <div className="mt-2 space-y-1">
-              <span className="inline-block bg-blue-100 dark:bg-blue-night-800 text-blue-800 dark:text-blue-300 text-xs font-semibold px-2.5 py-0.5 rounded-full">{employee.role}</span>
+              <span className="inline-block bg-blue-100 dark:bg-blue-night-800 text-blue-800 dark:text-blue-night-200 text-xs font-semibold px-2.5 py-0.5 rounded-full">{employee.role}</span>
             </div>
         </div>
         <div className="mt-4 flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity h-9">
@@ -88,14 +88,14 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                     <div className="flex items-center bg-gray-200 dark:bg-blue-night-800 rounded-lg p-1">
                         <button
                             onClick={() => setDisplayMode('grid')}
-                            className={`p-1.5 rounded-md transition-colors ${displayMode === 'grid' ? 'bg-blue-600 text-white shadow' : 'text-gray-500 dark:text-gray-400'}`}
+                            className={`p-1.5 rounded-md transition-colors ${displayMode === 'grid' ? 'bg-blue-600 dark:bg-blue-night-200 dark:text-blue-night-900 text-white shadow' : 'text-gray-500 dark:text-gray-400'}`}
                             aria-label={t('employees.gridView')}
                         >
                             <LayoutGrid size={20} />
                         </button>
                         <button
                             onClick={() => setDisplayMode('list')}
-                            className={`p-1.5 rounded-md transition-colors ${displayMode === 'list' ? 'bg-blue-600 text-white shadow' : 'text-gray-500 dark:text-gray-400'}`}
+                            className={`p-1.5 rounded-md transition-colors ${displayMode === 'list' ? 'bg-blue-600 dark:bg-blue-night-200 dark:text-blue-night-900 text-white shadow' : 'text-gray-500 dark:text-gray-400'}`}
                             aria-label={t('employees.listView')}
                         >
                             <List size={20} />
@@ -107,7 +107,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                         title={!permissions.canImportEmployees ? t('tooltips.proFeature') : ''}
                         className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canImportEmployees ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
                     >
-                        {!permissions.canImportEmployees && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400" />}
+                        {!permissions.canImportEmployees && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <Upload size={20} className="mr-2" />
                         {t('employees.importCSV')}
                     </button>
@@ -115,7 +115,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                         onClick={onAdd} 
                         disabled={atEmployeeLimit}
                         title={atEmployeeLimit ? t('tooltips.employeeLimit', { limit: permissions.employeeLimit }) : ''}
-                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 ${atEmployeeLimit ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 ${atEmployeeLimit ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300'}`}
                     >
                         <PlusCircle size={20} className="mr-2" />
                         {t('employees.addEmployee')}
@@ -192,7 +192,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                                         <div className="text-gray-500 dark:text-gray-400">{employee.phone}</div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="inline-block bg-blue-100 dark:bg-blue-night-800 text-blue-800 dark:text-blue-300 text-xs font-semibold px-2.5 py-0.5 rounded-full">{employee.role}</span>
+                                        <span className="inline-block bg-blue-100 dark:bg-blue-night-800 text-blue-800 dark:text-blue-night-200 text-xs font-semibold px-2.5 py-0.5 rounded-full">{employee.role}</span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div 

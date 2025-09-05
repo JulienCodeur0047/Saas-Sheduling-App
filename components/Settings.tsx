@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Role, Employee, Location, Shift, Department, AbsenceType, Absence, SpecialDayType, SpecialDay } from '../types';
 import { PlusCircle, Edit, Trash2, Check, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SettingsProps {
     roles: Role[];
@@ -41,6 +42,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
     } = props;
     
     const { t } = useLanguage();
+    const { theme } = useTheme();
 
     // State for various forms
     const [newRoleName, setNewRoleName] = useState('');
@@ -90,6 +92,9 @@ const Settings: React.FC<SettingsProps> = (props) => {
     const countAbsencesOfType = (typeId: string) => absences.filter(a => a.absenceTypeId === typeId).length;
     const countSpecialDaysOfType = (typeId: string) => specialDays.filter(sd => sd.typeId === typeId).length;
 
+    const buttonPrimaryClasses = "flex items-center justify-center w-full p-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300";
+    const buttonIconPrimaryClasses = "flex items-center justify-center p-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300";
+
     return (
         <div>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">{t('settings.title')}</h2>
@@ -99,7 +104,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
                     <h3 className="text-xl font-bold mb-4">{t('settings.manageRoles')}</h3>
                      <div className="flex items-center space-x-2 mb-4">
                         <input type="text" value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} placeholder={t('settings.newRolePlaceholder')} className="input-field"/>
-                        <button onClick={handleAddRole} className="button-icon-primary"><PlusCircle size={20} /></button>
+                        <button onClick={handleAddRole} className={buttonIconPrimaryClasses}><PlusCircle size={20} /></button>
                     </div>
                     <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                         {roles.map(role => ( <ListItem key={role.id} text={role.name} count={countEmployeesInRole(role.name)} countLabel={t('settings.usersCount')} isEditing={editingRole?.id === role.id} onEdit={() => setEditingRole({ ...role })} onCancel={() => setEditingRole(null)} onSave={handleUpdateRole} onDelete={() => handleDeleteRole(role.id)} editValue={editingRole?.name} onEditChange={(val) => setEditingRole(e => e ? {...e, name: val} : null)} /> ))}
@@ -111,7 +116,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
                     <h3 className="text-xl font-bold mb-4">{t('settings.manageDepartments')}</h3>
                      <div className="flex items-center space-x-2 mb-4">
                         <input type="text" value={newDepartmentName} onChange={(e) => setNewDepartmentName(e.target.value)} placeholder={t('settings.newDepartmentPlaceholder')} className="input-field"/>
-                        <button onClick={handleAddDepartment} className="button-icon-primary"><PlusCircle size={20} /></button>
+                        <button onClick={handleAddDepartment} className={buttonIconPrimaryClasses}><PlusCircle size={20} /></button>
                     </div>
                     <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                         {departments.map(dept => ( <ListItem key={dept.id} text={dept.name} count={countEmployeesInDept(dept.id)} countLabel={t('settings.employeesCount')} isEditing={editingDepartment?.id === dept.id} onEdit={() => setEditingDepartment({ ...dept })} onCancel={() => setEditingDepartment(null)} onSave={handleUpdateDepartment} onDelete={() => handleDeleteDepartment(dept.id)} editValue={editingDepartment?.name} onEditChange={(val) => setEditingDepartment(e => e ? {...e, name: val} : null)} /> ))}
@@ -124,7 +129,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
                     <div className="space-y-2 mb-4">
                         <input type="text" value={newLocationName} onChange={(e) => setNewLocationName(e.target.value)} placeholder={t('settings.newLocationPlaceholder')} className="input-field"/>
                         <input type="text" value={newLocationAddress} onChange={(e) => setNewLocationAddress(e.target.value)} placeholder={t('settings.addressPlaceholder')} className="input-field"/>
-                        <button onClick={handleAddLocation} className="w-full button-primary"><PlusCircle size={20} className="mr-2" /> {t('settings.addLocation')}</button>
+                        <button onClick={handleAddLocation} className={buttonPrimaryClasses}><PlusCircle size={20} className="mr-2" /> {t('settings.addLocation')}</button>
                     </div>
                     <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                          {locations.map(loc => ( <ListItem key={loc.id} text={loc.name} subtext={loc.address} count={countShiftsAtLocation(loc.id)} countLabel={t('settings.shiftsCount')} isEditing={editingLocation?.id === loc.id} onEdit={() => setEditingLocation({ ...loc })} onCancel={() => setEditingLocation(null)} onSave={handleUpdateLocation} onDelete={() => handleDeleteLocation(loc.id)} isLocationEditor={true} editValue={editingLocation?.name} onEditChange={(val) => setEditingLocation(e => e ? {...e, name: val} : null)} editSubValue={editingLocation?.address} onEditSubChange={(val) => setEditingLocation(e => e ? {...e, address: val} : null)} /> ))}
@@ -139,10 +144,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
                             <input type="text" value={newAbsenceTypeName} onChange={(e) => setNewAbsenceTypeName(e.target.value)} placeholder={t('settings.newAbsenceTypePlaceholder')} className="input-field flex-grow"/>
                             <input type="color" value={newAbsenceTypeColor} onChange={(e) => setNewAbsenceTypeColor(e.target.value)} className="h-10 w-10 p-1 rounded-md bg-gray-50 dark:bg-blue-night-800 border dark:border-blue-night-700"/>
                         </div>
-                        <button onClick={handleAddAbsenceType} className="w-full button-primary"><PlusCircle size={20} className="mr-2"/> {t('settings.addAbsenceType')}</button>
+                        <button onClick={handleAddAbsenceType} className={buttonPrimaryClasses}><PlusCircle size={20} className="mr-2"/> {t('settings.addAbsenceType')}</button>
                     </div>
                     <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                       {absenceTypes.map(at => ( <ListItem key={at.id} text={at.name} count={countAbsencesOfType(at.id)} countLabel={t('settings.absencesCount')} colorIndicator={at.color} isEditing={editingAbsenceType?.id === at.id} onEdit={() => setEditingAbsenceType({ ...at })} onCancel={() => setEditingAbsenceType(null)} onSave={handleUpdateAbsenceType} onDelete={() => handleDeleteAbsenceType(at.id)} isAbsenceTypeEditor={true} editValue={editingAbsenceType?.name} onEditChange={(val) => setEditingAbsenceType(e => e ? {...e, name: val} : null)} editColorValue={editingAbsenceType?.color} onEditColorChange={(val) => setEditingAbsenceType(e => e ? {...e, color: val} : null)} /> ))}
+                       {absenceTypes.map(at => ( <ListItem key={at.id} text={at.name} count={countAbsencesOfType(at.id)} countLabel={t('settings.absencesCount')} colorIndicator={theme === 'dark' ? '#adb5bd' : at.color} isEditing={editingAbsenceType?.id === at.id} onEdit={() => setEditingAbsenceType({ ...at })} onCancel={() => setEditingAbsenceType(null)} onSave={handleUpdateAbsenceType} onDelete={() => handleDeleteAbsenceType(at.id)} isAbsenceTypeEditor={true} editValue={editingAbsenceType?.name} onEditChange={(val) => setEditingAbsenceType(e => e ? {...e, name: val} : null)} editColorValue={editingAbsenceType?.color} onEditColorChange={(val) => setEditingAbsenceType(e => e ? {...e, color: val} : null)} /> ))}
                     </div>
                 </div>
 
@@ -155,7 +160,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
                             <input type="checkbox" checked={newSpecialDayTypeIsHoliday} onChange={(e) => setNewSpecialDayTypeIsHoliday(e.target.checked)} className="rounded"/>
                             <span>{t('settings.blocksShifts')}</span>
                         </label>
-                        <button onClick={handleAddSpecialDayType} className="w-full button-primary"><PlusCircle size={20} className="mr-2"/> {t('settings.addSpecialDayType')}</button>
+                        <button onClick={handleAddSpecialDayType} className={buttonPrimaryClasses}><PlusCircle size={20} className="mr-2"/> {t('settings.addSpecialDayType')}</button>
                     </div>
                     <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                         {specialDayTypes.map(sdt => ( <ListItem key={sdt.id} text={sdt.name} subtext={sdt.isHoliday ? 'Holiday (blocks schedule)' : 'Event'} count={countSpecialDaysOfType(sdt.id)} countLabel={t('settings.daysCount')} isEditing={editingSpecialDayType?.id === sdt.id} onEdit={() => setEditingSpecialDayType({ ...sdt })} onCancel={() => setEditingSpecialDayType(null)} onSave={handleUpdateSpecialDayType} onDelete={() => handleDeleteSpecialDayType(sdt.id)} isSpecialDayTypeEditor={true} editValue={editingSpecialDayType?.name} onEditChange={(val) => setEditingSpecialDayType(e => e ? {...e, name: val} : null)} editIsHoliday={editingSpecialDayType?.isHoliday} onEditIsHolidayChange={(val) => setEditingSpecialDayType(e => e ? {...e, isHoliday: val} : null)} /> ))}
@@ -166,10 +171,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
              <style>{`
                 .input-field { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #F9FAFB; }
                 .dark .input-field { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
-                .button-primary { display: flex; align-items: center; justify-content: center; width: 100%; padding: 0.5rem 1rem; background-color: #2563EB; color: #FFFFFF; font-weight: 600; border-radius: 0.5rem; }
-                .button-primary:hover { background-color: #1D4ED8; }
-                .button-icon-primary { display: flex; align-items: center; justify-content: center; padding: 0.5rem; background-color: #2563EB; color: #FFFFFF; font-weight: 600; border-radius: 0.5rem; }
-                .button-icon-primary:hover { background-color: #1D4ED8; }
             `}</style>
         </div>
     );
