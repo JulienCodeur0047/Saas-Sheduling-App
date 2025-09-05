@@ -67,7 +67,12 @@
     "noResults": "Aucun résultat trouvé.",
     "filterByRole": "Filtrer par rôle",
     "filterByDepartment": "Filtrer par département",
-    "clearAll": "Effacer les filtres"
+    "clearAll": "Effacer les filtres",
+    "selected": "sélectionné",
+    "selectedPlural": "sélectionnés",
+    "allDepartments": "Tous les départements",
+    "clearSelection": "Vider la sélection",
+    "noOptions": "Aucune option disponible"
   },
   "settings": {
     "title": "Paramètres",

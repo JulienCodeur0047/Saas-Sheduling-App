@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Employee, Role, Department } from '../types';
 import { Filter, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import MultiSelectDropdown from './MultiSelectDropdown';
 
 interface CalendarFilterProps {
     employees: Employee[];
@@ -55,9 +56,9 @@ const SearchableEmployeeSelect: React.FC<{
             <label htmlFor="employeeFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('calendarFilter.filterByEmployee')}</label>
             <div className="flex flex-wrap gap-1 items-center w-full p-2 border rounded-md bg-gray-50 dark:bg-blue-night-800 dark:border-blue-night-700 min-h-[42px]">
                 {selectedEmployees.map(emp => (
-                    <div key={emp.id} className="flex items-center bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full px-2 py-0.5 text-sm">
+                    <div key={emp.id} className="flex items-center bg-blue-100 dark:bg-blue-night-900 text-blue-800 dark:text-blue-night-200 rounded-full px-2 py-0.5 text-sm">
                         <span>{emp.name}</span>
-                        <button onClick={() => handleDeselect(emp.id)} className="ml-1.5 text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-100">
+                        <button onClick={() => handleDeselect(emp.id)} className="ml-1.5 text-blue-600 dark:text-blue-night-300 hover:text-blue-800 dark:hover:text-blue-night-100">
                             <X size={12} />
                         </button>
                     </div>
@@ -114,16 +115,14 @@ const CalendarFilter: React.FC<CalendarFilterProps> = ({ employees, roles, depar
         updateFilters({ employeeIds: ids });
     };
 
-    const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const values = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedRoleNames(values);
-        updateFilters({ roleNames: values });
+    const handleRoleChange = (names: string[]) => {
+        setSelectedRoleNames(names);
+        updateFilters({ roleNames: names });
     };
 
-    const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const values = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedDepartmentIds(values);
-        updateFilters({ departmentIds: values });
+    const handleDepartmentChange = (ids: string[]) => {
+        setSelectedDepartmentIds(ids);
+        updateFilters({ departmentIds: ids });
     };
     
     const handleClearFilters = () => {
@@ -136,6 +135,8 @@ const CalendarFilter: React.FC<CalendarFilterProps> = ({ employees, roles, depar
     const activeFilterCount = selectedEmployeeIds.length + selectedRoleNames.length + selectedDepartmentIds.length;
     const hasActiveFilters = activeFilterCount > 0;
 
+    const roleOptions = useMemo(() => roles.map(role => ({ id: role.name, name: role.name })), [roles]);
+
     return (
         <div className="bg-white dark:bg-blue-night-900 p-4 rounded-xl shadow-md">
             <button 
@@ -147,7 +148,7 @@ const CalendarFilter: React.FC<CalendarFilterProps> = ({ employees, roles, depar
                     {t('calendarFilter.title')}
                 </div>
                  {hasActiveFilters && (
-                    <span className="text-sm font-normal bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
+                    <span className="text-sm font-normal bg-blue-100 dark:bg-blue-night-800 text-blue-800 dark:text-blue-night-200 px-2 py-1 rounded-full">
                         {t('calendarFilter.active', { count: activeFilterCount })}
                     </span>
                  )}
@@ -162,16 +163,22 @@ const CalendarFilter: React.FC<CalendarFilterProps> = ({ employees, roles, depar
                         />
                     </div>
                     <div>
-                        <label htmlFor="roleFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('calendarFilter.filterByRole')}</label>
-                        <select id="roleFilter" multiple value={selectedRoleNames} onChange={handleRoleChange} className="w-full p-2 border rounded-md bg-gray-50 dark:bg-blue-night-800 dark:border-blue-night-700 h-32">
-                             {roles.map(role => <option key={role.id} value={role.name}>{role.name}</option>)}
-                        </select>
+                        <MultiSelectDropdown
+                            label={t('calendarFilter.filterByRole')}
+                            options={roleOptions}
+                            selectedIds={selectedRoleNames}
+                            onSelectionChange={handleRoleChange}
+                            placeholder={t('employees.allRoles')}
+                        />
                     </div>
                      <div>
-                        <label htmlFor="departmentFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('calendarFilter.filterByDepartment')}</label>
-                        <select id="departmentFilter" multiple value={selectedDepartmentIds} onChange={handleDepartmentChange} className="w-full p-2 border rounded-md bg-gray-50 dark:bg-blue-night-800 dark:border-blue-night-700 h-32">
-                             {departments.map(dept => <option key={dept.id} value={dept.id}>{dept.name}</option>)}
-                        </select>
+                        <MultiSelectDropdown
+                            label={t('calendarFilter.filterByDepartment')}
+                            options={departments}
+                            selectedIds={selectedDepartmentIds}
+                            onSelectionChange={handleDepartmentChange}
+                            placeholder={t('calendarFilter.allDepartments')}
+                        />
                     </div>
                     <div className="lg:col-span-4 flex items-end">
                         <button 

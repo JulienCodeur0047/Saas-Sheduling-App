@@ -51,7 +51,6 @@ const getMonthGridDays = (date: Date): Date[] => {
 };
 
 
-const formatDate = (date: Date) => date.toLocaleDateString([], { month: 'long', day: 'numeric' });
 const formatDay = (date: Date) => date.toLocaleDateString([], { weekday: 'short' }).toUpperCase();
 const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 const isDateBetween = (date: Date, start: Date, end: Date) => {
@@ -94,7 +93,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     } = props;
     
     const { permissions } = useAuth();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { theme } = useTheme();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [draggedShiftId, setDraggedShiftId] = useState<string | null>(null);
@@ -245,16 +244,60 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         return t('schedule.addShiftTitle');
     };
 
-    const headerTitle = view === 'week'
-        ? `${formatDate(weekDays[0])} - ${formatDate(weekDays[6])}`
-        : currentDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const HeaderDisplay = () => {
+        if (view === 'week') {
+            const startDate = weekDays[0];
+            const endDate = weekDays[6];
+    
+            const startMonth = startDate.toLocaleDateString(language, { month: 'long' });
+            const endMonth = endDate.toLocaleDateString(language, { month: 'long' });
+            const startDay = startDate.getDate();
+            const endDay = endDate.getDate();
+            const startYear = startDate.getFullYear();
+            const endYear = endDate.getFullYear();
+    
+            let mainText, yearText;
+    
+            if (startYear !== endYear) {
+                mainText = `${startDate.toLocaleDateString(language, { month: 'short', day: 'numeric', year: 'numeric' })} - ${endDate.toLocaleDateString(language, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                yearText = null;
+            } else if (startMonth !== endMonth) {
+                mainText = `${startDate.toLocaleDateString(language, { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString(language, { month: 'short', day: 'numeric' })}`;
+                yearText = startYear.toString();
+            } else {
+                if (language === 'fr') {
+                    mainText = `${startDay} - ${endDay} ${startMonth}`;
+                } else {
+                    mainText = `${startMonth} ${startDay} - ${endDay}`;
+                }
+                yearText = startYear.toString();
+            }
+            
+            return (
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white whitespace-nowrap">
+                    <span>{mainText}</span>
+                    {yearText && <span className="ml-2 font-semibold text-gray-400 dark:text-gray-500">{yearText}</span>}
+                </h2>
+            );
+        }
+    
+        // Month view
+        return (
+             <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
+                {currentDate.toLocaleDateString(language, { month: 'long', year: 'numeric' })}
+            </h2>
+        );
+    };
+    
 
     return (
         <div className="h-full flex flex-col">
              <header className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
                 <div className="flex items-center space-x-2">
                     <button onClick={handlePrev} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-blue-night-800 transition-colors"><ChevronLeft /></button>
-                    <h2 className="text-xl md:text-2xl font-bold text-center w-64">{headerTitle}</h2>
+                    <div className="text-center w-72 flex items-center justify-center">
+                        <HeaderDisplay />
+                    </div>
                     <button onClick={handleNext} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-blue-night-800 transition-colors"><ChevronRight /></button>
                      <div className="flex items-center bg-gray-200 dark:bg-blue-night-800 rounded-lg p-1 ml-4">
                         <button onClick={() => setView('week')} className={`px-3 py-1 text-sm rounded-md transition-colors ${view === 'week' ? 'bg-blue-600 dark:bg-blue-night-200 dark:text-blue-night-900 text-white shadow' : 'text-gray-600 dark:text-gray-300'}`}>{t('schedule.week')}</button>

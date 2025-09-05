@@ -67,7 +67,12 @@
     "noResults": "No results found.",
     "filterByRole": "Filter by Role",
     "filterByDepartment": "Filter by Department",
-    "clearAll": "Clear All Filters"
+    "clearAll": "Clear All Filters",
+    "selected": "selected",
+    "selectedPlural": "selected",
+    "allDepartments": "All Departments",
+    "clearSelection": "Clear selection",
+    "noOptions": "No options available"
   },
   "settings": {
     "title": "Settings",
