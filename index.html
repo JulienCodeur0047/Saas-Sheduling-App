@@ -24,6 +24,30 @@
                 '900': '#181b1e',
                 '950': '#0d0f10'
               },
+            },
+            keyframes: {
+              'drag-shift': {
+                '0%, 100%': { transform: 'translate(0, 0)' },
+                '40%, 60%': { transform: 'translate(108px, 5px) scale(1.05)' },
+              },
+              'fill-progress': {
+                '0%': { width: '10%' },
+                '100%': { width: '75%' },
+              },
+               'pulse-light': {
+                '0%, 100%': { opacity: 1 },
+                '50%': { opacity: 0.7 },
+              },
+              'slide-in-up': {
+                  '0%': { transform: 'translateY(20px)', opacity: '0' },
+                  '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+            },
+            animation: {
+                'drag-shift': 'drag-shift 5s ease-in-out infinite',
+                'fill-progress': 'fill-progress 2s ease-out forwards',
+                'pulse-light': 'pulse-light 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'slide-in-up': 'slide-in-up 0.6s ease-out forwards',
             }
           }
         }

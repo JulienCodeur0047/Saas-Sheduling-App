@@ -1,10 +1,13 @@
 import React from 'react';
-import { Briefcase, Calendar, Users, BarChart, FileDown, Smartphone, Globe, LogIn } from 'lucide-react';
+import { Briefcase, Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Github, Zap, Eye, UsersRound, ArrowRight } from 'lucide-react';
 import Pricing from './Pricing';
 import ThemeToggle from './ThemeToggle';
 import { Plan } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
+import AnimatedDemos from './AnimatedDemos';
+import Avatar from './Avatar';
+
 
 interface LandingPageProps {
   onLoginClick: () => void;
@@ -22,7 +25,7 @@ const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan
   };
 
   return (
-    <header className="sticky top-0 bg-white/80 dark:bg-blue-night-950/80 backdrop-blur-sm z-40">
+    <header className="sticky top-0 bg-white/80 dark:bg-blue-night-950/80 backdrop-blur-sm z-40 shadow-sm">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-night-200" />
@@ -39,7 +42,7 @@ const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan
             <LogIn size={16} className="mr-2" />
             {t('landingPage.login')}
           </button>
-          <button onClick={() => onRegisterClick('Pro')} className="hidden md:block bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+          <button onClick={() => onRegisterClick('Pro')} className="hidden md:block bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300 shadow-lg shadow-blue-500/20">
             {t('landingPage.getStarted')}
           </button>
         </div>
@@ -48,13 +51,33 @@ const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan
   );
 };
 
-const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode }> = ({ icon, title, children }) => (
-    <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
-        <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-night-800 rounded-full mb-4">
-            {icon}
+const FeatureShowcase: React.FC<{
+    title: string;
+    description: string;
+    demo: React.ReactNode;
+    align: 'left' | 'right';
+}> = ({ title, description, demo, align }) => (
+    <div className={`grid md:grid-cols-2 gap-12 items-center ${align === 'right' ? 'md:grid-flow-col-dense' : ''}`}>
+        <div className={`space-y-4 ${align === 'right' ? 'md:col-start-2' : ''}`}>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{title}</h3>
+            <p className="text-lg text-gray-600 dark:text-gray-400">{description}</p>
         </div>
-        <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-white">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400">{children}</p>
+        <div className="md:col-start-1">
+            {demo}
+        </div>
+    </div>
+);
+
+const TestimonialCard: React.FC<{ quote: string; name: string; role: string; company: string; }> = ({ quote, name, role, company }) => (
+    <div className="bg-white dark:bg-blue-night-900 p-8 rounded-xl shadow-lg flex flex-col h-full">
+        <p className="text-gray-600 dark:text-gray-300 flex-grow">"{quote}"</p>
+        <div className="mt-6 flex items-center">
+            <Avatar name={name} src={null} className="w-12 h-12 rounded-full" />
+            <div className="ml-4">
+                <p className="font-semibold text-gray-900 dark:text-white">{name}</p>
+                <p className="text-gray-500 dark:text-gray-400">{role}, {company}</p>
+            </div>
+        </div>
     </div>
 );
 
@@ -67,62 +90,99 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
 
       <main>
         {/* Hero Section */}
-        <section className="text-center py-20 md:py-32 px-6">
-          <div className="container mx-auto">
-            <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white"
-              dangerouslySetInnerHTML={{
-                __html: t('landingPage.heroTitle', {
-                  simplified: `<span class="text-blue-600 dark:text-blue-night-200">${t('landingPage.heroTitleSimplified')}</span>`
-                })
-              }}
-            >
-            </h2>
-            <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-gray-600 dark:text-gray-400">
-              {t('landingPage.heroSubtitle')}
-            </p>
-            <button onClick={() => onRegisterClick('Gratuit')} className="mt-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform duration-300 transform hover:scale-105 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
-              {t('landingPage.startForFree')}
-            </button>
-          </div>
+        <section className="relative text-center py-20 md:py-28 px-6 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-gray-50 dark:from-blue-night-900/10 dark:to-blue-night-950 -z-10"></div>
+            <div className="container mx-auto">
+                <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight"
+                dangerouslySetInnerHTML={{
+                    __html: t('landingPage.heroTitle', {
+                    highlight: `<span class="text-blue-600 dark:text-blue-night-200">${t('landingPage.heroTitleHighlight')}</span>`
+                    })
+                }}>
+                </h2>
+                <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-gray-600 dark:text-gray-400">
+                {t('landingPage.heroSubtitle')}
+                </p>
+                <div className="mt-10 flex justify-center items-center gap-4">
+                    <button onClick={() => onRegisterClick('Gratuit')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform duration-300 transform hover:scale-105 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 shadow-lg shadow-blue-500/20">
+                         {t('landingPage.startForFree')}
+                    </button>
+                </div>
+                <div className="mt-16 animate-slide-in-up [animation-delay:300ms]">
+                    <AnimatedDemos.AppWindow />
+                </div>
+            </div>
         </section>
 
+
         {/* Features Section */}
-        <section id="features" className="py-20 bg-white dark:bg-blue-night-900">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.featuresTitle')}</h2>
+        <section id="features" className="py-24 bg-white dark:bg-blue-night-900">
+          <div className="container mx-auto px-6 space-y-24">
+            <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.featuresTitle')}</h2>
                 <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
                     {t('landingPage.featuresSubtitle')}
                 </p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <FeatureCard icon={<Calendar size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.interactiveCalendarTitle')}>
-                    {t('landingPage.interactiveCalendarDesc')}
-                </FeatureCard>
-                <FeatureCard icon={<Users size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.personnelManagementTitle')}>
-                    {t('landingPage.personnelManagementDesc')}
-                </FeatureCard>
-                <FeatureCard icon={<BarChart size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.completeDashboardTitle')}>
-                    {t('landingPage.completeDashboardDesc')}
-                </FeatureCard>
-                <FeatureCard icon={<FileDown size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.easyExportTitle')}>
-                    {t('landingPage.easyExportDesc')}
-                </FeatureCard>
-                 <FeatureCard icon={<Smartphone size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.mobileAppTitle')}>
-                    {t('landingPage.mobileAppDesc')}
-                </FeatureCard>
-                <FeatureCard icon={<Globe size={24} className="text-blue-600 dark:text-blue-night-300"/>} title={t('landingPage.multiSiteTitle')}>
-                    {t('landingPage.multiSiteDesc')}
-                </FeatureCard>
-            </div>
+             <FeatureShowcase 
+                title={t('landingPage.feature1Title')}
+                description={t('landingPage.feature1Desc')}
+                demo={<AnimatedDemos.CalendarDemo />}
+                align="right"
+            />
+            <FeatureShowcase 
+                title={t('landingPage.feature2Title')}
+                description={t('landingPage.feature2Desc')}
+                demo={<AnimatedDemos.DashboardDemo />}
+                align="left"
+            />
+             <FeatureShowcase 
+                title={t('landingPage.feature3Title')}
+                description={t('landingPage.feature3Desc')}
+                demo={<AnimatedDemos.RosterDemo />}
+                align="right"
+            />
           </div>
         </section>
 
+        {/* Testimonials Section */}
+        <section id="testimonials" className="py-24">
+            <div className="container mx-auto px-6">
+                 <div className="text-center mb-16">
+                    <h2 className="text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.testimonialsTitle')}</h2>
+                    <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
+                        {t('landingPage.testimonialsSubtitle')}
+                    </p>
+                </div>
+                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
+                    <TestimonialCard 
+                        quote={t('landingPage.testimonial1Quote')}
+                        name="Sarah L."
+                        role={t('landingPage.testimonial1Role')}
+                        company="The Corner Cafe"
+                    />
+                     <TestimonialCard 
+                        quote={t('landingPage.testimonial2Quote')}
+                        name="David M."
+                        role={t('landingPage.testimonial2Role')}
+                        company="City Retail"
+                    />
+                     <TestimonialCard 
+                        quote={t('landingPage.testimonial3Quote')}
+                        name="Jessica P."
+                        role={t('landingPage.testimonial3Role')}
+                        company="HealthPoint Clinic"
+                    />
+                </div>
+            </div>
+        </section>
+
+
         {/* Pricing Section */}
-        <section id="pricing" className="py-20">
+        <section id="pricing" className="py-24 bg-white dark:bg-blue-night-900">
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.pricingTitle')}</h2>
+                <h2 className="text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.pricingTitle')}</h2>
                 <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
                     {t('landingPage.pricingSubtitle')}
                 </p>
@@ -130,12 +190,67 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
             <Pricing onSelectPlan={onRegisterClick} />
           </div>
         </section>
+
+        {/* Final CTA */}
+        <section className="py-24">
+            <div className="container mx-auto px-6 text-center">
+                 <h2 className="text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.ctaTitle')}</h2>
+                 <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
+                    {t('landingPage.ctaSubtitle')}
+                </p>
+                <button onClick={() => onRegisterClick('Pro')} className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition-transform duration-300 transform hover:scale-105 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 shadow-lg shadow-blue-500/30">
+                     {t('landingPage.ctaButton')}
+                </button>
+            </div>
+        </section>
+
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-blue-night-950 border-t border-gray-200 dark:border-blue-night-900">
-        <div className="container mx-auto px-6 py-6 text-center text-gray-500 dark:text-gray-400">
-            <p>{t('landingPage.footer', { year: new Date().getFullYear() })}</p>
+      <footer className="bg-white dark:bg-blue-night-900 border-t border-gray-200 dark:border-blue-night-800">
+        <div className="container mx-auto px-6 py-12">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+                <div className="col-span-2 md:col-span-1">
+                     <div className="flex items-center">
+                        <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-night-200" />
+                        <h1 className="text-xl font-bold ml-3 text-gray-800 dark:text-white">{t('appName')}</h1>
+                    </div>
+                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">
+                        {t('landingPage.footerDesc')}
+                    </p>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-gray-800 dark:text-white">{t('landingPage.footerProduct')}</h4>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        <li><a href="#features" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.navFeatures')}</a></li>
+                        <li><a href="#pricing" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.navPricing')}</a></li>
+                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerUpdates')}</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h4 className="font-semibold text-gray-800 dark:text-white">{t('landingPage.footerCompany')}</h4>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerAbout')}</a></li>
+                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerContact')}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-gray-800 dark:text-white">{t('landingPage.footerResources')}</h4>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerHelp')}</a></li>
+                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerPrivacy')}</a></li>
+                         <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerTerms')}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-blue-night-800 flex flex-col sm:flex-row justify-between items-center">
+                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('landingPage.footer', { year: new Date().getFullYear() })}</p>
+                 <div className="flex space-x-4 mt-4 sm:mt-0">
+                    <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Twitter size={20}/></a>
+                    <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Github size={20}/></a>
+                    <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Linkedin size={20}/></a>
+                 </div>
+            </div>
         </div>
       </footer>
     </div>
