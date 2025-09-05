@@ -333,5 +333,15 @@
     "statusUnavailable": "Indisponible",
     "saveButton": "Enregistrer les disponibilités",
     "savedMessage": "Disponibilités enregistrées !"
+  },
+  "tooltips": {
+    "proFeature": "Passez à un plan Pro pour utiliser cette fonctionnalité.",
+    "employeeLimit": "La limite d'employés de votre plan ({limit}) a été atteinte. Mettez à niveau pour en ajouter plus.",
+    "employeeLimitFull": "Votre plan actuel ne permet que {limit} employés. Veuillez mettre à niveau pour en ajouter plus."
+  },
+  "upgrade": {
+    "dashboardTitle": "Le Tableau de Bord est une Fonctionnalité Pro",
+    "dashboardDesc": "Veuillez mettre à niveau votre plan pour accéder à des analyses et rapports pertinents sur les performances de votre équipe.",
+    "upgradeButton": "Changer de Plan"
   }
 }

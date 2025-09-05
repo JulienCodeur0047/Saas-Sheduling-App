@@ -8,8 +8,9 @@ import AbsenceEditor from './AbsenceEditor';
 import CalendarFilter from './CalendarFilter';
 import SpecialDayEditor from './SpecialDayEditor';
 import ExportModal from './ExportModal';
-import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const getWeekDays = (date: Date): Date[] => {
     const startOfWeek = new Date(date);
@@ -91,6 +92,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         onSaveSpecialDay, onDeleteSpecialDay
     } = props;
     
+    const { permissions } = useAuth();
     const { t } = useLanguage();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [draggedShiftId, setDraggedShiftId] = useState<string | null>(null);
@@ -258,11 +260,23 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                     <button onClick={() => setIsExportModalOpen(true)} className="flex items-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                     <button 
+                        onClick={() => permissions.canExport && setIsExportModalOpen(true)}
+                        disabled={!permissions.canExport}
+                        title={!permissions.canExport ? t('tooltips.proFeature') : ''}
+                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canExport ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700'}`}
+                     >
+                        {!permissions.canExport && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400" />}
                         <Download size={20} className="mr-2" />
                         {t('schedule.export')}
                     </button>
-                    <button onClick={openAddAbsenceModal} className="flex items-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    <button 
+                        onClick={() => permissions.canAddAbsence && openAddAbsenceModal()}
+                        disabled={!permissions.canAddAbsence}
+                        title={!permissions.canAddAbsence ? t('tooltips.proFeature') : ''}
+                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canAddAbsence ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
+                    >
+                        {!permissions.canAddAbsence && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400" />}
                         <UserMinus size={20} className="mr-2" />
                         {t('schedule.addAbsence')}
                     </button>

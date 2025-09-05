@@ -13,6 +13,7 @@ import Settings from './components/Settings';
 import CSVImportModal from './components/CSVImportModal';
 import Profile from './components/Profile';
 import { useLanguage } from './contexts/LanguageContext';
+import { Gem } from 'lucide-react';
 import { 
     EMPLOYEES as INITIAL_EMPLOYEES, 
     INITIAL_SHIFTS, 
@@ -28,7 +29,7 @@ import {
 } from './constants';
 
 export default function App() {
-  const { user, logout } = useAuth();
+  const { user, logout, permissions } = useAuth();
   const { t } = useLanguage();
   const [view, setView] = useState<View>('schedule');
   const [authModal, setAuthModal] = useState<{isOpen: boolean, view: 'login' | 'register', plan?: Plan}>({isOpen: false, view: 'login'});
@@ -54,6 +55,12 @@ export default function App() {
     document.title = t('appName');
   }, [t]);
 
+  useEffect(() => {
+    if (view === 'dashboard' && !permissions.canAccessDashboard) {
+      setView('schedule');
+    }
+  }, [view, permissions.canAccessDashboard]);
+
   const toggleSidebar = () => {
     setIsSidebarCollapsed(prev => !prev);
   };
@@ -70,6 +77,10 @@ export default function App() {
 
   const handleSaveEmployee = (employee: Employee, isNew: boolean) => {
     if (isNew) {
+        if (employees.length >= permissions.employeeLimit) {
+            alert(t('tooltips.employeeLimitFull', { limit: permissions.employeeLimit }));
+            return;
+        }
         setEmployees(prev => [...prev, employee]);
     } else {
         setEmployees(prev => prev.map(e => e.id === employee.id ? employee : e));
@@ -299,7 +310,14 @@ export default function App() {
   const renderView = () => {
     switch (view) {
       case 'dashboard':
-        return <Dashboard employees={employees} shifts={shifts} absences={absences} absenceTypes={absenceTypes} roles={roles} />;
+        return permissions.canAccessDashboard
+          ? <Dashboard employees={employees} shifts={shifts} absences={absences} absenceTypes={absenceTypes} roles={roles} />
+          : <div className="text-center p-8 bg-white dark:bg-blue-night-900 rounded-lg shadow-md max-w-lg mx-auto">
+              <Gem size={48} className="mx-auto text-yellow-500 mb-4" />
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{t('upgrade.dashboardTitle')}</h2>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">{t('upgrade.dashboardDesc')}</p>
+              <button className="mt-6 bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">{t('upgrade.upgradeButton')}</button>
+            </div>;
       case 'schedule':
         return <ScheduleCalendar 
                     employees={employees} 

@@ -1,10 +1,19 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo } from 'react';
 import { User, Plan, Subscription, Payment, BusinessType, ActivitySector } from '../types';
 
+export interface Permissions {
+  canAccessDashboard: boolean;
+  canExport: boolean;
+  canAddAbsence: boolean;
+  canImportEmployees: boolean;
+  employeeLimit: number;
+}
+
 interface AuthContextType {
   user: User | null;
   subscription: Subscription | null;
   paymentHistory: Payment[];
+  permissions: Permissions;
   login: (email: string, pass: string) => boolean;
   logout: () => void;
   register: (userData: Omit<User, 'id' | 'avatarUrl'>, pass: string) => boolean;
@@ -45,6 +54,34 @@ const FAKE_PAYMENTS: Payment[] = [
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+
+  const permissions: Permissions = useMemo(() => {
+    const plan = user?.plan || 'Gratuit';
+    const planPermissions: { [key in Plan]: Permissions } = {
+      'Gratuit': {
+        canAccessDashboard: false,
+        canExport: false,
+        canAddAbsence: false,
+        canImportEmployees: false,
+        employeeLimit: 10,
+      },
+      'Pro': {
+        canAccessDashboard: true,
+        canExport: true,
+        canAddAbsence: true,
+        canImportEmployees: true,
+        employeeLimit: 100,
+      },
+      'Pro Plus': {
+        canAccessDashboard: true,
+        canExport: true,
+        canAddAbsence: true,
+        canImportEmployees: true,
+        employeeLimit: 300,
+      },
+    };
+    return planPermissions[plan];
+  }, [user?.plan]);
 
   const login = (email: string, pass: string): boolean => {
     // In a real app, you'd verify the password hash. Here we just check the email.
@@ -90,13 +127,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const value = useMemo(() => ({ 
     user, 
+    permissions,
     login, 
     logout, 
     register, 
     updateUser,
     subscription: user ? FAKE_SUBSCRIPTION : null,
     paymentHistory: user ? FAKE_PAYMENTS : [],
-  }), [user]);
+  }), [user, permissions]);
 
   return (
     <AuthContext.Provider value={value}>

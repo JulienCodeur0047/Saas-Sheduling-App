@@ -19,13 +19,24 @@ const NavItem: React.FC<{
     isActive: boolean;
     onClick: () => void;
     isCollapsed: boolean;
-}> = ({ icon, label, isActive, onClick, isCollapsed }) => {
+    isDisabled?: boolean;
+}> = ({ icon, label, isActive, onClick, isCollapsed, isDisabled }) => {
     const activeClasses = 'bg-blue-night-900 text-white';
     const inactiveClasses = 'text-blue-night-200 hover:bg-blue-night-900 hover:text-white';
+    const disabledClasses = 'text-blue-night-700 cursor-not-allowed opacity-50';
+
+    const handleItemClick = () => {
+      if (!isDisabled) {
+        onClick();
+      } else {
+        alert("Please upgrade to a Pro plan to access this feature.");
+      }
+    }
+
     return (
         <li
-            className={`flex items-center p-3 my-1 rounded-lg cursor-pointer transition-colors duration-200 ${isActive ? activeClasses : inactiveClasses}`}
-            onClick={onClick}
+            className={`flex items-center p-3 my-1 rounded-lg transition-colors duration-200 ${isDisabled ? disabledClasses : (isActive ? activeClasses : inactiveClasses)}`}
+            onClick={handleItemClick}
         >
             {icon}
             <span className={`ml-4 font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}>{label}</span>
@@ -35,7 +46,7 @@ const NavItem: React.FC<{
 
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout, isCollapsed, onToggle }) => {
-  const { user } = useAuth();
+  const { user, permissions } = useAuth();
   const { t } = useLanguage();
   
   return (
@@ -46,7 +57,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout, isCol
       </div>
       <nav className="flex-1 px-2 py-4">
         <ul>
-            <NavItem icon={<LayoutDashboard size={20} />} label={t('sidebar.dashboard')} isActive={currentView === 'dashboard'} onClick={() => setView('dashboard')} isCollapsed={isCollapsed} />
+            <NavItem 
+              icon={<LayoutDashboard size={20} />} 
+              label={t('sidebar.dashboard')} 
+              isActive={currentView === 'dashboard'} 
+              onClick={() => setView('dashboard')} 
+              isCollapsed={isCollapsed}
+              isDisabled={!permissions.canAccessDashboard} 
+            />
             <NavItem icon={<Calendar size={20} />} label={t('sidebar.schedule')} isActive={currentView === 'schedule'} onClick={() => setView('schedule')} isCollapsed={isCollapsed} />
             <NavItem icon={<Users size={20} />} label={t('sidebar.employees')} isActive={currentView === 'employees'} onClick={() => setView('employees')} isCollapsed={isCollapsed} />
             <NavItem icon={<Settings size={20} />} label={t('sidebar.settings')} isActive={currentView === 'settings'} onClick={() => setView('settings')} isCollapsed={isCollapsed} />

@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Employee, Role } from '../types';
-import { PlusCircle, Edit, Trash2, Phone, LayoutGrid, List, Upload } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Phone, LayoutGrid, List, Upload, Gem } from 'lucide-react';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface EmployeeCardProps {
     employee: Employee;
@@ -54,11 +55,14 @@ interface EmployeeListProps {
 }
 
 const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, onEdit, onDelete, onImport }) => {
+    const { permissions } = useAuth();
     const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState<string>('all');
     const [genderFilter, setGenderFilter] = useState<string>('all');
     const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
+
+    const atEmployeeLimit = employees.length >= permissions.employeeLimit;
 
     const handleDeleteWithConfirm = (employeeId: string) => {
         const employee = employees.find(e => e.id === employeeId);
@@ -97,11 +101,22 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                             <List size={20} />
                         </button>
                     </div>
-                    <button onClick={onImport} className="flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    <button 
+                        onClick={() => permissions.canImportEmployees && onImport()}
+                        disabled={!permissions.canImportEmployees}
+                        title={!permissions.canImportEmployees ? t('tooltips.proFeature') : ''}
+                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canImportEmployees ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                    >
+                        {!permissions.canImportEmployees && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400" />}
                         <Upload size={20} className="mr-2" />
                         {t('employees.importCSV')}
                     </button>
-                    <button onClick={onAdd} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    <button 
+                        onClick={onAdd} 
+                        disabled={atEmployeeLimit}
+                        title={atEmployeeLimit ? t('tooltips.employeeLimit', { limit: permissions.employeeLimit }) : ''}
+                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 ${atEmployeeLimit ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                    >
                         <PlusCircle size={20} className="mr-2" />
                         {t('employees.addEmployee')}
                     </button>
