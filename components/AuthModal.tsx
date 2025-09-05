@@ -3,7 +3,8 @@ import Modal from './Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
-import { Briefcase, Check, Calendar, Users, BarChart3, CalendarOff, MailCheck } from 'lucide-react';
+import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck } from 'lucide-react';
+import Logo from './Logo';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -363,7 +364,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full">
-                            <Briefcase className="w-16 h-16 text-blue-600 dark:text-blue-night-200" />
+                            <Logo className="w-16 h-16" />
                             <h3 className="mt-4 text-2xl font-bold text-center text-gray-800 dark:text-white">{t('appName')}</h3>
                             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
                                 {t('landingPage.heroSubtitle')}

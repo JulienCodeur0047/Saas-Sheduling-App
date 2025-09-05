@@ -1,5 +1,5 @@
 import React from 'react';
-import { Briefcase, Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Github, Zap, Eye, UsersRound, ArrowRight } from 'lucide-react';
+import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Github, Zap, Eye, UsersRound, ArrowRight } from 'lucide-react';
 import Pricing from './Pricing';
 import ThemeToggle from './ThemeToggle';
 import { Plan } from '../types';
@@ -7,6 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import AnimatedDemos from './AnimatedDemos';
 import Avatar from './Avatar';
+import Logo from './Logo';
 
 
 interface LandingPageProps {
@@ -28,7 +29,7 @@ const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan
     <header className="sticky top-0 bg-white/80 dark:bg-blue-night-950/80 backdrop-blur-sm z-40 shadow-sm">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <div className="flex items-center">
-          <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-night-200" />
+          <Logo className="w-8 h-8" />
           <h1 className="text-2xl font-bold ml-3 text-gray-800 dark:text-white">{t('appName')}</h1>
         </div>
         <nav className="hidden md:flex items-center space-x-8">
@@ -212,7 +213,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                 <div className="col-span-2 md:col-span-1">
                      <div className="flex items-center">
-                        <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-night-200" />
+                        <Logo className="w-8 h-8" />
                         <h1 className="text-xl font-bold ml-3 text-gray-800 dark:text-white">{t('appName')}</h1>
                     </div>
                     <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">

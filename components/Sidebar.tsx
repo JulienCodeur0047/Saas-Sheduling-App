@@ -1,9 +1,10 @@
 import React from 'react';
 import { View } from '../types';
-import { LayoutDashboard, Calendar, Users, Briefcase, LogOut, Gem, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogOut, Gem, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import Avatar from './Avatar';
+import Logo from './Logo';
 
 interface SidebarProps {
   currentView: View;
@@ -52,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout, isCol
   return (
     <aside className={`bg-blue-night-950 text-white flex flex-col border-r border-blue-night-900 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'}`}>
       <div className="flex items-center justify-center h-20 border-b border-blue-night-900">
-        <Briefcase className="w-8 h-8 text-blue-400 dark:text-blue-night-300 flex-shrink-0" />
+        <Logo className="w-8 h-8 flex-shrink-0" />
         <h1 className={`text-2xl font-bold ml-3 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${isCollapsed ? 'opacity-0 hidden' : 'opacity-100'}`}>{t('appName')}</h1>
       </div>
       <nav className="flex-1 px-2 py-4">
