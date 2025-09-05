@@ -167,8 +167,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="4xl">
-            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' ? 'min-h-[550px]' : ''} text-gray-900 dark:text-gray-100`}>
+        <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="5xl">
+            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' ? 'min-h-[640px]' : ''} text-gray-900 dark:text-gray-100`}>
                 {/* Left side: Form */}
                 <div className="flex flex-col">
                      {(authView === 'login' || authView === 'register') && (
