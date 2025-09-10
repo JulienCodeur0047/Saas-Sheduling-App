@@ -77,17 +77,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         if (isOpen) {
             setAuthView(initialView);
             setPlan(initialPlan);
-            setError('');
-            // Reset fields
-            setName('');
-            setEmail(authView === 'login' ? email : ''); // Keep email if coming back to login
-            setPassword('');
-            setBusinessType('Company');
-            setActivitySector('');
-            setCompanyName('');
-            setAddress('');
         }
     }, [isOpen, initialView, initialPlan]);
+
+    // This new effect handles resetting form fields whenever the view changes or the modal opens.
+    useEffect(() => {
+        if (!isOpen) return;
+
+        setError('');
+        setName('');
+        setEmail('');
+        setPassword('');
+        setBusinessType('Company');
+        setActivitySector('');
+        setCompanyName('');
+        setAddress('');
+    }, [authView, isOpen]);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -198,7 +203,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
                             </div>
                              <div className="text-right">
-                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-night-200" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword'); setError('');}}>
+                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-night-200" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword');}}>
                                     {t('auth.forgotPassword')}
                                 </a>
                             </div>
