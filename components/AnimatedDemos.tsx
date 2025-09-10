@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, TrendingUp, User, UsersRound } from 'lucide-react';
+import { Clock, TrendingUp, User, UsersRound, DollarSign } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+const getDemoCurrencyFormatter = () => {
+    try {
+        const locale = navigator.language;
+        const currency = 'USD';
+
+        return (amount: number) => new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency,
+        }).format(amount);
+    } catch (e) {
+        // Fallback for environments where Intl is not fully supported or configured
+        return (amount: number) => `$${amount.toFixed(2)}`;
+    }
+};
+
 
 const CalendarDemo: React.FC = () => (
     <div className="relative grid grid-cols-4 gap-2 p-2 rounded-lg bg-white dark:bg-blue-night-900 shadow-inner">
@@ -30,30 +46,34 @@ const CalendarDemo: React.FC = () => (
     </div>
 );
 
-const DashboardDemo: React.FC = () => (
-    <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 rounded-lg bg-white dark:bg-blue-night-900 shadow-inner space-y-3">
-             <div className="flex items-center text-gray-500 dark:text-gray-400">
-                <TrendingUp size={16} className="mr-2"/>
-                <span className="text-sm font-semibold">Labor Cost</span>
+const DashboardDemo: React.FC = () => {
+    const formatCurrency = getDemoCurrencyFormatter();
+
+    return (
+        <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 rounded-lg bg-white dark:bg-blue-night-900 shadow-inner space-y-3">
+                <div className="flex items-center text-gray-500 dark:text-gray-400">
+                    <DollarSign size={16} className="mr-2"/>
+                    <span className="text-sm font-semibold">Labor Cost</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">{formatCurrency(3450.78)}</p>
+                <div className="w-full bg-gray-200 dark:bg-blue-night-800 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full animate-fill-progress"></div>
+                </div>
             </div>
-            <p className="text-2xl font-bold text-gray-800 dark:text-white">$3,450.78</p>
-            <div className="w-full bg-gray-200 dark:bg-blue-night-800 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full animate-fill-progress"></div>
+            <div className="p-4 rounded-lg bg-white dark:bg-blue-night-900 shadow-inner space-y-3">
+                <div className="flex items-center text-gray-500 dark:text-gray-400">
+                    <Clock size={16} className="mr-2"/>
+                    <span className="text-sm font-semibold">Hours Scheduled</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">182h</p>
+                <div className="w-full bg-gray-200 dark:bg-blue-night-800 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full w-[60%]"></div>
+                </div>
             </div>
         </div>
-         <div className="p-4 rounded-lg bg-white dark:bg-blue-night-900 shadow-inner space-y-3">
-             <div className="flex items-center text-gray-500 dark:text-gray-400">
-                <Clock size={16} className="mr-2"/>
-                <span className="text-sm font-semibold">Hours Scheduled</span>
-            </div>
-            <p className="text-2xl font-bold text-gray-800 dark:text-white">182h</p>
-            <div className="w-full bg-gray-200 dark:bg-blue-night-800 rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full w-[60%]"></div>
-            </div>
-        </div>
-    </div>
-);
+    );
+};
 
 const RosterDemo: React.FC = () => {
     const employees = [

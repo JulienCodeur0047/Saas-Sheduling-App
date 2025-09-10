@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Edit, Upload, Lock, Gem } from 'lucide-react';
 import Avatar from './Avatar';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const ProfileCard: React.FC<{ children: React.ReactNode, title: string }> = ({ children, title }) => (
     <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-md">
@@ -14,6 +15,7 @@ const ProfileCard: React.FC<{ children: React.ReactNode, title: string }> = ({ c
 const Profile: React.FC = () => {
     const { user, subscription, paymentHistory, updateUser } = useAuth();
     const { t } = useLanguage();
+    const { formatCurrency } = useCurrency();
     
     const [name, setName] = useState(user?.name || '');
     const [isEditingName, setIsEditingName] = useState(false);
@@ -137,7 +139,7 @@ const Profile: React.FC = () => {
                             <p className="font-bold text-lg text-blue-800 dark:text-blue-night-200">{subscription.plan} {t('profile.plan')}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.renewsOn')} {subscription.renewalDate.toLocaleDateString()}</p>
                         </div>
-                        <p className="text-2xl font-bold">$20<span className="text-sm font-normal text-gray-500">/mo</span></p>
+                        <p className="text-2xl font-bold">{formatCurrency(20)}<span className="text-sm font-normal text-gray-500">/mo</span></p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-center">
                         <div><span className="font-semibold block">{t('profile.startDate')}</span> {subscription.startDate.toLocaleDateString()}</div>
@@ -166,7 +168,7 @@ const Profile: React.FC = () => {
                             {paymentHistory.map(payment => (
                                 <tr key={payment.id} className="border-b dark:border-blue-night-700 hover:bg-gray-50 dark:hover:bg-blue-night-800/50">
                                     <td className="px-6 py-4">{payment.date.toLocaleDateString()}</td>
-                                    <td className="px-6 py-4">${payment.amount.toFixed(2)}</td>
+                                    <td className="px-6 py-4">{formatCurrency(payment.amount)}</td>
                                     <td className="px-6 py-4">{payment.plan}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${payment.status === 'Paid' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800'}`}>

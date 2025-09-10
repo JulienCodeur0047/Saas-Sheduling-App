@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Users, Clock, Hourglass, UserMinus, CalendarOff, Download } from 'lucide-react';
+import { Users, Clock, Hourglass, UserMinus, CalendarOff, Download, DollarSign } from 'lucide-react';
 import { Shift, Employee, Absence, AbsenceType, Role } from '../types';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const StatCard: React.FC<{ title: string; value: string; icon: React.ReactNode }> = ({ title, value, icon }) => (
     <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-md flex items-center space-x-4 transition-transform hover:scale-105 duration-300">
@@ -26,6 +27,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, absenceTypes, roles }) => {
     const { t } = useLanguage();
+    const { formatCurrency } = useCurrency();
     const totalEmployees = employees.length;
     
     const currentWeekShifts = shifts.filter(s => {
@@ -44,6 +46,9 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
         const duration = (shift.endTime.getTime() - shift.startTime.getTime()) / (1000 * 60 * 60);
         return acc + duration;
     }, 0);
+
+    const mockAverageWage = 25; // Example average wage
+    const laborCost = totalHours * mockAverageWage;
 
     const totalAbsences = absences.length;
     
@@ -184,7 +189,7 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
                 <StatCard title={t('dashboard.totalEmployees')} value={totalEmployees.toString()} icon={<Users className="text-blue-500 dark:text-blue-night-300" />} />
                 <StatCard title={t('dashboard.shiftsThisWeek')} value={totalShifts.toString()} icon={<Clock className="text-green-500 dark:text-blue-night-300" />} />
                 <StatCard title={t('dashboard.totalHoursScheduled')} value={`${totalHours.toFixed(1)}h`} icon={<Hourglass className="text-yellow-500 dark:text-blue-night-300" />} />
-                <StatCard title={t('dashboard.absencesThisWeek')} value={totalAbsences.toString()} icon={<CalendarOff className="text-red-500 dark:text-blue-night-300" />} />
+                <StatCard title={t('dashboard.laborCost')} value={formatCurrency(laborCost)} icon={<DollarSign className="text-purple-500 dark:text-blue-night-300" />} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">

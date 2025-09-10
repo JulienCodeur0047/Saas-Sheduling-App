@@ -5,6 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
 import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck } from 'lucide-react';
 import Logo from './Logo';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ type AuthView = 'login' | 'register' | 'forgotPassword' | 'forgotPasswordSuccess
 
 const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => void }> = ({ selectedPlan, onSelect }) => {
     const { t } = useLanguage();
+    const { formatCurrency } = useCurrency();
     const plans: Plan[] = ['Gratuit', 'Pro', 'Pro Plus'];
     const planKeys: { [key in Plan]: string } = {
         'Gratuit': 'freePlan',
@@ -29,6 +31,7 @@ const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => voi
             {plans.map(plan => {
                 const planKey = planKeys[plan];
                 const isSelected = selectedPlan === plan;
+                const price = Number(t(`pricing.${planKey}Price`));
                 return (
                     <div
                         key={plan}
@@ -36,7 +39,9 @@ const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => voi
                         className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${isSelected ? 'border-blue-600 dark:border-blue-night-300 bg-blue-50 dark:bg-blue-night-800' : 'border-gray-200 dark:border-blue-night-700 hover:border-gray-400'}`}
                     >
                         <p className="font-bold text-sm">{t(`pricing.${planKey}Name`)}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{t(`pricing.${planKey}Price`)}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {price === 0 ? t('pricing.freePlanName') : `${formatCurrency(price)}${t('pricing.perMonth')}`}
+                        </p>
                     </div>
                 )
             })}

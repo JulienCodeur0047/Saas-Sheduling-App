@@ -2,6 +2,7 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { Plan } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface PricingProps {
   onSelectPlan: (plan: Plan) => void;
@@ -9,6 +10,7 @@ interface PricingProps {
 
 const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
   const { t } = useLanguage();
+  const { formatCurrency } = useCurrency();
 
   const planKeys: Plan[] = ['Gratuit', 'Pro', 'Pro Plus'];
   
@@ -23,6 +25,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
       {planKeys.map((planName) => {
         const plan = planDetails[planName];
         const features = Array.from({ length: plan.featureCount }, (_, i) => t(`pricing.${plan.key}Feature${i + 1}`));
+        const price = Number(t(`pricing.${plan.key}Price`));
 
         return (
           <div
@@ -37,7 +40,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               <h3 className="text-2xl font-bold">{t(`pricing.${plan.key}Name`)}</h3>
               <p className={`mt-2 ${plan.isFeatured ? 'text-blue-night-300' : 'text-gray-500 dark:text-gray-400'}`}>{t(`pricing.${plan.key}Desc`)}</p>
               <p className="mt-6 text-5xl font-extrabold">
-                {t(`pricing.${plan.key}Price`)}
+                {formatCurrency(price)}
                 <span className="text-lg font-medium">{t('pricing.perMonth')}</span>
               </p>
               <ul className="mt-8 space-y-4">
