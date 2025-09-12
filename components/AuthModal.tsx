@@ -3,7 +3,7 @@ import Modal from './Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
-import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck } from 'lucide-react';
+import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck, Loader2, CreditCard } from 'lucide-react';
 import Logo from './Logo';
 import { useCurrency } from '../contexts/CurrencyContext';
 
@@ -14,7 +14,7 @@ interface AuthModalProps {
     initialPlan?: Plan;
 }
 
-type AuthView = 'login' | 'register' | 'forgotPassword' | 'forgotPasswordSuccess' | 'registerSuccess';
+type AuthView = 'login' | 'register' | 'forgotPassword' | 'forgotPasswordSuccess' | 'registerSuccess' | 'payment';
 
 const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => void }> = ({ selectedPlan, onSelect }) => {
     const { t } = useLanguage();
@@ -79,6 +79,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const [address, setAddress] = useState('');
     
     const [registeredEmail, setRegisteredEmail] = useState('');
+    const [registrationData, setRegistrationData] = useState<any>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -87,7 +88,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         }
     }, [isOpen, initialView, initialPlan]);
 
-    // This new effect handles resetting form fields whenever the view changes or the modal opens.
     useEffect(() => {
         if (!isOpen) return;
 
@@ -99,6 +99,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         setActivitySector('');
         setCompanyName('');
         setAddress('');
+        setRegistrationData(null);
     }, [authView, isOpen]);
 
     const handleLogin = (e: React.FormEvent) => {
@@ -119,9 +120,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const handleForgotPassword = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        // Simulate API call
         console.log(`Password reset requested for: ${email}`);
-        // For security, always show success to prevent user enumeration
         setAuthView('forgotPasswordSuccess');
     };
 
@@ -135,17 +134,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
             return;
         }
 
-        if (plan !== 'Gratuit') {
-            console.log(`User ${email} is proceeding to payment for plan: ${plan}. Company: ${finalCompanyName}`);
-            // In a real app, save form state and redirect to a payment page.
-            // For now, we just close the modal as a simulation of the next step.
-            alert(t('auth.redirectToPayment'));
-            onClose();
-            return;
-        }
-
-        // Handle free plan registration directly
-        const registrationData = {
+        const currentRegistrationData = {
             name,
             email,
             plan,
@@ -154,11 +143,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
             ...(activitySector && { activitySector }),
             ...(address && { address }),
         };
-        
-        if (!register(registrationData, password)) {
+
+        if (plan !== 'Gratuit') {
+            setRegistrationData({ userData: currentRegistrationData, password });
+            setAuthView('payment');
+            return;
+        }
+
+        if (!register(currentRegistrationData, password)) {
             setError(t('auth.emailExists'));
         } else {
             setRegisteredEmail(email);
+            setAuthView('registerSuccess');
+        }
+    };
+
+    const handlePaymentSuccess = () => {
+        if (!registrationData) return;
+        const { userData, password } = registrationData;
+
+        if (!register(userData, password)) {
+            setError(t('auth.emailExists'));
+            setAuthView('payment');
+        } else {
+            setRegisteredEmail(userData.email);
             setAuthView('registerSuccess');
         }
     };
@@ -172,6 +180,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         switch (authView) {
             case 'login': return t('auth.welcomeBack');
             case 'register': return t('auth.createAccount');
+            case 'payment': return t('auth.completePayment');
             case 'registerSuccess': return t('auth.registrationSuccessTitle');
             case 'forgotPassword': return t('auth.forgotPasswordTitle');
             case 'forgotPasswordSuccess': return t('auth.resetLinkSentTitle');
@@ -183,6 +192,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-night-200">${t('auth.signUp')}</button>` })
         : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-night-200">${t('auth.signIn')}</button>` });
 
+    const planKeys: { [key in Plan]: string } = {
+        'Gratuit': 'freePlan',
+        'Pro': 'proPlan',
+        'Pro Plus': 'proPlusPlan',
+    };
     const planDetails: { [key in Plan]: { key: string; featureCount: number } } = {
         'Gratuit': { key: 'freePlan', featureCount: 3 },
         'Pro': { key: 'proPlan', featureCount: 4 },
@@ -191,12 +205,89 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const selectedPlanDetails = planDetails[plan];
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
-    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300";
+    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:opacity-75 disabled:cursor-not-allowed";
+
+    const PaymentView = () => {
+        const { t } = useLanguage();
+        const { formatCurrency } = useCurrency();
+        const [isProcessing, setIsProcessing] = useState(false);
+
+        const planKey = planKeys[plan];
+        const price = Number(t(`pricing.${planKey}Price`));
+        const formattedPrice = formatCurrency(price);
+
+        const handlePay = async () => {
+            setIsProcessing(true);
+            setError('');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            setIsProcessing(false);
+            handlePaymentSuccess();
+        };
+
+        const handleFail = async () => {
+            setIsProcessing(true);
+            setError('');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            setError(t('auth.paymentFailedError'));
+            setIsProcessing(false);
+        };
+
+        return (
+            <div className="space-y-4 flex flex-col justify-center h-full">
+                <div className="p-4 border rounded-lg bg-gray-50 dark:bg-blue-night-950">
+                    <h4 className="font-semibold">{t('auth.planSummary')}</h4>
+                    <div className="flex justify-between items-baseline mt-1">
+                        <span className="text-lg">{t(`pricing.${planKey}Name`)}</span>
+                        <span className="text-2xl font-bold">{formattedPrice}<span className="text-sm font-medium text-gray-500">{t('pricing.perMonth')}</span></span>
+                    </div>
+                </div>
+
+                <div className="space-y-3">
+                    <div>
+                        <label htmlFor="cardholderName" className="label-style">{t('auth.cardholderName')}</label>
+                        <input id="cardholderName" type="text" className="input-style" placeholder="J. Appleseed" />
+                    </div>
+                    <div>
+                        <label htmlFor="cardNumber" className="label-style">{t('auth.cardNumber')}</label>
+                        <div className="relative">
+                            <input id="cardNumber" type="text" className="input-style pl-10" placeholder="•••• •••• •••• 4242" />
+                            <CreditCard size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="expiryDate" className="label-style">{t('auth.expiryDate')}</label>
+                            <input id="expiryDate" type="text" className="input-style" placeholder="MM / YY" />
+                        </div>
+                        <div>
+                            <label htmlFor="cvc" className="label-style">{t('auth.cvc')}</label>
+                            <input id="cvc" type="text" className="input-style" placeholder="123" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                    <button onClick={handlePay} disabled={isProcessing} className={`${buttonPrimaryClasses} flex justify-center items-center`}>
+                        {isProcessing ? (
+                            <><Loader2 size={20} className="animate-spin mr-2" /> {t('auth.processingPayment')}</>
+                        ) : ( t('auth.payNow', { amount: formattedPrice }) )}
+                    </button>
+                    <button onClick={handleFail} disabled={isProcessing} className="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 py-1">
+                        {t('auth.simulateFailure')}
+                    </button>
+                </div>
+                <div className="text-center pt-2">
+                    <button type="button" onClick={() => setAuthView('register')} className="font-semibold text-blue-600 hover:underline dark:text-blue-night-200 text-sm">
+                        &larr; {t('auth.back')}
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="5xl">
-            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' ? 'min-h-[640px]' : ''} text-gray-900 dark:text-gray-100`}>
-                {/* Left side: Form */}
+            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' || authView === 'payment' ? 'min-h-[640px]' : ''} text-gray-900 dark:text-gray-100`}>
                 <div className="flex flex-col">
                      {(authView === 'login' || authView === 'register') && (
                         <div className="text-center mb-4">
@@ -324,6 +415,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </button>
                         </form>
                     )}
+                    {authView === 'payment' && <PaymentView />}
                     {authView === 'registerSuccess' && (
                         <div className="flex flex-col items-center justify-center text-center h-full py-8">
                             <div className="p-4 bg-green-100 dark:bg-green-900/50 rounded-full">
@@ -375,9 +467,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                     )}
                 </div>
                 
-                {/* Right side: Info */}
                 <div className="hidden md:flex flex-col bg-gray-50 dark:bg-blue-night-950 p-8 rounded-lg h-full">
-                    {authView === 'register' ? (
+                    {authView === 'register' || authView === 'payment' ? (
                         <div className="flex flex-col justify-center h-full">
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
                             <div className="space-y-5">

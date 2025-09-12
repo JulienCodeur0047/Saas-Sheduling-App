@@ -234,6 +234,10 @@
     "proPlusPlanName": "Pro Plus",
     "proPlusPlanPrice": "20",
     "proPlusPlanDesc": "The complete solution for your business.",
+    "proPlusPlanFeature1": "Up to 300 employees",
+    "proPlusPlanFeature2": "All Pro features",
+    "proPlusPlanFeature3": "Priority support",
+    "proPlusPlanFeature4": "Advanced integrations",
     "perMonth": "/month",
     "choosePlan": "Choose this plan"
   },
@@ -299,7 +303,14 @@
       "feature3Desc": "Gain valuable insights into your operations with real-time analytics and reports.",
       "feature4Title": "Absence & Time-Off Tracking",
       "feature4Desc": "Approve and track employee leave requests directly within the schedule."
-    }
+    },
+    "completePayment": "Complete Your Payment",
+    "planSummary": "Plan Summary",
+    "payNow": "Pay {amount} Now",
+    "processingPayment": "Processing...",
+    "simulateFailure": "Simulate Payment Failure",
+    "paymentFailedError": "Payment failed. Please check your card details and try again.",
+    "back": "Back"
   },
   "modals": {
     "save": "Save",

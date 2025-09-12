@@ -234,7 +234,7 @@
     "proPlusPlanName": "Pro Plus",
     "proPlusPlanPrice": "20",
     "proPlusPlanDesc": "La solution complète pour votre entreprise.",
-    "proPlusPlanFeature1": "10-300 employés",
+    "proPlusPlanFeature1": "Jusqu'à 300 employés",
     "proPlusPlanFeature2": "Fonctionnalités complètes",
     "proPlusPlanFeature3": "Application mobile",
     "proPlusPlanFeature4": "Emailing automatique",
@@ -303,7 +303,14 @@
       "feature3Desc": "Obtenez des informations précieuses sur vos opérations avec des analyses et des rapports en temps réel.",
       "feature4Title": "Suivi des Absences et Congés",
       "feature4Desc": "Approuvez et suivez les demandes de congé des employés directement dans le planning."
-    }
+    },
+    "completePayment": "Finaliser votre paiement",
+    "planSummary": "Résumé du plan",
+    "payNow": "Payer {amount} maintenant",
+    "processingPayment": "Traitement...",
+    "simulateFailure": "Simuler l'échec du paiement",
+    "paymentFailedError": "Le paiement a échoué. Veuillez vérifier les détails de votre carte et réessayer.",
+    "back": "Retour"
   },
   "modals": {
     "save": "Enregistrer",
