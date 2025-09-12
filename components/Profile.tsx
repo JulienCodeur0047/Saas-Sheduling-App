@@ -205,7 +205,7 @@ const Profile: React.FC = () => {
             {paymentHistory.length > 0 && (
                 <ProfileCard title={t('profile.paymentHistory')}>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
+                        <table className="w-full text-sm text-left text-gray-800 dark:text-gray-200">
                             <thead className="text-xs text-gray-700 dark:text-gray-400 uppercase bg-gray-50 dark:bg-blue-night-800">
                                 <tr>
                                     <th scope="col" className="px-6 py-3">{t('profile.paymentDate')}</th>
