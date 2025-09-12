@@ -43,7 +43,12 @@
     "editAbsence": "Edit Absence",
     "addAbsenceTitle": "Add Absence",
     "editSpecialDay": "Edit Special Day",
-    "markSpecialDay": "Mark Special Day"
+    "markSpecialDay": "Mark Special Day",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "zoomLevelCompact": "Compact",
+    "zoomLevelDefault": "Default",
+    "zoomLevelDetailed": "Detailed"
   },
   "employees": {
     "title": "Employees",

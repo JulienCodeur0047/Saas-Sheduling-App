@@ -14,16 +14,32 @@ interface ShiftCardProps {
     isSelectionModeActive: boolean;
     isSelected: boolean;
     onToggleSelect: (shiftId: string) => void;
+    zoomLevel: number; // 0: compact, 1: default, 2: detailed
 }
 
-const roleColors: { [key: string]: string } = {
+const roleBorderColors: { [key: string]: string } = {
     'Manager': 'border-red-500 dark:border-blue-night-500',
     'Cashier': 'border-green-500 dark:border-blue-night-400',
     'Stocker': 'border-blue-500 dark:border-blue-night-300',
     'Clerk': 'border-yellow-500 dark:border-blue-night-200',
 };
 
-const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect }) => {
+const roleBgColors: { [key: string]: string } = {
+    'Manager': 'bg-red-500',
+    'Cashier': 'bg-green-500',
+    'Stocker': 'bg-blue-500',
+    'Clerk': 'bg-yellow-500',
+};
+
+
+const getInitials = (name: string): string => {
+  if (!name) return '?';
+  const parts = name.split(' ');
+  const initials = parts.map(part => part[0]).join('');
+  return initials.substring(0, 2).toUpperCase();
+};
+
+const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel }) => {
 
     const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     
@@ -41,33 +57,55 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
             onClick();
         }
     }
+
+    const shiftTimeTitle = `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}`;
     
+    // --- COMPACT VIEW (level 0) ---
+    if (zoomLevel === 0) {
+        const title = employee ? `${employee.name} | ${shiftTimeTitle}` : `Open Shift | ${shiftTimeTitle}`;
+        return (
+            <div onClick={handleCardClick} title={title} className="transition-all duration-300 ease-in-out">
+                {employee ? (
+                    <div className={`h-6 rounded flex items-center px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden cursor-pointer`}>
+                        <span className="text-xs font-bold truncate">{getInitials(employee.name)}</span>
+                    </div>
+                ) : (
+                    <div className="h-6 rounded border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center px-1.5 cursor-pointer">
+                        <UserPlus size={12} className="text-gray-500 dark:text-gray-400" />
+                    </div>
+                )}
+            </div>
+        );
+    }
+    
+    // --- DEFAULT & DETAILED VIEWS ---
+
     // Open Shift Card variant
     if (!employee) {
         return (
              <div
                 onClick={handleCardClick}
-                className={`p-3 rounded-lg mb-2 cursor-pointer border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-200 ease-in-out transform hover:-translate-y-1`}
+                className={`rounded-lg mb-2 cursor-pointer border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'}`}
              >
                 <div className="flex items-center mb-1">
                     <div className="w-6 h-6 rounded-full mr-2 bg-gray-300 dark:bg-blue-night-700 flex items-center justify-center flex-shrink-0">
                         <UserPlus size={14} className="text-gray-600 dark:text-gray-300" />
                     </div>
-                    <p className="font-semibold text-sm text-gray-700 dark:text-gray-200 truncate">Open Shift</p>
+                    <p className="font-semibold text-gray-700 dark:text-gray-200 truncate ${zoomLevel === 1 ? 'text-sm' : ''}">Open Shift</p>
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-300 font-mono mb-2">
-                    {formatTime(shift.startTime)} - {formatTime(shift.endTime)}
+                    {shiftTimeTitle}
                 </p>
                 <div className="space-y-1">
                     {location && (
                         <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                            <MapPin size={12} className="mr-1.5 flex-shrink-0" />
+                           {zoomLevel === 2 && <MapPin size={12} className="mr-1.5 flex-shrink-0" />}
                             <span className="truncate">{location.name}</span>
                         </div>
                     )}
                     {department && (
                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                            <Briefcase size={12} className="mr-1.5 flex-shrink-0" />
+                            {zoomLevel === 2 && <Briefcase size={12} className="mr-1.5 flex-shrink-0" />}
                             <span className="truncate">{department.name}</span>
                         </div>
                     )}
@@ -83,15 +121,15 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
         );
     }
     
-    // Assigned Shift Card (original component)
-    const colorClass = roleColors[employee.role] || 'border-gray-500 dark:border-blue-night-600';
+    // Assigned Shift Card
+    const borderColorClass = roleBorderColors[employee.role] || 'border-gray-500 dark:border-blue-night-600';
 
     return (
         <div
             draggable={!isSelectionModeActive}
             onDragStart={(e) => onDragStart(e, shift.id)}
             onClick={handleCardClick}
-            className={`p-3 rounded-lg mb-2 cursor-pointer border-l-4 group relative ${colorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-200 ease-in-out transform hover:-translate-y-1`}
+            className={`rounded-lg mb-2 cursor-pointer border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'}`}
         >
             {isSelectionModeActive && (
                 <input 
@@ -103,22 +141,22 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                 />
             )}
             <div className="flex items-center mb-1">
-                <Avatar name={employee.name} src={employee.avatarUrl} className="w-6 h-6 rounded-full mr-2"/>
-                <p className="font-semibold text-sm text-gray-800 dark:text-gray-100 truncate">{employee.name}</p>
+                <Avatar name={employee.name} src={employee.avatarUrl} className={`rounded-full mr-2 ${zoomLevel === 1 ? 'w-5 h-5' : 'w-6 h-6'}`}/>
+                <p className={`font-semibold text-gray-800 dark:text-gray-100 truncate ${zoomLevel === 1 ? 'text-sm' : ''}`}>{employee.name}</p>
             </div>
             <p className="text-xs text-gray-600 dark:text-gray-300 font-mono mb-2">
-                {formatTime(shift.startTime)} - {formatTime(shift.endTime)}
+                {shiftTimeTitle}
             </p>
             <div className="space-y-1">
                 {location && (
                     <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                        <MapPin size={12} className="mr-1.5 flex-shrink-0" />
+                        {zoomLevel === 2 && <MapPin size={12} className="mr-1.5 flex-shrink-0" />}
                         <span className="truncate">{location.name}</span>
                     </div>
                 )}
                 {department && (
                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                        <Briefcase size={12} className="mr-1.5 flex-shrink-0" />
+                        {zoomLevel === 2 && <Briefcase size={12} className="mr-1.5 flex-shrink-0" />}
                         <span className="truncate">{department.name}</span>
                     </div>
                 )}

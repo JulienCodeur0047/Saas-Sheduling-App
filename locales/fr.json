@@ -43,7 +43,12 @@
     "editAbsence": "Modifier l'absence",
     "addAbsenceTitle": "Ajouter une absence",
     "editSpecialDay": "Modifier le jour spécial",
-    "markSpecialDay": "Marquer comme jour spécial"
+    "markSpecialDay": "Marquer comme jour spécial",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "zoomLevelCompact": "Compact",
+    "zoomLevelDefault": "Défaut",
+    "zoomLevelDetailed": "Détaillé"
   },
   "employees": {
     "title": "Employés",
