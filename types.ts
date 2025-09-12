@@ -80,6 +80,7 @@ export interface User {
     companyName: string;
     activitySector?: ActivitySector;
     address?: string;
+    isVerified: boolean;
 }
 
 export interface Subscription {

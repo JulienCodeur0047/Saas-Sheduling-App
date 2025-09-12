@@ -249,6 +249,7 @@
     "alreadyHaveAccount": "Déjà un compte ? {signIn}",
     "signIn": "Se connecter",
     "invalidCredentials": "Email ou mot de passe invalide.",
+    "unverified": "Votre compte n'a pas été vérifié. Veuillez consulter vos e-mails.",
     "emailExists": "Un utilisateur avec cet email existe déjà.",
     "emailLabel": "Adresse e-mail",
     "passwordLabel": "Mot de passe",
@@ -288,6 +289,9 @@
     "forgotPasswordInstruction": "Entrez l'adresse e-mail associée à votre compte et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
     "sendResetLink": "Envoyer le lien de réinitialisation",
     "resetLinkSentBody": "Nous avons envoyé un lien de réinitialisation de mot de passe à {email}. Veuillez vérifier votre dossier de courrier indésirable si vous ne le voyez pas.",
+    "registrationSuccessTitle": "Confirmez votre e-mail",
+    "registrationSuccessBody": "Nous avons envoyé un lien de confirmation à {email}. Veuillez vérifier votre boîte de réception pour activer votre compte.",
+    "proceedToLogin": "J'ai confirmé, me connecter",
     "backToLogin": "Retour à la connexion",
     "features": {
       "title": "Libérez le potentiel de votre équipe",

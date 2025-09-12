@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const getDemoCurrencyFormatter = () => {
     try {
-        const locale = navigator.language;
+        const locale = 'en-US'; // Use en-US to ensure a generic "$" symbol
         const currency = 'USD';
 
         return (amount: number) => new Intl.NumberFormat(locale, {

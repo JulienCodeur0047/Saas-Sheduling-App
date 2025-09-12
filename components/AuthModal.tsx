@@ -14,7 +14,7 @@ interface AuthModalProps {
     initialPlan?: Plan;
 }
 
-type AuthView = 'login' | 'register' | 'forgotPassword' | 'forgotPasswordSuccess';
+type AuthView = 'login' | 'register' | 'forgotPassword' | 'forgotPasswordSuccess' | 'registerSuccess';
 
 const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => void }> = ({ selectedPlan, onSelect }) => {
     const { t } = useLanguage();
@@ -64,7 +64,7 @@ const FeatureItem: React.FC<{icon: React.ReactNode, title: string, description: 
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'login', initialPlan = 'Pro' }) => {
     const [authView, setAuthView] = useState<AuthView>(initialView);
-    const { login, register } = useAuth();
+    const { login, register, verifyUser } = useAuth();
     const { t } = useLanguage();
     const [error, setError] = useState('');
     
@@ -77,6 +77,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const [activitySector, setActivitySector] = useState<ActivitySector | ''>('');
     const [companyName, setCompanyName] = useState('');
     const [address, setAddress] = useState('');
+    
+    const [registeredEmail, setRegisteredEmail] = useState('');
 
     useEffect(() => {
         if (isOpen) {
@@ -102,8 +104,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        if (!login(email, password)) {
-            setError(t('auth.invalidCredentials'));
+        const result = login(email, password);
+        if (!result.success) {
+            if (result.reason === 'unverified') {
+                setError(t('auth.unverified'));
+            } else {
+                setError(t('auth.invalidCredentials'));
+            }
         } else {
             onClose();
         }
@@ -151,14 +158,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         if (!register(registrationData, password)) {
             setError(t('auth.emailExists'));
         } else {
-            onClose();
+            setRegisteredEmail(email);
+            setAuthView('registerSuccess');
         }
+    };
+    
+    const handleProceedToLogin = () => {
+        verifyUser(registeredEmail);
+        setAuthView('login');
     };
 
     const getTitle = () => {
         switch (authView) {
             case 'login': return t('auth.welcomeBack');
             case 'register': return t('auth.createAccount');
+            case 'registerSuccess': return t('auth.registrationSuccessTitle');
             case 'forgotPassword': return t('auth.forgotPasswordTitle');
             case 'forgotPasswordSuccess': return t('auth.resetLinkSentTitle');
             default: return '';
@@ -309,6 +323,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 {plan === 'Gratuit' ? t('auth.createAccountButton') : t('auth.goToPayment')}
                             </button>
                         </form>
+                    )}
+                    {authView === 'registerSuccess' && (
+                        <div className="flex flex-col items-center justify-center text-center h-full py-8">
+                            <div className="p-4 bg-green-100 dark:bg-green-900/50 rounded-full">
+                                <MailCheck className="w-12 h-12 text-green-600 dark:text-green-400" />
+                            </div>
+                            <h3 className="mt-4 text-xl font-bold">{t('auth.registrationSuccessTitle')}</h3>
+                            <p
+                                className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                                dangerouslySetInnerHTML={{
+                                    __html: t('auth.registrationSuccessBody', { email: `<strong class="font-medium">${registeredEmail}</strong>` })
+                                }}
+                            />
+                            <button onClick={handleProceedToLogin} className={`mt-6 ${buttonPrimaryClasses}`}>
+                                {t('auth.proceedToLogin')}
+                            </button>
+                        </div>
                     )}
                     {authView === 'forgotPassword' && (
                         <form onSubmit={handleForgotPassword} className="space-y-4 flex-grow flex flex-col justify-center">

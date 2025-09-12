@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, ReactNode, useCallback } from 'react';
 
 interface CurrencyContextType {
   formatCurrency: (amount: number) => string;
@@ -8,7 +8,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const locale = useMemo(() => navigator.language, []);
+  const locale = 'en-US'; // Use en-US to ensure a generic "$" symbol
   const currency = 'USD';
 
   const formatCurrency = useCallback((amount: number): string => {

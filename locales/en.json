@@ -245,6 +245,7 @@
     "alreadyHaveAccount": "Already have an account? {signIn}",
     "signIn": "Sign in",
     "invalidCredentials": "Invalid email or password.",
+    "unverified": "Your account has not been verified. Please check your email.",
     "emailExists": "A user with this email already exists.",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
@@ -284,6 +285,9 @@
     "forgotPasswordInstruction": "Enter the email address associated with your account and we'll send you a link to reset your password.",
     "sendResetLink": "Send Reset Link",
     "resetLinkSentBody": "We've sent a password reset link to {email}. Please check your spam folder if you don't see it.",
+    "registrationSuccessTitle": "Confirm Your Email",
+    "registrationSuccessBody": "We've sent a confirmation link to {email}. Please check your inbox to activate your account.",
+    "proceedToLogin": "I've Confirmed, Proceed to Login",
     "backToLogin": "Back to Login",
     "features": {
       "title": "Unlock Your Team's Potential",

@@ -9,15 +9,21 @@ export interface Permissions {
   employeeLimit: number;
 }
 
+type LoginResult = {
+    success: boolean;
+    reason?: 'invalid' | 'unverified';
+}
+
 interface AuthContextType {
   user: User | null;
   subscription: Subscription | null;
   paymentHistory: Payment[];
   permissions: Permissions;
-  login: (email: string, pass: string) => boolean;
+  login: (email: string, pass: string) => LoginResult;
   logout: () => void;
-  register: (userData: Omit<User, 'id' | 'avatarUrl'>, pass: string) => boolean;
+  register: (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified'>, pass: string) => boolean;
   updateUser: (updatedData: Partial<User>) => void;
+  verifyUser: (email: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,7 +39,8 @@ const FAKE_USERS: User[] = [
         businessType: 'Company',
         companyName: 'Quick Shift Inc.',
         activitySector: 'Technology',
-        address: '123 Tech Lane, CA'
+        address: '123 Tech Lane, CA',
+        isVerified: true,
     }
 ];
 
@@ -83,21 +90,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return planPermissions[plan];
   }, [user?.plan]);
 
-  const login = (email: string, pass: string): boolean => {
+  const login = (email: string, pass: string): LoginResult => {
     // In a real app, you'd verify the password hash. Here we just check the email.
     const foundUser = FAKE_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (foundUser) {
-      setUser(foundUser);
-      return true;
+    if (!foundUser) {
+      return { success: false, reason: 'invalid' };
     }
-    return false;
+    if (!foundUser.isVerified) {
+        return { success: false, reason: 'unverified' };
+    }
+    setUser(foundUser);
+    return { success: true };
   };
 
   const logout = () => {
     setUser(null);
   };
 
-  const register = (userData: Omit<User, 'id' | 'avatarUrl'>, pass: string): boolean => {
+  const register = (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified'>, pass: string): boolean => {
     const exists = FAKE_USERS.some(u => u.email.toLowerCase() === userData.email.toLowerCase());
     if (exists) {
         return false; // User already exists
@@ -106,11 +116,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: `user-${Date.now()}`,
         avatarUrl: null,
         ...userData,
+        isVerified: false,
     };
     FAKE_USERS.push(newUser);
-    setUser(newUser);
+    // User is NOT logged in automatically, must verify first
     return true;
   };
+  
+  const verifyUser = (email: string) => {
+      const userIndex = FAKE_USERS.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+      if (userIndex !== -1) {
+          FAKE_USERS[userIndex].isVerified = true;
+          console.log(`User ${email} verified.`);
+      }
+  }
 
   const updateUser = (updatedData: Partial<User>) => {
       setUser(prevUser => {
@@ -132,6 +151,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout, 
     register, 
     updateUser,
+    verifyUser,
     subscription: user ? FAKE_SUBSCRIPTION : null,
     paymentHistory: user ? FAKE_PAYMENTS : [],
   }), [user, permissions]);
