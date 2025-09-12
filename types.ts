@@ -1,9 +1,8 @@
-export type EmployeeRole = string;
-
 export interface Company {
   id: string;
   name: string;
   ownerId: string;
+  subscriptionId: string | null;
 }
 
 export interface Role {
@@ -43,7 +42,8 @@ export interface Employee {
   id: string;
   name: string;
   email: string;
-  role: EmployeeRole;
+  // Fix: Replaced undefined 'EmployeeRole' with 'string' and removed circular import.
+  role: string;
   avatarUrl: string | null;
   phone: string;
   gender: 'Male' | 'Female' | 'Other' | 'Prefer not to say';
@@ -100,7 +100,11 @@ export interface User {
 }
 
 export interface Subscription {
+    id: string;
+    userId: string;
+    companyId: string;
     plan: Plan;
+    status: 'active' | 'canceled' | 'past_due';
     startDate: Date;
     nextPaymentDate: Date;
     renewalDate: Date;
@@ -108,6 +112,8 @@ export interface Subscription {
 
 export interface Payment {
     id: string;
+    userId: string;
+    subscriptionId: string;
     date: Date;
     amount: number;
     plan: Plan;

@@ -79,19 +79,6 @@ interface AuthContextType extends CompanyDataContextType, DataHandlerContextType
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const FAKE_SUBSCRIPTION: Subscription = {
-    plan: 'Pro Plus',
-    startDate: new Date('2023-01-15'),
-    nextPaymentDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 15),
-    renewalDate: new Date(new Date().getFullYear() + 1, 0, 15),
-};
-
-const FAKE_PAYMENTS: Payment[] = [
-    { id: 'pay-1', date: new Date(new Date().setMonth(new Date().getMonth() -1)), amount: 20, plan: 'Pro Plus', status: 'Paid' },
-    { id: 'pay-2', date: new Date(new Date().setMonth(new Date().getMonth() -2)), amount: 20, plan: 'Pro Plus', status: 'Paid' },
-    { id: 'pay-3', date: new Date(new Date().setMonth(new Date().getMonth() -3)), amount: 20, plan: 'Pro Plus', status: 'Paid' },
-];
-
 const initialCompanyData: CompanyDataContextType = {
     employees: [], shifts: [], roles: [], locations: [], departments: [], absences: [],
     absenceTypes: [], specialDays: [], specialDayTypes: [], inboxMessages: [], employeeAvailabilities: [],
@@ -100,6 +87,8 @@ const initialCompanyData: CompanyDataContextType = {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [data, setData] = useState<CompanyDataContextType>(initialCompanyData);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<Payment[]>([]);
 
   const permissions: Permissions = useMemo(() => {
     const plan = user?.plan || 'Gratuit';
@@ -117,12 +106,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setUser(foundUser);
     setData(getCompanyData(foundUser.companyId));
+    
+    const company = DB.companies.find(c => c.id === foundUser.companyId);
+    if (company && company.subscriptionId) {
+        const sub = DB.subscriptions.find(s => s.id === company.subscriptionId);
+        setSubscription(sub || null);
+        if (sub) {
+            const payments = DB.payments.filter(p => p.subscriptionId === sub.id);
+            setPaymentHistory(payments);
+        }
+    } else {
+        setSubscription(null);
+        setPaymentHistory([]);
+    }
+
     return { success: true };
   };
 
   const logout = () => {
     setUser(null);
     setData(initialCompanyData);
+    setSubscription(null);
+    setPaymentHistory([]);
   };
 
   const register = (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified' | 'companyId'>, pass: string): boolean => {
@@ -131,7 +136,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const newUserId = `user-${Date.now()}`;
     const newCompanyId = `company-${Date.now()}`;
     
-    const newCompany: Company = { id: newCompanyId, name: userData.companyName, ownerId: newUserId };
+    const newCompany: Company = { id: newCompanyId, name: userData.companyName, ownerId: newUserId, subscriptionId: null };
     DB.companies.push(newCompany);
 
     const newUser: User = {
@@ -142,6 +147,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isVerified: false,
     };
     DB.users.push(newUser);
+
+    if (userData.plan !== 'Gratuit') {
+        const newSubscriptionId = `sub-${Date.now()}`;
+        const newSubscription: Subscription = {
+            id: newSubscriptionId,
+            userId: newUserId,
+            companyId: newCompanyId,
+            plan: userData.plan,
+            status: 'active',
+            startDate: new Date(),
+            nextPaymentDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+            renewalDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        };
+        DB.subscriptions.push(newSubscription);
+
+        newCompany.subscriptionId = newSubscriptionId;
+
+        const planPrices: { [key in Plan]?: number } = { 'Pro': 10, 'Pro Plus': 20 };
+        const amount = planPrices[userData.plan] || 0;
+        
+        const newPayment: Payment = {
+            id: `pay-${Date.now()}`,
+            userId: newUserId,
+            subscriptionId: newSubscriptionId,
+            date: new Date(),
+            amount: amount,
+            plan: userData.plan,
+            status: 'Paid',
+        };
+        DB.payments.push(newPayment);
+    }
 
     createDefaultDataForCompany(newCompanyId);
     return true;
@@ -165,7 +201,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // --- Data Handlers ---
   const createDataUpdater = <T extends { id: string }>(dataType: keyof CompanyDataContextType) => (item: T) => {
       setData(prev => {
-          // Fix: Use 'as unknown as T[]' to address the unsafe type conversion error.
           const collection = prev[dataType] as unknown as T[];
           const exists = collection.some(i => i.id === item.id);
           const newCollection = exists ? collection.map(i => i.id === item.id ? item : i) : [...collection, item];
@@ -176,7 +211,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const createDataDeleter = <T extends { id: string }>(dataType: keyof CompanyDataContextType) => (itemId: string) => {
       setData(prev => {
-          // Fix: Use 'as unknown as T[]' to address the unsafe type conversion error.
           const collection = prev[dataType] as unknown as T[];
           const newCollection = collection.filter(i => i.id !== itemId);
           updateCompanyData(user!.companyId, dataType, newCollection as any);
@@ -252,7 +286,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       createDataDeleter('locations')(id);
   };
   
-  // Fix: Define handleSaveAbsence using the generic helper function.
   const handleSaveAbsence = createDataUpdater('absences');
 
   const handleValidateRequest = (messageId: string) => {
@@ -268,7 +301,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const newAbsence: Absence = { id: `absence-${Date.now()}`, employeeId: message.employeeId, absenceTypeId: message.absenceTypeId, startDate: message.startDate, endDate: message.endDate, companyId: user!.companyId };
       handleSaveAbsence(newAbsence);
       setData(prev => {
-          // Fix: Explicitly cast the status string to match the InboxMessage['status'] type.
           const newMessages = prev.inboxMessages.map(m => m.id === messageId ? { ...m, status: 'validated' as InboxMessage['status'] } : m);
           updateCompanyData(user!.companyId, 'inboxMessages', newMessages);
           return {...prev, inboxMessages: newMessages};
@@ -278,7 +310,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const handleRefuseRequest = (messageId: string, reason: string) => {
       setData(prev => {
-          // Fix: Explicitly cast the status string to match the InboxMessage['status'] type.
           const newMessages = prev.inboxMessages.map(m => m.id === messageId ? { ...m, status: 'refused' as InboxMessage['status'] } : m);
           updateCompanyData(user!.companyId, 'inboxMessages', newMessages);
           return {...prev, inboxMessages: newMessages};
@@ -288,7 +319,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const handleFollowUpComplaint = (messageId: string) => {
       setData(prev => {
-          // Fix: Explicitly cast the status string to match the InboxMessage['status'] type.
           const newMessages = prev.inboxMessages.map(m => m.id === messageId ? { ...m, status: 'followed-up' as InboxMessage['status'] } : m);
           updateCompanyData(user!.companyId, 'inboxMessages', newMessages);
           return {...prev, inboxMessages: newMessages};
@@ -336,7 +366,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const value = { 
     user, permissions, login, logout, register, updateUser, verifyUser,
-    subscription: user ? FAKE_SUBSCRIPTION : null, paymentHistory: user ? FAKE_PAYMENTS : [],
+    subscription, paymentHistory,
     ...data,
     handleSaveEmployee, handleDeleteEmployee,
     handleSaveShift: createDataUpdater('shifts'), handleDeleteShift: createDataDeleter('shifts'),

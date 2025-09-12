@@ -1,9 +1,11 @@
-import { User, Company, Employee, Shift, Role, Location, Department, AbsenceType, Absence, SpecialDayType, SpecialDay, InboxMessage, EmployeeAvailability, WeeklyAvailability, DayAvailability } from './types';
+import { User, Company, Employee, Shift, Role, Location, Department, AbsenceType, Absence, SpecialDayType, SpecialDay, InboxMessage, EmployeeAvailability, WeeklyAvailability, DayAvailability, Subscription, Payment } from './types';
 
 // --- DATA STORE (SIMULATED DATABASE) ---
 interface Database {
     users: User[];
     companies: Company[];
+    subscriptions: Subscription[];
+    payments: Payment[];
     employees: Employee[];
     shifts: Shift[];
     roles: Role[];
@@ -19,6 +21,8 @@ interface Database {
 
 const DEMO_COMPANY_ID = 'company-1';
 const DEMO_USER_ID = 'user-1';
+const DEMO_SUBSCRIPTION_ID = 'sub-1';
+
 
 // --- INITIAL DEMO DATA ---
 const today = new Date();
@@ -30,6 +34,24 @@ const getStartOfWeek = (date: Date): Date => {
     return new Date(d.setDate(diff));
 };
 const startOfWeek = getStartOfWeek(today);
+
+const DEMO_SUBSCRIPTION: Subscription = {
+    id: DEMO_SUBSCRIPTION_ID,
+    userId: DEMO_USER_ID,
+    companyId: DEMO_COMPANY_ID,
+    plan: 'Pro Plus',
+    status: 'active',
+    startDate: new Date('2023-01-15'),
+    nextPaymentDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 15),
+    renewalDate: new Date(new Date().getFullYear() + 1, 0, 15),
+};
+
+const DEMO_PAYMENTS: Payment[] = [
+    { id: 'pay-1', userId: DEMO_USER_ID, subscriptionId: DEMO_SUBSCRIPTION_ID, date: new Date(new Date().setMonth(new Date().getMonth() -1)), amount: 20, plan: 'Pro Plus', status: 'Paid' },
+    { id: 'pay-2', userId: DEMO_USER_ID, subscriptionId: DEMO_SUBSCRIPTION_ID, date: new Date(new Date().setMonth(new Date().getMonth() -2)), amount: 20, plan: 'Pro Plus', status: 'Paid' },
+    { id: 'pay-3', userId: DEMO_USER_ID, subscriptionId: DEMO_SUBSCRIPTION_ID, date: new Date(new Date().setMonth(new Date().getMonth() -3)), amount: 20, plan: 'Pro Plus', status: 'Paid' },
+];
+
 
 const DEMO_ROLES: Role[] = [
   { id: 'role-1', name: 'Manager', companyId: DEMO_COMPANY_ID },
@@ -158,7 +180,9 @@ export const DB: Database = {
         businessType: 'Company', companyName: 'Quick Shift Inc.', activitySector: 'Technology',
         address: '123 Tech Lane, CA', isVerified: true, companyId: DEMO_COMPANY_ID
     }],
-    companies: [{ id: DEMO_COMPANY_ID, name: 'Quick Shift Inc.', ownerId: DEMO_USER_ID }],
+    companies: [{ id: DEMO_COMPANY_ID, name: 'Quick Shift Inc.', ownerId: DEMO_USER_ID, subscriptionId: DEMO_SUBSCRIPTION_ID }],
+    subscriptions: [DEMO_SUBSCRIPTION],
+    payments: DEMO_PAYMENTS,
     employees: DEMO_EMPLOYEES,
     shifts: DEMO_SHIFTS,
     roles: DEMO_ROLES,

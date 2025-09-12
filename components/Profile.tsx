@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Edit, Upload, Lock, Gem } from 'lucide-react';
 import Avatar from './Avatar';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { Plan } from '../types';
 
 const ProfileCard: React.FC<{ children: React.ReactNode, title: string }> = ({ children, title }) => (
     <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-md">
@@ -42,6 +43,18 @@ const Profile: React.FC = () => {
     if (!user) {
         return <div>Loading profile...</div>;
     }
+
+    const planPriceKeys: { [key in Plan]: string } = {
+        'Gratuit': 'freePlanPrice',
+        'Pro': 'proPlanPrice',
+        'Pro Plus': 'proPlusPlanPrice'
+    };
+    
+    const getPlanPrice = () => {
+        if (!subscription) return 0;
+        const priceKey = planPriceKeys[subscription.plan];
+        return Number(t(`pricing.${priceKey}`));
+    };
     
     const buttonPrimarySmClasses = "inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 text-sm";
     const buttonPrimaryClasses = `inline-flex items-center px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300`;
@@ -139,7 +152,7 @@ const Profile: React.FC = () => {
                             <p className="font-bold text-lg text-blue-800 dark:text-blue-night-200">{subscription.plan} {t('profile.plan')}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.renewsOn')} {subscription.renewalDate.toLocaleDateString()}</p>
                         </div>
-                        <p className="text-2xl font-bold">{formatCurrency(20)}<span className="text-sm font-normal text-gray-500">/mo</span></p>
+                        <p className="text-2xl font-bold">{formatCurrency(getPlanPrice())}<span className="text-sm font-normal text-gray-500">/mo</span></p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-center">
                         <div><span className="font-semibold block">{t('profile.startDate')}</span> {subscription.startDate.toLocaleDateString()}</div>
@@ -153,34 +166,36 @@ const Profile: React.FC = () => {
             )}
 
             {/* Payment History */}
-            <ProfileCard title={t('profile.paymentHistory')}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-gray-700 dark:text-gray-400 uppercase bg-gray-50 dark:bg-blue-night-800">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">{t('profile.paymentDate')}</th>
-                                <th scope="col" className="px-6 py-3">{t('profile.paymentAmount')}</th>
-                                <th scope="col" className="px-6 py-3">{t('profile.paymentPlan')}</th>
-                                <th scope="col" className="px-6 py-3">{t('profile.paymentStatus')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paymentHistory.map(payment => (
-                                <tr key={payment.id} className="border-b dark:border-blue-night-700 hover:bg-gray-50 dark:hover:bg-blue-night-800/50">
-                                    <td className="px-6 py-4">{payment.date.toLocaleDateString()}</td>
-                                    <td className="px-6 py-4">{formatCurrency(payment.amount)}</td>
-                                    <td className="px-6 py-4">{payment.plan}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${payment.status === 'Paid' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800'}`}>
-                                            {t(`profile.paymentStatus${payment.status}`)}
-                                        </span>
-                                    </td>
+            {paymentHistory.length > 0 && (
+                <ProfileCard title={t('profile.paymentHistory')}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="text-xs text-gray-700 dark:text-gray-400 uppercase bg-gray-50 dark:bg-blue-night-800">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">{t('profile.paymentDate')}</th>
+                                    <th scope="col" className="px-6 py-3">{t('profile.paymentAmount')}</th>
+                                    <th scope="col" className="px-6 py-3">{t('profile.paymentPlan')}</th>
+                                    <th scope="col" className="px-6 py-3">{t('profile.paymentStatus')}</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </ProfileCard>
+                            </thead>
+                            <tbody>
+                                {paymentHistory.map(payment => (
+                                    <tr key={payment.id} className="border-b dark:border-blue-night-700 hover:bg-gray-50 dark:hover:bg-blue-night-800/50">
+                                        <td className="px-6 py-4">{payment.date.toLocaleDateString()}</td>
+                                        <td className="px-6 py-4">{formatCurrency(payment.amount)}</td>
+                                        <td className="px-6 py-4">{payment.plan}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${payment.status === 'Paid' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800'}`}>
+                                                {t(`profile.paymentStatus${payment.status}`)}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </ProfileCard>
+            )}
 
             <style>{`
                 .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
