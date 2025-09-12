@@ -431,7 +431,8 @@
   "tooltips": {
     "proFeature": "Passez à un plan Pro pour utiliser cette fonctionnalité.",
     "employeeLimit": "La limite d'employés de votre plan ({limit}) a été atteinte. Mettez à niveau pour en ajouter plus.",
-    "employeeLimitFull": "Votre plan actuel ne permet que {limit} employés. Veuillez mettre à niveau pour en ajouter plus."
+    "employeeLimitFull": "Votre plan actuel ne permet que {limit} employés. Veuillez mettre à niveau pour en ajouter plus.",
+    "proPlusFeature": "Passez à un plan Pro Plus pour utiliser cette fonctionnalité."
   },
   "upgrade": {
     "dashboardTitle": "Le Tableau de Bord est une Fonctionnalité Pro",

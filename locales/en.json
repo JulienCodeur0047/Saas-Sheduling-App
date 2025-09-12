@@ -431,7 +431,8 @@
   "tooltips": {
     "proFeature": "Upgrade to a Pro plan to use this feature.",
     "employeeLimit": "Your plan's employee limit of {limit} has been reached. Upgrade to add more.",
-    "employeeLimitFull": "Your current plan only allows up to {limit} employees. Please upgrade to add more."
+    "employeeLimitFull": "Your current plan only allows up to {limit} employees. Please upgrade to add more.",
+    "proPlusFeature": "Upgrade to a Pro Plus plan to use this feature."
   },
   "upgrade": {
     "dashboardTitle": "Dashboard is a Pro Feature",

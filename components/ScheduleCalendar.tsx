@@ -92,7 +92,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         onSaveSpecialDay, onDeleteSpecialDay
     } = props;
     
-    const { permissions } = useAuth();
+    const { user, permissions } = useAuth();
     const { t, language } = useLanguage();
     const { theme } = useTheme();
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -117,6 +117,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     // State for notification feature
     const [isNotifying, setIsNotifying] = useState(false);
     const [unsentChanges, setUnsentChanges] = useState<Set<string>>(new Set());
+
+    const canNotify = user?.plan === 'Pro Plus';
 
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
     const monthGridDays = useMemo(() => getMonthGridDays(currentDate), [currentDate]);
@@ -268,6 +270,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     const toggleLock = () => setIsLocked(prev => !prev);
 
     const handleSendNotifications = async () => {
+        if (!canNotify) return;
         setIsNotifying(true);
         const changesCount = unsentChanges.size;
 
@@ -534,23 +537,31 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                             <p className="font-bold text-gray-800 dark:text-gray-200">{t('schedule.unsentChangesTitle')}</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{t('schedule.unsentChangesDesc', { count: totalChanges })}</p>
                         </div>
-                        <button
-                            onClick={handleSendNotifications}
-                            disabled={isNotifying}
-                            className="flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-green-400 dark:disabled:bg-green-800 disabled:cursor-wait"
-                        >
-                            {isNotifying ? (
-                                <>
-                                    <Loader2 size={20} className="mr-2 animate-spin" />
-                                    {t('schedule.sending')}
-                                </>
-                            ) : (
-                                <>
-                                    <Send size={18} className="mr-2" />
-                                    {t('schedule.notifyEmployees')}
-                                </>
-                            )}
-                        </button>
+                        <div className="relative">
+                            <button
+                                onClick={handleSendNotifications}
+                                disabled={isNotifying || !canNotify}
+                                title={!canNotify ? t('tooltips.proPlusFeature') : ''}
+                                className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 ${
+                                    !canNotify
+                                    ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'
+                                    : 'bg-green-600 hover:bg-green-700 disabled:bg-green-400 dark:disabled:bg-green-800 disabled:cursor-wait'
+                                }`}
+                            >
+                                {isNotifying ? (
+                                    <>
+                                        <Loader2 size={20} className="mr-2 animate-spin" />
+                                        {t('schedule.sending')}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send size={18} className="mr-2" />
+                                        {t('schedule.notifyEmployees')}
+                                    </>
+                                )}
+                            </button>
+                             {!canNotify && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
+                        </div>
                     </div>
                 </div>
             )}
