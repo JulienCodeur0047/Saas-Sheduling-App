@@ -159,7 +159,15 @@
     "paymentPlan": "Plan",
     "paymentStatus": "Statut",
     "paymentStatusPaid": "Payé",
-    "paymentStatusFailed": "Échoué"
+    "paymentStatusFailed": "Échoué",
+    "changePasswordTitle": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "passwordMismatchError": "Les nouveaux mots de passe ne correspondent pas.",
+    "incorrectPasswordError": "Le mot de passe actuel que vous avez entré est incorrect.",
+    "passwordChangedSuccess": "Votre mot de passe a été modifié avec succès.",
+    "passwordEmptyError": "Le nouveau mot de passe ne peut pas être vide."
   },
   "inbox": {
     "emptyTitle": "Votre boîte de réception est vide",

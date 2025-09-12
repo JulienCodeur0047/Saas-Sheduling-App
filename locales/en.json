@@ -159,7 +159,15 @@
     "paymentPlan": "Plan",
     "paymentStatus": "Status",
     "paymentStatusPaid": "Paid",
-    "paymentStatusFailed": "Failed"
+    "paymentStatusFailed": "Failed",
+    "changePasswordTitle": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordMismatchError": "New passwords do not match.",
+    "incorrectPasswordError": "The current password you entered is incorrect.",
+    "passwordChangedSuccess": "Your password has been changed successfully.",
+    "passwordEmptyError": "New password cannot be empty."
   },
   "inbox": {
     "emptyTitle": "Your inbox is empty",

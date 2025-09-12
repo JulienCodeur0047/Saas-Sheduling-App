@@ -1,3 +1,5 @@
+// Fix: Removed self-import of 'Company' which caused a name conflict with its own declaration.
+
 export interface Company {
   id: string;
   name: string;
@@ -89,6 +91,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
+    password?: string; // Stored in DB, but not held in client-side user state after login.
     plan: Plan;
     avatarUrl: string | null;
     businessType: BusinessType;

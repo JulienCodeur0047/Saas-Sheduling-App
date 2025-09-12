@@ -72,9 +72,10 @@ interface AuthContextType extends CompanyDataContextType, DataHandlerContextType
   permissions: Permissions;
   login: (email: string, pass: string) => LoginResult;
   logout: () => void;
-  register: (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified' | 'companyId'>, pass: string) => boolean;
+  register: (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified' | 'companyId' | 'password'>, pass: string) => boolean;
   updateUser: (updatedData: Partial<User>) => void;
   verifyUser: (email: string) => void;
+  changePassword: (currentPassword: string, newPassword: string) => { success: boolean; messageKey: string };
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,11 +101,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [user?.plan]);
 
   const login = (email: string, pass: string): LoginResult => {
-    const foundUser = DB.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (!foundUser) return { success: false, reason: 'invalid' };
-    if (!foundUser.isVerified) return { success: false, reason: 'unverified' };
+    const lowerCaseEmail = email.toLowerCase();
+    const foundUser = DB.users.find(u => u.email.toLowerCase() === lowerCaseEmail);
+
+    if (!foundUser || foundUser.password !== pass) {
+        return { success: false, reason: 'invalid' };
+    }
     
-    setUser(foundUser);
+    if (!foundUser.isVerified) {
+        return { success: false, reason: 'unverified' };
+    }
+    
+    // For security, remove password from user object before setting state
+    const { password, ...userToSet } = foundUser;
+    setUser(userToSet);
     setData(getCompanyData(foundUser.companyId));
     
     const company = DB.companies.find(c => c.id === foundUser.companyId);
@@ -130,8 +140,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setPaymentHistory([]);
   };
 
-  const register = (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified' | 'companyId'>, pass: string): boolean => {
-    if (DB.users.some(u => u.email.toLowerCase() === userData.email.toLowerCase())) return false;
+  const register = (userData: Omit<User, 'id' | 'avatarUrl' | 'isVerified' | 'companyId' | 'password'>, pass: string): boolean => {
+    const lowerCaseEmail = userData.email.toLowerCase();
+    if (DB.users.some(u => u.email.toLowerCase() === lowerCaseEmail)) return false;
 
     const newUserId = `user-${Date.now()}`;
     const newCompanyId = `company-${Date.now()}`;
@@ -143,6 +154,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: newUserId,
         avatarUrl: null,
         ...userData,
+        password: pass,
         companyId: newCompanyId,
         isVerified: false,
     };
@@ -193,9 +205,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (!prevUser) return null;
           const updatedUser = { ...prevUser, ...updatedData };
           const userIndex = DB.users.findIndex(u => u.id === updatedUser.id);
-          if (userIndex !== -1) DB.users[userIndex] = updatedUser;
+          if (userIndex !== -1) {
+            // Ensure password is not overwritten if not provided
+            const currentDbUser = DB.users[userIndex];
+            DB.users[userIndex] = { ...currentDbUser, ...updatedUser };
+          }
           return updatedUser;
       });
+  };
+  
+  const changePassword = (currentPassword: string, newPassword: string): { success: boolean; messageKey: string } => {
+    if (!user) {
+        return { success: false, messageKey: 'auth.notLoggedIn' };
+    }
+
+    const userIndex = DB.users.findIndex(u => u.id === user.id);
+    if (userIndex === -1) {
+        return { success: false, messageKey: 'auth.notLoggedIn' }; // Should not happen
+    }
+
+    const dbUser = DB.users[userIndex];
+    if (dbUser.password !== currentPassword) {
+        return { success: false, messageKey: 'profile.incorrectPasswordError' };
+    }
+
+    DB.users[userIndex] = { ...dbUser, password: newPassword };
+    return { success: true, messageKey: 'profile.passwordChangedSuccess' };
   };
 
   // --- Data Handlers ---
@@ -365,7 +400,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const value = { 
-    user, permissions, login, logout, register, updateUser, verifyUser,
+    user, permissions, login, logout, register, updateUser, verifyUser, changePassword,
     subscription, paymentHistory,
     ...data,
     handleSaveEmployee, handleDeleteEmployee,

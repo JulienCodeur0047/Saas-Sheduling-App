@@ -176,7 +176,7 @@ const DEMO_INBOX_MESSAGES: InboxMessage[] = [
 // --- DATABASE INITIALIZATION ---
 export const DB: Database = {
     users: [{ 
-        id: DEMO_USER_ID, name: 'Admin User', email: 'admin@quickshift.com', plan: 'Pro Plus', avatarUrl: null,
+        id: DEMO_USER_ID, name: 'Admin User', email: 'admin@quickshift.com', password: 'password123', plan: 'Pro Plus', avatarUrl: null,
         businessType: 'Company', companyName: 'Quick Shift Inc.', activitySector: 'Technology',
         address: '123 Tech Lane, CA', isVerified: true, companyId: DEMO_COMPANY_ID
     }],
@@ -213,10 +213,15 @@ export const getCompanyData = (companyId: string) => {
     };
 };
 
+// Fix: Add type guards to ensure `targetArray` and `data` are arrays. This prevents calling `.filter`
+// on non-array properties (like `credentials`) and ensures `data` is spreadable, resolving static type errors.
 export const updateCompanyData = <K extends keyof Database>(companyId: string, dataType: K, data: Database[K]) => {
-    // Filter out old data for the company and add the new data
-    const otherCompaniesData = DB[dataType].filter((item: any) => item.companyId !== companyId);
-    DB[dataType] = [...otherCompaniesData, ...data] as any;
+    const targetArray = DB[dataType];
+    if (Array.isArray(targetArray) && Array.isArray(data)) {
+        // Filter out old data for the company and add the new data
+        const otherCompaniesData = targetArray.filter((item: any) => item.companyId !== companyId);
+        DB[dataType] = [...otherCompaniesData, ...data] as any;
+    }
 };
 
 export const createDefaultDataForCompany = (companyId: string) => {

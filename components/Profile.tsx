@@ -5,6 +5,7 @@ import { Edit, Upload, Lock, Gem } from 'lucide-react';
 import Avatar from './Avatar';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Plan } from '../types';
+import Modal from './Modal';
 
 const ProfileCard: React.FC<{ children: React.ReactNode, title: string }> = ({ children, title }) => (
     <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-md">
@@ -14,13 +15,18 @@ const ProfileCard: React.FC<{ children: React.ReactNode, title: string }> = ({ c
 );
 
 const Profile: React.FC = () => {
-    const { user, subscription, paymentHistory, updateUser } = useAuth();
+    const { user, subscription, paymentHistory, updateUser, changePassword } = useAuth();
     const { t } = useLanguage();
     const { formatCurrency } = useCurrency();
     
     const [name, setName] = useState(user?.name || '');
     const [isEditingName, setIsEditingName] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
 
     const handleNameSave = () => {
         if (name.trim() && user) {
@@ -37,6 +43,36 @@ const Profile: React.FC = () => {
                 updateUser({ avatarUrl: reader.result as string });
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const handlePasswordModalClose = () => {
+        setIsPasswordModalOpen(false);
+        setPasswordData({ current: '', new: '', confirm: '' });
+        setPasswordError('');
+        setPasswordSuccess('');
+    };
+
+    const handlePasswordChangeSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setPasswordError('');
+        setPasswordSuccess('');
+
+        if (!passwordData.new) {
+            setPasswordError(t('profile.passwordEmptyError'));
+            return;
+        }
+        if (passwordData.new !== passwordData.confirm) {
+            setPasswordError(t('profile.passwordMismatchError'));
+            return;
+        }
+        
+        const result = changePassword(passwordData.current, passwordData.new);
+        if (result.success) {
+            setPasswordSuccess(t(result.messageKey));
+            setTimeout(handlePasswordModalClose, 1500); // Close after 1.5s
+        } else {
+            setPasswordError(t(result.messageKey));
         }
     };
 
@@ -137,7 +173,7 @@ const Profile: React.FC = () => {
                         <p className="font-medium">{t('profile.password')}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('profile.passwordLastChanged')}</p>
                     </div>
-                    <button className={buttonSecondaryClasses}>
+                    <button onClick={() => setIsPasswordModalOpen(true)} className={buttonSecondaryClasses}>
                         <Lock size={16} className="mr-2" />
                         {t('profile.changePassword')}
                     </button>
@@ -197,9 +233,52 @@ const Profile: React.FC = () => {
                 </ProfileCard>
             )}
 
+            <Modal isOpen={isPasswordModalOpen} onClose={handlePasswordModalClose} title={t('profile.changePasswordTitle')}>
+                <form onSubmit={handlePasswordChangeSubmit} className="space-y-4">
+                    {passwordError && <p className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{passwordError}</p>}
+                    {passwordSuccess && <p className="text-green-500 text-sm bg-green-100 dark:bg-green-900/30 p-2 rounded-md">{passwordSuccess}</p>}
+                    <div>
+                        <label className="label-style">{t('profile.currentPassword')}</label>
+                        <input 
+                            type="password" 
+                            value={passwordData.current} 
+                            onChange={e => setPasswordData({...passwordData, current: e.target.value})} 
+                            required 
+                            className="input-style"
+                        />
+                    </div>
+                    <div>
+                        <label className="label-style">{t('profile.newPassword')}</label>
+                        <input 
+                            type="password" 
+                            value={passwordData.new} 
+                            onChange={e => setPasswordData({...passwordData, new: e.target.value})} 
+                            required 
+                            className="input-style"
+                        />
+                    </div>
+                     <div>
+                        <label className="label-style">{t('profile.confirmNewPassword')}</label>
+                        <input 
+                            type="password" 
+                            value={passwordData.confirm} 
+                            onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} 
+                            required 
+                            className="input-style"
+                        />
+                    </div>
+                    <div className="flex justify-end space-x-2 pt-2">
+                        <button type="button" onClick={handlePasswordModalClose} className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-blue-night-800 hover:bg-gray-200 dark:hover:bg-blue-night-700">{t('modals.cancel')}</button>
+                        <button type="submit" className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">{t('modals.save')}</button>
+                    </div>
+                </form>
+            </Modal>
+
             <style>{`
                 .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
                 .dark .input-style { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
+                .label-style { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #374151; }
+                .dark .label-style { color: #D1D5DB; }
             `}</style>
         </div>
     );
