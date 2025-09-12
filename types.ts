@@ -1,31 +1,42 @@
 export type EmployeeRole = string;
 
+export interface Company {
+  id: string;
+  name: string;
+  ownerId: string;
+}
+
 export interface Role {
   id: string;
   name: string;
+  companyId: string;
 }
 
 export interface Location {
   id: string;
   name: string;
   address?: string;
+  companyId: string;
 }
 
 export interface Department {
   id: string;
   name: string;
+  companyId: string;
 }
 
 export interface AbsenceType {
   id: string;
-  name: string;
+  name:string;
   color: string;
+  companyId: string;
 }
 
 export interface SpecialDayType {
   id: string;
   name: string;
-  isHoliday: boolean; // if true, blocks shifts/absences
+  isHoliday: boolean;
+  companyId: string;
 }
 
 export interface Employee {
@@ -36,6 +47,7 @@ export interface Employee {
   avatarUrl: string | null;
   phone: string;
   gender: 'Male' | 'Female' | 'Other' | 'Prefer not to say';
+  companyId: string;
 }
 
 export interface Shift {
@@ -45,6 +57,7 @@ export interface Shift {
   endTime: Date;
   locationId?: string;
   departmentId?: string;
+  companyId: string;
 }
 
 export interface Absence {
@@ -53,6 +66,7 @@ export interface Absence {
     absenceTypeId: string;
     startDate: Date;
     endDate: Date;
+    companyId: string;
 }
 
 export interface SpecialDay {
@@ -60,6 +74,7 @@ export interface SpecialDay {
     date: Date;
     typeId: string;
     coverage: 'all-day' | 'morning' | 'afternoon' | 'evening';
+    companyId: string;
 }
 
 
@@ -81,6 +96,7 @@ export interface User {
     activitySector?: ActivitySector;
     address?: string;
     isVerified: boolean;
+    companyId: string;
 }
 
 export interface Subscription {
@@ -110,6 +126,7 @@ export interface InboxMessage {
   absenceTypeId?: string;
   startDate?: Date;
   endDate?: Date;
+  companyId: string;
 }
 
 export type AvailabilityStatus = 'available' | 'preferred' | 'unavailable';
@@ -125,4 +142,5 @@ export type WeeklyAvailability = [DayAvailability, DayAvailability, DayAvailabil
 export interface EmployeeAvailability {
     employeeId: string;
     availability: WeeklyAvailability;
+    companyId: string;
 }

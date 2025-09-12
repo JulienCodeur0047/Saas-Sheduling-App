@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shift, Employee, Location, Department, Absence, AbsenceType, SpecialDay, SpecialDayType, EmployeeAvailability, AvailabilityStatus, TimeBlock } from '../types';
 import { Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ShiftEditorProps {
     shift: Shift | null;
@@ -70,6 +71,7 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
         allSpecialDays, allSpecialDayTypes, allEmployeeAvailabilities, onSave, onCancel, onDelete 
     } = props;
     const { t } = useLanguage();
+    const { user } = useAuth();
     
     const getInitialState = () => {
         const date = shift?.startTime || selectedDate || new Date();
@@ -169,6 +171,8 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             endTime: newEndTime,
             locationId: formData.locationId || undefined,
             departmentId: formData.departmentId || undefined,
+            // Fix: Add missing companyId property
+            companyId: user!.companyId,
         };
         onSave(updatedShift);
     };

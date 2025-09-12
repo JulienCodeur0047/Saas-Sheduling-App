@@ -5,6 +5,7 @@ import Modal from './Modal';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
 import AvailabilityEditor from './AvailabilityEditor';
+import { useAuth } from '../contexts/AuthContext';
 
 interface EmployeeEditorProps {
     employee: Employee | null;
@@ -29,6 +30,7 @@ const getInitialFormData = (employee: Employee | null, roles: Role[]): Partial<E
 
 const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave, onClose, onDelete, employeeAvailability, onSaveAvailability }) => {
     const { t } = useLanguage();
+    const { user } = useAuth();
     const [formData, setFormData] = useState<Partial<Employee>>(getInitialFormData(employee, roles));
     const [error, setError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,12 +68,14 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
         const isNew = !employee;
         const employeeToSave: Employee = {
             id: employee?.id || `emp-${Date.now()}`,
-            name: formData.name,
-            email: formData.email,
+            name: formData.name!,
+            email: formData.email!,
             role: formData.role || (roles[0]?.name || 'Unassigned'),
             avatarUrl: formData.avatarUrl || null,
             phone: formData.phone || '',
             gender: formData.gender || 'Prefer not to say',
+            // Fix: Add missing companyId property
+            companyId: user!.companyId,
         };
         onSave(employeeToSave, isNew);
     };

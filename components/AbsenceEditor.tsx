@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Absence, Employee, AbsenceType, Shift, SpecialDay, SpecialDayType } from '../types';
 import { Trash2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AbsenceEditorProps {
     absence: Absence | null;
@@ -22,6 +23,7 @@ const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() 
 const AbsenceEditor: React.FC<AbsenceEditorProps> = (props) => {
     const { absence, employees, absenceTypes, allShifts, allSpecialDays, allSpecialDayTypes, onSave, onCancel, onDelete } = props;
     const { t } = useLanguage();
+    const { user } = useAuth();
     
     const getInitialState = () => {
         const today = new Date();
@@ -96,6 +98,8 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = (props) => {
             absenceTypeId: formData.absenceTypeId,
             startDate: newStartDate,
             endDate: newEndDate,
+            // Fix: Add missing companyId property
+            companyId: user!.companyId,
         };
         onSave(updatedAbsence);
     };

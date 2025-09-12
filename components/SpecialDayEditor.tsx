@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SpecialDay, SpecialDayType } from '../types';
 import { Trash2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SpecialDayEditorProps {
     date: Date;
@@ -16,6 +17,7 @@ const toInputDateString = (date: Date) => date.toISOString().split('T')[0];
 
 const SpecialDayEditor: React.FC<SpecialDayEditorProps> = ({ date, specialDay, specialDayTypes, onSave, onCancel, onDelete }) => {
     const { t } = useLanguage();
+    const { user } = useAuth();
     
     const getInitialState = () => ({
         typeId: specialDay?.typeId || (specialDayTypes[0]?.id || ''),
@@ -39,6 +41,8 @@ const SpecialDayEditor: React.FC<SpecialDayEditorProps> = ({ date, specialDay, s
             date: date,
             typeId: formData.typeId,
             coverage: formData.coverage as SpecialDay['coverage'],
+            // Fix: Add missing companyId property
+            companyId: user!.companyId,
         };
         onSave(updatedSpecialDay);
     };

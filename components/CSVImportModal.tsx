@@ -4,7 +4,8 @@ import Modal from './Modal';
 import { Upload, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-type ImportableEmployee = Omit<Employee, 'id' | 'avatarUrl'>;
+// Fix: Redefine ImportableEmployee to omit companyId, as it's added by the AuthContext.
+type ImportableEmployee = Omit<Employee, 'id' | 'avatarUrl' | 'companyId'>;
 
 interface CSVImportModalProps {
     onClose: () => void;
