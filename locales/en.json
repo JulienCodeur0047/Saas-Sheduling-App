@@ -52,7 +52,12 @@
     "lock": "Lock schedule to prevent changes",
     "unlock": "Unlock schedule to allow changes",
     "locked": "Locked",
-    "unlocked": "Unlocked"
+    "unlocked": "Unlocked",
+    "unsentChangesTitle": "Unsent Schedule Changes",
+    "unsentChangesDesc": "You have {count} modified shifts.",
+    "notifyEmployees": "Notify Employees",
+    "sending": "Sending...",
+    "notificationSuccess": "Successfully sent notifications for {count} shift changes."
   },
   "employees": {
     "title": "Employees",

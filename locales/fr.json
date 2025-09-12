@@ -52,7 +52,12 @@
     "lock": "Verrouiller le planning pour empêcher les modifications",
     "unlock": "Déverrouiller le planning pour autoriser les modifications",
     "locked": "Verrouillé",
-    "unlocked": "Déverrouillé"
+    "unlocked": "Déverrouillé",
+    "unsentChangesTitle": "Modifications non envoyées",
+    "unsentChangesDesc": "Vous avez {count} shifts modifiés.",
+    "notifyEmployees": "Notifier les Employés",
+    "sending": "Envoi en cours...",
+    "notificationSuccess": "Notifications envoyées avec succès pour {count} changements de shift."
   },
   "employees": {
     "title": "Employés",

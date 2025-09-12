@@ -8,7 +8,7 @@ import AbsenceEditor from './AbsenceEditor';
 import CalendarFilter from './CalendarFilter';
 import SpecialDayEditor from './SpecialDayEditor';
 import ExportModal from './ExportModal';
-import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut, Lock, Unlock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut, Lock, Unlock, Send, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -114,6 +114,10 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     
     const [filters, setFilters] = useState<{ employeeIds: string[], roleNames: string[], departmentIds: string[] }>({ employeeIds: [], roleNames: [], departmentIds: [] });
 
+    // State for notification feature
+    const [isNotifying, setIsNotifying] = useState(false);
+    const [unsentChanges, setUnsentChanges] = useState<Set<string>>(new Set());
+
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
     const monthGridDays = useMemo(() => getMonthGridDays(currentDate), [currentDate]);
 
@@ -186,6 +190,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         } else if (holidayOnDay) {
             alert("Cannot move shift to a holiday.");
         } else {
+             setUnsentChanges(prev => new Set(prev).add(shiftId));
              const updatedShifts = shifts.map(shift => {
                 if (shift.id === shiftId) {
                     const duration = shift.endTime.getTime() - shift.startTime.getTime();
@@ -221,30 +226,59 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     }
     const openDayDetailModal = (date: Date) => { if (!isLocked) setDayDetailModal({isOpen: true, date: date}); }
 
-    // Modal Savers
-    const handleShiftSave = (shift: Shift) => { onSaveShift(shift); setShiftEditorState({isOpen: false, shift: null}); }
+    // Handlers that update notification state
+    const handleShiftSave = (shift: Shift) => { 
+        setUnsentChanges(prev => new Set(prev).add(shift.id));
+        onSaveShift(shift); 
+        setShiftEditorState({isOpen: false, shift: null}); 
+    }
+    const handleShiftDelete = (shiftId: string) => { 
+        setUnsentChanges(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(shiftId);
+            return newSet;
+        });
+        onDeleteShift(shiftId); 
+        setShiftEditorState({isOpen: false, shift: null}); 
+    }
+     const handleDeleteSelected = () => {
+        if(selectedShiftIds.length > 0 && window.confirm(t('modals.confirmDeleteMultiple', { count: selectedShiftIds.length }))) {
+            setUnsentChanges(prev => {
+                const newSet = new Set(prev);
+                selectedShiftIds.forEach(id => newSet.delete(id));
+                return newSet;
+            });
+            onDeleteMultipleShifts(selectedShiftIds);
+            setSelectedShiftIds([]);
+            setIsSelectionModeActive(false);
+        }
+    }
+    
+    // Regular savers/deleters
     const handleAbsenceSave = (absence: Absence) => { onSaveAbsence(absence); setAbsenceEditorState({isOpen: false, absence: null}); }
     const handleSpecialDaySave = (specialDay: SpecialDay) => { onSaveSpecialDay(specialDay); setSpecialDayEditorState({isOpen: false, specialDay: null, date: null}); }
-
-    // Modal Deleters
-    const handleShiftDelete = (shiftId: string) => { onDeleteShift(shiftId); setShiftEditorState({isOpen: false, shift: null}); }
     const handleAbsenceDelete = (absenceId: string) => { onDeleteAbsence(absenceId); setAbsenceEditorState({isOpen: false, absence: null}); }
     const handleSpecialDayDelete = (specialDayId: string) => { onDeleteSpecialDay(specialDayId); setSpecialDayEditorState({isOpen: false, specialDay: null, date: null}); }
     
     const toggleSelectionMode = () => { setIsSelectionModeActive(!isSelectionModeActive); setSelectedShiftIds([]); }
     const toggleShiftSelection = (shiftId: string) => setSelectedShiftIds(prev => prev.includes(shiftId) ? prev.filter(id => id !== shiftId) : [...prev, shiftId]);
     
-    const handleDeleteSelected = () => {
-        if(selectedShiftIds.length > 0 && window.confirm(t('modals.confirmDeleteMultiple', { count: selectedShiftIds.length }))) {
-            onDeleteMultipleShifts(selectedShiftIds);
-            setSelectedShiftIds([]);
-            setIsSelectionModeActive(false);
-        }
-    }
-
     const handleZoomIn = () => setZoomLevel(level => Math.min(level + 1, 2));
     const handleZoomOut = () => setZoomLevel(level => Math.max(level - 1, 0));
     const toggleLock = () => setIsLocked(prev => !prev);
+
+    const handleSendNotifications = async () => {
+        setIsNotifying(true);
+        const changesCount = unsentChanges.size;
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        alert(t('schedule.notificationSuccess', { count: changesCount }));
+
+        setIsNotifying(false);
+        setUnsentChanges(new Set());
+    };
+
+    const totalChanges = unsentChanges.size;
 
     const getShiftEditorTitle = () => {
         if (shiftEditorState.shift) {
@@ -326,18 +360,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     )}
                 </div>
                 <div className="flex items-center space-x-2">
-                    <button
-                        onClick={toggleLock}
-                        title={isLocked ? t('schedule.unlock') : t('schedule.lock')}
-                        className={`flex items-center text-sm font-semibold py-2 px-3 rounded-lg transition-colors duration-300 ${
-                            isLocked
-                            ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300'
-                            : 'bg-gray-200 hover:bg-gray-300 dark:bg-blue-night-700 dark:hover:bg-blue-night-600'
-                        }`}
-                    >
-                        {isLocked ? <Lock size={18} className="mr-2" /> : <Unlock size={18} className="mr-2" />}
-                        {isLocked ? t('schedule.locked') : t('schedule.unlocked')}
-                    </button>
                      <button 
                         onClick={() => permissions.canExport && setIsExportModalOpen(true)}
                         disabled={!permissions.canExport}
@@ -384,8 +406,23 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
 
             <CalendarFilter employees={employees} roles={roles} departments={departments} onFilterChange={setFilters} />
 
+            <div className="flex justify-end my-4">
+                <button
+                    onClick={toggleLock}
+                    title={isLocked ? t('schedule.unlock') : t('schedule.lock')}
+                    className={`flex items-center text-sm font-semibold py-2 px-3 rounded-lg transition-colors duration-300 ${
+                        isLocked
+                        ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300'
+                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-blue-night-700 dark:hover:bg-blue-night-600'
+                    }`}
+                >
+                    {isLocked ? <Lock size={18} className="mr-2" /> : <Unlock size={18} className="mr-2" />}
+                    {isLocked ? t('schedule.locked') : t('schedule.unlocked')}
+                </button>
+            </div>
+
             {view === 'week' ? (
-                 <div className="flex-1 grid grid-cols-7 gap-2 mt-4">
+                 <div className="flex-1 grid grid-cols-7 gap-2">
                     {weekDays.map(day => {
                         const openShiftsForDay = filteredCalendarItems.shifts.filter(s => !s.employeeId && isSameDay(s.startTime, day)).sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
                         const assignedShiftsForDay = filteredCalendarItems.shifts.filter(s => !!s.employeeId && isDateBetween(day, s.startTime, s.endTime)).sort((a,b) => a.startTime.getTime() - b.startTime.getTime());
@@ -427,7 +464,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                             <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 text-center border-b dark:border-blue-night-800 pb-1">{t('schedule.openShifts')}</h4>
                                             <div className="space-y-2 pt-1">
                                                 {openShiftsForDay.map(shift => (
-                                                    <ShiftCard key={shift.id} shift={shift} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={false} isSelected={false} onToggleSelect={() => {}} onDragStart={() => {}} zoomLevel={zoomLevel} isLocked={isLocked} />
+                                                    <ShiftCard key={shift.id} shift={shift} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={false} isSelected={false} onToggleSelect={() => {}} onDragStart={() => {}} zoomLevel={zoomLevel} isLocked={isLocked} />
                                                 ))}
                                             </div>
                                         </div>
@@ -440,7 +477,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                     ))}
                                     {assignedShiftsForDay.map(shift => (
                                         <div key={shift.id} className={`transition-opacity duration-300 ${draggedShiftId === shift.id ? 'opacity-30' : 'opacity-100'}`}>
-                                            <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={handleDragStart} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={isSelectionModeActive} isSelected={selectedShiftIds.includes(shift.id)} onToggleSelect={toggleShiftSelection} zoomLevel={zoomLevel} isLocked={isLocked} />
+                                            <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={handleDragStart} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={isSelectionModeActive} isSelected={selectedShiftIds.includes(shift.id)} onToggleSelect={toggleShiftSelection} zoomLevel={zoomLevel} isLocked={isLocked} />
                                         </div>
                                     ))}
                                 </div>
@@ -449,7 +486,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     })}
                 </div>
             ) : (
-                <div className="flex-1 grid grid-cols-7 grid-rows-6 gap-1 mt-4 border-l border-t dark:border-blue-night-800">
+                <div className="flex-1 grid grid-cols-7 grid-rows-6 gap-1 border-l border-t dark:border-blue-night-800">
                     {/* Month header */}
                     {weekDays.map(day => <div key={day.getDay()} className="text-center py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 border-b dark:border-blue-night-800">{formatDay(day)}</div>)}
                     {/* Month grid */}
@@ -487,6 +524,34 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                             </div>
                          );
                     })}
+                </div>
+            )}
+            
+            {totalChanges > 0 && (
+                <div className="flex items-center justify-start p-3 mt-2 bg-gray-50 dark:bg-blue-night-950 border-t border-gray-200 dark:border-blue-night-800 rounded-b-lg shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
+                    <div className="flex items-center">
+                        <div className="mr-4">
+                            <p className="font-bold text-gray-800 dark:text-gray-200">{t('schedule.unsentChangesTitle')}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('schedule.unsentChangesDesc', { count: totalChanges })}</p>
+                        </div>
+                        <button
+                            onClick={handleSendNotifications}
+                            disabled={isNotifying}
+                            className="flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-green-400 dark:disabled:bg-green-800 disabled:cursor-wait"
+                        >
+                            {isNotifying ? (
+                                <>
+                                    <Loader2 size={20} className="mr-2 animate-spin" />
+                                    {t('schedule.sending')}
+                                </>
+                            ) : (
+                                <>
+                                    <Send size={18} className="mr-2" />
+                                    {t('schedule.notifyEmployees')}
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -545,7 +610,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                 <AbsenceCard key={absence.id} absence={absence} employee={employees.find(e => e.id === absence.employeeId)} absenceType={absenceTypes.find(at => at.id === absence.absenceTypeId)} onClick={() => openEditAbsenceModal(absence)} onDelete={onDeleteAbsence} zoomLevel={2} isLocked={isLocked}/>
                             ))}
                             {filteredCalendarItems.shifts.filter(s => isSameDay(s.startTime, dayDetailModal.date!)).sort((a,b)=>a.startTime.getTime() - b.startTime.getTime()).map(shift => (
-                                <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={()=>{}} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={false} isSelected={false} onToggleSelect={()=>{}} zoomLevel={2} isLocked={isLocked}/>
+                                <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={()=>{}} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={false} isSelected={false} onToggleSelect={()=>{}} zoomLevel={2} isLocked={isLocked}/>
                             ))}
                              {(filteredCalendarItems.shifts.filter(s => isSameDay(s.startTime, dayDetailModal.date!)).length === 0 &&
                                filteredCalendarItems.absences.filter(a => isDateBetween(dayDetailModal.date!, a.startDate, a.endDate)).length === 0) &&
