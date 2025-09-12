@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Shift, Employee, Location, Department } from '../types';
 import Avatar from './Avatar';
@@ -32,11 +33,9 @@ const roleBgColors: { [key: string]: string } = {
 };
 
 
-const getInitials = (name: string): string => {
+const getShortFirstName = (name: string): string => {
   if (!name) return '?';
-  const parts = name.split(' ');
-  const initials = parts.map(part => part[0]).join('');
-  return initials.substring(0, 2).toUpperCase();
+  return name.split(' ')[0];
 };
 
 const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel }) => {
@@ -66,8 +65,9 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
         return (
             <div onClick={handleCardClick} title={title} className="transition-all duration-300 ease-in-out">
                 {employee ? (
-                    <div className={`h-6 rounded flex items-center px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden cursor-pointer`}>
-                        <span className="text-xs font-bold truncate">{getInitials(employee.name)}</span>
+                    <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden cursor-pointer`}>
+                        <span className="text-[11px] font-bold truncate">{getShortFirstName(employee.name)}</span>
+                        <span className="text-[10px] font-mono truncate">{shiftTimeTitle}</span>
                     </div>
                 ) : (
                     <div className="h-6 rounded border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center px-1.5 cursor-pointer">

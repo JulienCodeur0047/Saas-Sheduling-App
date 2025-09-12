@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Absence, Employee, AbsenceType } from '../types';
 import Avatar from './Avatar';
@@ -13,12 +14,20 @@ interface AbsenceCardProps {
     zoomLevel: number;
 }
 
-const getInitials = (name: string): string => {
+const getShortFirstName = (name: string): string => {
   if (!name) return '?';
-  const parts = name.split(' ');
-  const initials = parts.map(part => part[0]).join('');
-  return initials.substring(0, 2).toUpperCase();
+  return name.split(' ')[0];
 };
+
+const getAbsenceTypeAbbr = (name: string): string => {
+    if (!name) return '';
+    const words = name.split(' ');
+    if (words.length > 1) {
+        return words.map(w => w[0]).join('').toUpperCase();
+    }
+    return name.slice(0, 3).toUpperCase();
+};
+
 
 const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceType, onClick, onDelete, zoomLevel }) => {
     const { theme } = useTheme();
@@ -40,8 +49,9 @@ const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceTyp
     if (zoomLevel === 0) {
         return (
             <div onClick={onClick} title={title} className="transition-all duration-300 ease-in-out">
-                <div className="h-6 rounded flex items-center px-1.5 text-white overflow-hidden cursor-pointer" style={{ backgroundColor: absenceColor }}>
-                    <span className="text-xs font-bold truncate">{getInitials(employee.name)}</span>
+                <div className="h-6 rounded flex items-center justify-between px-1.5 text-white overflow-hidden cursor-pointer" style={{ backgroundColor: absenceColor }}>
+                    <span className="text-[11px] font-bold truncate">{getShortFirstName(employee.name)}</span>
+                    <span className="text-[10px] font-mono font-semibold truncate">{getAbsenceTypeAbbr(absenceName)}</span>
                 </div>
             </div>
         );
