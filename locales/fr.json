@@ -48,7 +48,11 @@
     "zoomOut": "Dézoomer",
     "zoomLevelCompact": "Compact",
     "zoomLevelDefault": "Défaut",
-    "zoomLevelDetailed": "Détaillé"
+    "zoomLevelDetailed": "Détaillé",
+    "lock": "Verrouiller le planning pour empêcher les modifications",
+    "unlock": "Déverrouiller le planning pour autoriser les modifications",
+    "locked": "Verrouillé",
+    "unlocked": "Déverrouillé"
   },
   "employees": {
     "title": "Employés",

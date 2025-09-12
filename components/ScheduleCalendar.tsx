@@ -8,7 +8,7 @@ import AbsenceEditor from './AbsenceEditor';
 import CalendarFilter from './CalendarFilter';
 import SpecialDayEditor from './SpecialDayEditor';
 import ExportModal from './ExportModal';
-import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut, Lock, Unlock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -100,6 +100,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
     const [view, setView] = useState<'week' | 'month'>('week');
     const [zoomLevel, setZoomLevel] = useState(1); // 0: compact, 1: default, 2: detailed
+    const [isLocked, setIsLocked] = useState(false);
     
     // Modal States
     const [shiftEditorState, setShiftEditorState] = useState<{isOpen: boolean, shift: Shift | null, date?: Date}>({isOpen: false, shift: null});
@@ -158,12 +159,13 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         if (view === 'week') {
             setCurrentDate(d => new Date(d.setDate(d.getDate() + 7)));
         } else {
-            setCurrentDate(d => new Date(d.setMonth(d.getMonth() + 1)));
+            setCurrentDate(d => new Date(d.setMonth(d.getMonth() - 1)));
         }
     };
     
     const handleDrop = (e: React.DragEvent<HTMLDivElement>, day: Date) => {
         e.preventDefault();
+        if (isLocked) return;
         const shiftId = e.dataTransfer.getData('shiftId');
         if (!shiftId) return;
 
@@ -202,20 +204,22 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     };
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, shiftId: string) => {
+        if (isLocked) return;
         e.dataTransfer.setData('shiftId', shiftId);
         setDraggedShiftId(shiftId);
     };
 
     // Modal Openers
-    const openAddShiftModal = (date: Date) => setShiftEditorState({isOpen: true, shift: null, date});
-    const openEditShiftModal = (shift: Shift) => setShiftEditorState({isOpen: true, shift: shift});
-    const openAddAbsenceModal = () => setAbsenceEditorState({isOpen: true, absence: null});
-    const openEditAbsenceModal = (absence: Absence) => setAbsenceEditorState({isOpen: true, absence: absence});
+    const openAddShiftModal = (date: Date) => { if (!isLocked) setShiftEditorState({isOpen: true, shift: null, date}); }
+    const openEditShiftModal = (shift: Shift) => { if (!isLocked) setShiftEditorState({isOpen: true, shift: shift}); }
+    const openAddAbsenceModal = () => { if (!isLocked) setAbsenceEditorState({isOpen: true, absence: null}); }
+    const openEditAbsenceModal = (absence: Absence) => { if (!isLocked) setAbsenceEditorState({isOpen: true, absence: absence}); }
     const openSpecialDayModal = (date: Date) => {
+        if (isLocked) return;
         const existing = specialDays.find(sd => isSameDay(sd.date, date));
         setSpecialDayEditorState({ isOpen: true, specialDay: existing || null, date });
     }
-    const openDayDetailModal = (date: Date) => setDayDetailModal({isOpen: true, date: date});
+    const openDayDetailModal = (date: Date) => { if (!isLocked) setDayDetailModal({isOpen: true, date: date}); }
 
     // Modal Savers
     const handleShiftSave = (shift: Shift) => { onSaveShift(shift); setShiftEditorState({isOpen: false, shift: null}); }
@@ -240,6 +244,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
 
     const handleZoomIn = () => setZoomLevel(level => Math.min(level + 1, 2));
     const handleZoomOut = () => setZoomLevel(level => Math.max(level - 1, 0));
+    const toggleLock = () => setIsLocked(prev => !prev);
 
     const getShiftEditorTitle = () => {
         if (shiftEditorState.shift) {
@@ -321,6 +326,18 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     )}
                 </div>
                 <div className="flex items-center space-x-2">
+                    <button
+                        onClick={toggleLock}
+                        title={isLocked ? t('schedule.unlock') : t('schedule.lock')}
+                        className={`flex items-center text-sm font-semibold py-2 px-3 rounded-lg transition-colors duration-300 ${
+                            isLocked
+                            ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300'
+                            : 'bg-gray-200 hover:bg-gray-300 dark:bg-blue-night-700 dark:hover:bg-blue-night-600'
+                        }`}
+                    >
+                        {isLocked ? <Lock size={18} className="mr-2" /> : <Unlock size={18} className="mr-2" />}
+                        {isLocked ? t('schedule.locked') : t('schedule.unlocked')}
+                    </button>
                      <button 
                         onClick={() => permissions.canExport && setIsExportModalOpen(true)}
                         disabled={!permissions.canExport}
@@ -333,15 +350,15 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     </button>
                     <button 
                         onClick={() => permissions.canAddAbsence && openAddAbsenceModal()}
-                        disabled={!permissions.canAddAbsence}
+                        disabled={!permissions.canAddAbsence || isLocked}
                         title={!permissions.canAddAbsence ? t('tooltips.proFeature') : ''}
-                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canAddAbsence ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
+                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canAddAbsence || isLocked ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
                     >
                         {!permissions.canAddAbsence && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <UserMinus size={20} className="mr-2" />
                         {t('schedule.addAbsence')}
                     </button>
-                    <button onClick={() => openAddShiftModal(new Date())} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
+                    <button onClick={() => openAddShiftModal(new Date())} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed">
                         <Plus size={20} className="mr-2" />
                         {t('schedule.addShift')}
                     </button>
@@ -351,7 +368,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
             {view === 'week' && (
                 <div className="flex items-center justify-end mb-4">
                      <div className="flex items-center space-x-2">
-                        <button onClick={toggleSelectionMode} className="flex items-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-lg transition-colors duration-300">
+                        <button onClick={toggleSelectionMode} disabled={isLocked} className="flex items-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-lg transition-colors duration-300 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed">
                            {isSelectionModeActive ? <XSquare size={18} className="mr-2"/> : <CheckSquare size={18} className="mr-2"/>}
                            <span className="text-sm">{isSelectionModeActive ? t('schedule.cancelSelection') : t('schedule.selectShifts')}</span>
                         </button>
@@ -381,13 +398,14 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
 
                         return (
                             <div key={day.toISOString()}
-                                onDragOver={(e) => { e.preventDefault(); setDragOverDate(day); }}
+                                onDragOver={(e) => { if (isLocked) return; e.preventDefault(); setDragOverDate(day); }}
                                 onDragLeave={() => setDragOverDate(null)}
                                 onDrop={(e) => handleDrop(e, day)}
-                                onDoubleClick={() => openAddShiftModal(day)}
+                                onDoubleClick={isLocked ? undefined : () => openAddShiftModal(day)}
                                 className={`rounded-lg p-2 flex flex-col transition-colors duration-200 
                                     ${isDragOver ? 'bg-blue-100 dark:bg-blue-night-800' : 'bg-gray-50 dark:bg-blue-night-900'}
                                     ${isHoliday ? 'bg-gray-200 dark:bg-blue-night-950/50' : ''}
+                                    ${isLocked ? 'cursor-not-allowed' : ''}
                                 `}
                             >
                                 <div className="flex justify-between items-center text-center mb-2 pb-2 border-b-2 dark:border-blue-night-800">
@@ -396,7 +414,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                         <p className="text-lg font-bold">{day.getDate()}</p>
                                     </div>
                                     <div className="flex items-center">
-                                        <button onClick={(e) => { e.stopPropagation(); openSpecialDayModal(day); }} className="p-1 rounded-full text-yellow-500 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 transition-colors" aria-label="Mark as special day">
+                                        <button onClick={(e) => { e.stopPropagation(); openSpecialDayModal(day); }} disabled={isLocked} className="p-1 rounded-full text-yellow-500 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
                                             <Star size={16} className={specialDayForDay ? 'fill-current' : ''}/>
                                         </button>
                                     </div>
@@ -409,7 +427,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                             <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 text-center border-b dark:border-blue-night-800 pb-1">{t('schedule.openShifts')}</h4>
                                             <div className="space-y-2 pt-1">
                                                 {openShiftsForDay.map(shift => (
-                                                    <ShiftCard key={shift.id} shift={shift} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={false} isSelected={false} onToggleSelect={() => {}} onDragStart={() => {}} zoomLevel={zoomLevel} />
+                                                    <ShiftCard key={shift.id} shift={shift} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={false} isSelected={false} onToggleSelect={() => {}} onDragStart={() => {}} zoomLevel={zoomLevel} isLocked={isLocked} />
                                                 ))}
                                             </div>
                                         </div>
@@ -418,11 +436,11 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                     {(openShiftsForDay.length > 0 && (assignedShiftsForDay.length > 0 || absencesForDay.length > 0)) && <hr className="border-gray-200 dark:border-blue-night-800 my-2"/>}
                                     
                                     {absencesForDay.map(absence => (
-                                        <AbsenceCard key={absence.id} absence={absence} employee={employees.find(e => e.id === absence.employeeId)} absenceType={absenceTypes.find(at => at.id === absence.absenceTypeId)} onClick={() => openEditAbsenceModal(absence)} onDelete={onDeleteAbsence} zoomLevel={zoomLevel}/>
+                                        <AbsenceCard key={absence.id} absence={absence} employee={employees.find(e => e.id === absence.employeeId)} absenceType={absenceTypes.find(at => at.id === absence.absenceTypeId)} onClick={() => openEditAbsenceModal(absence)} onDelete={onDeleteAbsence} zoomLevel={zoomLevel} isLocked={isLocked} />
                                     ))}
                                     {assignedShiftsForDay.map(shift => (
                                         <div key={shift.id} className={`transition-opacity duration-300 ${draggedShiftId === shift.id ? 'opacity-30' : 'opacity-100'}`}>
-                                            <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={handleDragStart} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={isSelectionModeActive} isSelected={selectedShiftIds.includes(shift.id)} onToggleSelect={toggleShiftSelection} zoomLevel={zoomLevel} />
+                                            <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={handleDragStart} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={isSelectionModeActive} isSelected={selectedShiftIds.includes(shift.id)} onToggleSelect={toggleShiftSelection} zoomLevel={zoomLevel} isLocked={isLocked} />
                                         </div>
                                     ))}
                                 </div>
@@ -445,8 +463,9 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                 key={index}
                                 onClick={() => openDayDetailModal(day)}
                                 onDoubleClick={() => openAddShiftModal(day)}
-                                className={`relative border-r border-b dark:border-blue-night-800 p-2 flex flex-col cursor-pointer hover:bg-gray-100 dark:hover:bg-blue-night-800 transition-colors
-                                ${isCurrentMonth ? 'bg-white dark:bg-blue-night-900' : 'bg-gray-50 dark:bg-blue-night-950 text-gray-400'}`}>
+                                className={`relative border-r border-b dark:border-blue-night-800 p-2 flex flex-col transition-colors
+                                ${isCurrentMonth ? 'bg-white dark:bg-blue-night-900' : 'bg-gray-50 dark:bg-blue-night-950 text-gray-400'}
+                                ${isLocked ? 'cursor-default' : 'cursor-pointer hover:bg-gray-100 dark:hover:bg-blue-night-800'}`}>
                                 <div className={`flex justify-center items-center w-6 h-6 rounded-full text-sm ${isToday ? 'bg-blue-600 dark:bg-blue-night-200 text-white dark:text-blue-night-900' : ''}`}>
                                     {day.getDate()}
                                 </div>
@@ -523,10 +542,10 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     <div>
                         <div className="max-h-96 overflow-y-auto space-y-2 pr-2">
                             {filteredCalendarItems.absences.filter(a => isDateBetween(dayDetailModal.date!, a.startDate, a.endDate)).map(absence => (
-                                <AbsenceCard key={absence.id} absence={absence} employee={employees.find(e => e.id === absence.employeeId)} absenceType={absenceTypes.find(at => at.id === absence.absenceTypeId)} onClick={() => openEditAbsenceModal(absence)} onDelete={onDeleteAbsence} zoomLevel={2} />
+                                <AbsenceCard key={absence.id} absence={absence} employee={employees.find(e => e.id === absence.employeeId)} absenceType={absenceTypes.find(at => at.id === absence.absenceTypeId)} onClick={() => openEditAbsenceModal(absence)} onDelete={onDeleteAbsence} zoomLevel={2} isLocked={isLocked}/>
                             ))}
                             {filteredCalendarItems.shifts.filter(s => isSameDay(s.startTime, dayDetailModal.date!)).sort((a,b)=>a.startTime.getTime() - b.startTime.getTime()).map(shift => (
-                                <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={()=>{}} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={false} isSelected={false} onToggleSelect={()=>{}} zoomLevel={2} />
+                                <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={()=>{}} onClick={() => openEditShiftModal(shift)} onDelete={onDeleteShift} isSelectionModeActive={false} isSelected={false} onToggleSelect={()=>{}} zoomLevel={2} isLocked={isLocked}/>
                             ))}
                              {(filteredCalendarItems.shifts.filter(s => isSameDay(s.startTime, dayDetailModal.date!)).length === 0 &&
                                filteredCalendarItems.absences.filter(a => isDateBetween(dayDetailModal.date!, a.startDate, a.endDate)).length === 0) &&
@@ -534,7 +553,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                              }
                         </div>
                         <div className="mt-4 pt-4 border-t dark:border-blue-night-700 flex justify-end">
-                            <button onClick={() => { setDayDetailModal({isOpen: false, date: null}); openAddShiftModal(dayDetailModal.date!); }} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
+                            <button onClick={() => { setDayDetailModal({isOpen: false, date: null}); openAddShiftModal(dayDetailModal.date!); }} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed">
                                 <Plus size={20} className="mr-2" />
                                 {t('schedule.addShift')}
                             </button>

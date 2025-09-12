@@ -48,7 +48,11 @@
     "zoomOut": "Zoom Out",
     "zoomLevelCompact": "Compact",
     "zoomLevelDefault": "Default",
-    "zoomLevelDetailed": "Detailed"
+    "zoomLevelDetailed": "Detailed",
+    "lock": "Lock schedule to prevent changes",
+    "unlock": "Unlock schedule to allow changes",
+    "locked": "Locked",
+    "unlocked": "Unlocked"
   },
   "employees": {
     "title": "Employees",

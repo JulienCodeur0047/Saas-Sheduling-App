@@ -12,6 +12,7 @@ interface AbsenceCardProps {
     onClick: () => void;
     onDelete: (absenceId: string) => void;
     zoomLevel: number;
+    isLocked: boolean;
 }
 
 const getShortFirstName = (name: string): string => {
@@ -29,12 +30,17 @@ const getAbsenceTypeAbbr = (name: string): string => {
 };
 
 
-const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceType, onClick, onDelete, zoomLevel }) => {
+const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceType, onClick, onDelete, zoomLevel, isLocked }) => {
     const { theme } = useTheme();
     if (!employee || !absenceType) return null;
 
     const { color, name: absenceName } = absenceType;
     const absenceColor = theme === 'dark' ? '#6c757d' : color;
+    
+    const handleCardClick = () => {
+        if (isLocked) return;
+        onClick();
+    };
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent onClick from firing
@@ -48,8 +54,8 @@ const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceTyp
     // --- COMPACT VIEW (level 0) ---
     if (zoomLevel === 0) {
         return (
-            <div onClick={onClick} title={title} className="transition-all duration-300 ease-in-out">
-                <div className="h-6 rounded flex items-center justify-between px-1.5 text-white overflow-hidden cursor-pointer" style={{ backgroundColor: absenceColor }}>
+            <div onClick={handleCardClick} title={title} className="transition-all duration-300 ease-in-out">
+                <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white overflow-hidden ${isLocked ? 'cursor-default' : 'cursor-pointer'}`} style={{ backgroundColor: absenceColor }}>
                     <span className="text-[11px] font-bold truncate">{getShortFirstName(employee.name)}</span>
                     <span className="text-[10px] font-mono font-semibold truncate">{getAbsenceTypeAbbr(absenceName)}</span>
                 </div>
@@ -60,9 +66,9 @@ const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceTyp
     // --- DEFAULT & DETAILED VIEWS ---
     return (
         <div
-            onClick={onClick}
+            onClick={handleCardClick}
             style={{ borderLeftColor: absenceColor }}
-            className={`rounded-lg mb-2 cursor-pointer border-l-4 group relative bg-gray-100 dark:bg-blue-night-800/50 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out ${zoomLevel === 1 ? 'p-1.5' : 'p-2'}`}
+            className={`rounded-lg mb-2 border-l-4 group relative bg-gray-100 dark:bg-blue-night-800/50 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out ${zoomLevel === 1 ? 'p-1.5' : 'p-2'} ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
         >
             <div className="flex items-center">
                 <Avatar name={employee.name} src={employee.avatarUrl} className={`rounded-full mr-2 opacity-70 ${zoomLevel === 1 ? 'w-5 h-5' : 'w-6 h-6'}`}/>
@@ -74,13 +80,15 @@ const AbsenceCard: React.FC<AbsenceCardProps> = ({ absence, employee, absenceTyp
                     </div>
                 </div>
             </div>
-            <button 
-                onClick={handleDeleteClick}
-                className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="Delete absence"
-            >
-                <Trash2 size={14} />
-            </button>
+            {!isLocked && (
+                <button 
+                    onClick={handleDeleteClick}
+                    className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Delete absence"
+                >
+                    <Trash2 size={14} />
+                </button>
+            )}
         </div>
     );
 };

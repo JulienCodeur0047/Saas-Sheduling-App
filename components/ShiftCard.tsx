@@ -16,6 +16,7 @@ interface ShiftCardProps {
     isSelected: boolean;
     onToggleSelect: (shiftId: string) => void;
     zoomLevel: number; // 0: compact, 1: default, 2: detailed
+    isLocked: boolean;
 }
 
 const roleBorderColors: { [key: string]: string } = {
@@ -38,7 +39,7 @@ const getShortFirstName = (name: string): string => {
   return name.split(' ')[0];
 };
 
-const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel }) => {
+const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel, isLocked }) => {
 
     const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     
@@ -50,6 +51,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
     };
     
     const handleCardClick = (e: React.MouseEvent) => {
+        if (isLocked) return;
         if (isSelectionModeActive && employee) { // Selection mode only for assigned shifts
             onToggleSelect(shift.id)
         } else {
@@ -65,12 +67,12 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
         return (
             <div onClick={handleCardClick} title={title} className="transition-all duration-300 ease-in-out">
                 {employee ? (
-                    <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden cursor-pointer`}>
+                    <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}>
                         <span className="text-[11px] font-bold truncate">{getShortFirstName(employee.name)}</span>
                         <span className="text-[10px] font-mono truncate">{shiftTimeTitle}</span>
                     </div>
                 ) : (
-                    <div className="h-6 rounded border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center px-1.5 cursor-pointer">
+                    <div className={`h-6 rounded border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center px-1.5 ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}>
                         <UserPlus size={12} className="text-gray-500 dark:text-gray-400" />
                     </div>
                 )}
@@ -85,7 +87,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
         return (
              <div
                 onClick={handleCardClick}
-                className={`rounded-lg mb-2 cursor-pointer border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'}`}
+                className={`rounded-lg mb-2 border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
              >
                 <div className="flex items-center mb-1">
                     <div className="w-6 h-6 rounded-full mr-2 bg-gray-300 dark:bg-blue-night-700 flex items-center justify-center flex-shrink-0">
@@ -110,13 +112,15 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                         </div>
                     )}
                 </div>
-                 <button 
-                    onClick={handleDeleteClick}
-                    className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Delete shift"
-                >
-                    <Trash2 size={14} />
-                </button>
+                 {!isLocked && (
+                    <button 
+                        onClick={handleDeleteClick}
+                        className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Delete shift"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                 )}
             </div>
         );
     }
@@ -126,10 +130,10 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
 
     return (
         <div
-            draggable={!isSelectionModeActive}
+            draggable={!isSelectionModeActive && !isLocked}
             onDragStart={(e) => onDragStart(e, shift.id)}
             onClick={handleCardClick}
-            className={`rounded-lg mb-2 cursor-pointer border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'}`}
+            className={`rounded-lg mb-2 border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
         >
             {isSelectionModeActive && (
                 <input 
@@ -161,7 +165,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                     </div>
                 )}
             </div>
-            {!isSelectionModeActive && (
+            {!isSelectionModeActive && !isLocked && (
                  <button 
                     onClick={handleDeleteClick}
                     className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
