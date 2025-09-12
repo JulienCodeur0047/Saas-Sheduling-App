@@ -444,6 +444,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                             <div 
                                 key={index}
                                 onClick={() => openDayDetailModal(day)}
+                                onDoubleClick={() => openAddShiftModal(day)}
                                 className={`relative border-r border-b dark:border-blue-night-800 p-2 flex flex-col cursor-pointer hover:bg-gray-100 dark:hover:bg-blue-night-800 transition-colors
                                 ${isCurrentMonth ? 'bg-white dark:bg-blue-night-900' : 'bg-gray-50 dark:bg-blue-night-950 text-gray-400'}`}>
                                 <div className={`flex justify-center items-center w-6 h-6 rounded-full text-sm ${isToday ? 'bg-blue-600 dark:bg-blue-night-200 text-white dark:text-blue-night-900' : ''}`}>
