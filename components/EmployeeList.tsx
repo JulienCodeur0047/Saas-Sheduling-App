@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Employee, Role } from '../types';
-import { PlusCircle, Edit, Trash2, Phone, LayoutGrid, List, Upload, Gem, Mail, Filter, ChevronDown, X } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Phone, LayoutGrid, List, Upload, Gem, Mail, Filter, ChevronDown, X, Lightbulb } from 'lucide-react';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import MultiSelectDropdown from './MultiSelectDropdown';
+import FeatureTour, { TourStep } from './FeatureTour';
 
 const ROLE_COLORS: { [key: string]: { border: string; bg: string; text: string } } = {
     'Manager': { border: 'border-red-500', bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-800 dark:text-red-300' },
@@ -22,12 +23,14 @@ interface EmployeeCardProps {
     employee: Employee;
     onEdit: (employee: Employee) => void;
     onDelete: (employeeId: string) => void;
+    tourId?: string;
 }
 
-const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete }) => {
+const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete, tourId }) => {
     const roleColor = getRoleColor(employee.role);
     return (
         <div 
+            data-tour-id={tourId}
             className={`bg-white dark:bg-blue-night-900 rounded-xl shadow-md flex flex-col justify-between transition-all duration-300 group cursor-pointer border-t-4 ${roleColor.border} hover:shadow-xl hover:-translate-y-1`}
             onClick={() => onEdit(employee)}
         >
@@ -78,6 +81,13 @@ interface EmployeeListProps {
 
 type SortOption = 'name-asc' | 'name-desc' | 'role';
 
+const employeeTourSteps: TourStep[] = [
+    { selector: "[data-tour-id='employee-view-toggle']", titleKey: 'tour.employees.viewToggleTitle', contentKey: 'tour.employees.viewToggleContent', position: 'bottom' },
+    { selector: "[data-tour-id='employee-quick-edit']", titleKey: 'tour.employees.quickEditTitle', contentKey: 'tour.employees.quickEditContent', position: 'bottom' },
+    { selector: "[data-tour-id='employee-filters']", titleKey: 'tour.employees.filterTitle', contentKey: 'tour.employees.filterContent', position: 'bottom' },
+    { selector: "[data-tour-id='employee-import']", titleKey: 'tour.employees.importTitle', contentKey: 'tour.employees.importContent', position: 'left' },
+];
+
 const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, onEdit, onDelete, onImport }) => {
     const { permissions } = useAuth();
     const { t } = useLanguage();
@@ -87,6 +97,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
     const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
     const [sortOption, setSortOption] = useState<SortOption>('name-asc');
     const [showFilters, setShowFilters] = useState(false);
+    const [isTourActive, setIsTourActive] = useState(false);
 
     const atEmployeeLimit = employees.length >= permissions.employeeLimit;
 
@@ -135,23 +146,34 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
 
     return (
         <div>
-            <div className="mb-6">
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-white">{t('employees.rosterTitle')}</h2>
-                 <div className="mt-3 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                    <div><strong>{t('employees.total')}:</strong> {employees.length}</div>
-                    <div className="h-4 border-l border-gray-300 dark:border-gray-600"></div>
-                    <div className="flex items-center gap-2 overflow-x-auto">
-                        <strong>{t('employees.byRole')}:</strong>
-                        {roleStats.map(role => {
-                            const colors = getRoleColor(role.name);
-                            return <span key={role.name} className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>{role.name}: {role.count}</span>
-                        })}
+            {isTourActive && <FeatureTour steps={employeeTourSteps} onClose={() => setIsTourActive(false)} />}
+            <div className="flex justify-between items-start mb-6">
+                <div>
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white">{t('employees.rosterTitle')}</h2>
+                    <div className="mt-3 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                        <div><strong>{t('employees.total')}:</strong> {employees.length}</div>
+                        <div className="h-4 border-l border-gray-300 dark:border-gray-600"></div>
+                        <div className="flex items-center gap-2 overflow-x-auto">
+                            <strong>{t('employees.byRole')}:</strong>
+                            {roleStats.map(role => {
+                                const colors = getRoleColor(role.name);
+                                return <span key={role.name} className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>{role.name}: {role.count}</span>
+                            })}
+                        </div>
                     </div>
                 </div>
+                <button 
+                    onClick={() => setIsTourActive(true)}
+                    title={t('tour.quickTips')}
+                    className="flex items-center text-yellow-600 dark:text-yellow-400 font-bold py-2 px-3 rounded-lg transition-colors duration-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900"
+                >
+                    <Lightbulb size={18} className="mr-2" />
+                    <span className="text-sm">{t('tour.quickTips')}</span>
+                </button>
             </div>
             
             {/* Controls Bar */}
-            <div className="mb-6 p-4 bg-white dark:bg-blue-night-900 rounded-xl shadow-md">
+            <div data-tour-id="employee-filters" className="mb-6 p-4 bg-white dark:bg-blue-night-900 rounded-xl shadow-md">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
                     <div className="lg:col-span-2">
                          <input 
@@ -171,11 +193,12 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                         </select>
                     </div>
                      <div className="flex items-center justify-end space-x-2">
-                         <div className="flex items-center bg-gray-200 dark:bg-blue-night-800 rounded-lg p-1">
+                         <div data-tour-id="employee-view-toggle" className="flex items-center bg-gray-200 dark:bg-blue-night-800 rounded-lg p-1">
                             <button onClick={() => setDisplayMode('grid')} className={`p-1.5 rounded-md transition-colors ${displayMode === 'grid' ? 'bg-blue-600 text-white shadow' : 'text-gray-500 dark:text-gray-400'}`} aria-label={t('employees.gridView')}><LayoutGrid size={20} /></button>
                             <button onClick={() => setDisplayMode('list')} className={`p-1.5 rounded-md transition-colors ${displayMode === 'list' ? 'bg-blue-600 text-white shadow' : 'text-gray-500 dark:text-gray-400'}`} aria-label={t('employees.listView')}><List size={20} /></button>
                         </div>
                         <button 
+                            data-tour-id="employee-import"
                             onClick={() => permissions.canImportEmployees && onImport()}
                             disabled={!permissions.canImportEmployees}
                             title={!permissions.canImportEmployees ? t('tooltips.proFeature') : ''}
@@ -226,12 +249,13 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                 </div>
             ) : displayMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {filteredAndSortedEmployees.map(employee => (
+                    {filteredAndSortedEmployees.map((employee, index) => (
                         <EmployeeCard 
                             key={employee.id} 
                             employee={employee} 
                             onEdit={onEdit} 
-                            onDelete={handleDeleteWithConfirm} 
+                            onDelete={handleDeleteWithConfirm}
+                            tourId={index === 0 ? "employee-quick-edit" : undefined}
                         />
                     ))}
                 </div>
@@ -247,11 +271,12 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredAndSortedEmployees.map(employee => {
+                            {filteredAndSortedEmployees.map((employee, index) => {
                                 const roleColor = getRoleColor(employee.role);
                                 return (
                                 <tr 
                                     key={employee.id} 
+                                    data-tour-id={index === 0 ? "employee-quick-edit" : undefined}
                                     className="border-b dark:border-blue-night-700 hover:bg-gray-50 dark:hover:bg-blue-night-800/50 cursor-pointer"
                                     onClick={() => onEdit(employee)}
                                 >

@@ -442,5 +442,40 @@
     "dashboardTitle": "Le Tableau de Bord est une Fonctionnalité Pro",
     "dashboardDesc": "Veuillez mettre à niveau votre plan pour accéder à des analyses et rapports pertinents sur les performances de votre équipe.",
     "upgradeButton": "Changer de Plan"
+  },
+  "tour": {
+    "next": "Suivant",
+    "done": "Terminé",
+    "quickTips": "Astuces rapides",
+    "schedule": {
+      "dragDropTitle": "Glisser-Déposer les Shifts",
+      "dragDropContent": "Replanifiez rapidement en faisant glisser une carte de shift et en la déposant sur un nouveau jour. C'est le moyen le plus rapide de gérer les changements.",
+      "quickAddTitle": "Ajout Rapide de Shift",
+      "quickAddContent": "Double-cliquez sur n'importe quel espace vide dans la colonne d'un jour pour ouvrir instantanément la boîte de dialogue 'Ajouter un Shift' pour cette date.",
+      "multiSelectTitle": "Actions en Masse",
+      "multiSelectContent": "Activez le mode de sélection pour choisir plusieurs shifts. Cela vous permet de tous les supprimer en une seule fois, vous faisant gagner des clics.",
+      "zoomTitle": "Ajustez Votre Vue",
+      "zoomContent": "Basculez entre les vues Compacte, Par Défaut et Détaillée pour voir les informations qui vous importent le plus à l'instant T.",
+      "lockTitle": "Verrouillez Votre Planning",
+      "lockContent": "Une fois votre planning finalisé, verrouillez-le pour empêcher les glissements ou modifications accidentels. Cliquez à nouveau pour déverrouiller et apporter des changements.",
+      "filterTitle": "Filtrage Puissant",
+      "filterContent": "Utilisez la barre de filtres pour affiner le planning affiché par employés, rôles ou départements spécifiques afin de concentrer votre vue."
+    },
+    "employees": {
+      "viewToggleTitle": "Changez de Vue",
+      "viewToggleContent": "Basculez entre une disposition en grille visuelle et une vue en liste compacte pour voir votre équipe de la manière qui convient le mieux à votre tâche.",
+      "quickEditTitle": "Modification Rapide",
+      "quickEditContent": "Cliquez n'importe où sur la carte ou la ligne d'un employé pour ouvrir immédiatement l'éditeur et mettre à jour ses détails ou sa disponibilité.",
+      "filterTitle": "Trouvez Rapidement des Employés",
+      "filterContent": "Utilisez la barre de recherche et les filtres avancés pour les rôles et le genre afin de localiser instantanément n'importe quel employé dans votre liste.",
+      "importTitle": "Importation en Masse",
+      "importContent": "Gagnez du temps lors de la configuration en important toute votre liste d'employés en une seule fois à l'aide d'un fichier CSV formaté."
+    },
+    "settings": {
+      "addItemTitle": "Ajout Rapide",
+      "addItemContent": "Utilisez le bouton 'Ajouter' dans chaque panneau pour créer facilement de nouveaux éléments comme des rôles, des lieux ou des types d'absence.",
+      "hoverEditTitle": "Survolez pour Modifier",
+      "hoverEditContent": "Passez simplement votre souris sur n'importe quel élément d'une liste pour révéler les boutons de modification et de suppression pour des modifications rapides."
+    }
   }
 }

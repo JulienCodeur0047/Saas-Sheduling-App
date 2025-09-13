@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Role, Employee, Location, Shift, Department, AbsenceType, Absence, SpecialDayType, SpecialDay } from '../types';
-import { PlusCircle, Edit, Trash2, Users, MapPin, Briefcase, UserMinus, CalendarDays } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Users, MapPin, Briefcase, UserMinus, CalendarDays, Lightbulb } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import Modal from './Modal';
+import FeatureTour, { TourStep } from './FeatureTour';
 
 // Props Interface
 interface SettingsProps {
@@ -33,14 +34,14 @@ interface SettingsProps {
 }
 
 // #region Helper & Panel Components
-const SettingsPanel: React.FC<{ title: string; description: string; buttonText: string; onAdd: () => void; children: React.ReactNode; }> = ({ title, description, buttonText, onAdd, children }) => (
+const SettingsPanel: React.FC<{ title: string; description: string; buttonText: string; onAdd: () => void; children: React.ReactNode; 'data-tour-id'?: string; }> = ({ title, description, buttonText, onAdd, children, ...props }) => (
     <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl shadow-md animate-slide-in-up">
         <div className="flex justify-between items-start mb-4 pb-4 border-b dark:border-slate-800">
             <div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{title}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{description}</p>
             </div>
-            <button onClick={onAdd} className="btn-primary flex-shrink-0">
+            <button onClick={onAdd} className="btn-primary flex-shrink-0" data-tour-id={props['data-tour-id']}>
                 <PlusCircle size={20} className="mr-2" />
                 {buttonText}
             </button>
@@ -49,8 +50,8 @@ const SettingsPanel: React.FC<{ title: string; description: string; buttonText: 
     </div>
 );
 
-const InfoListItem: React.FC<{ onEdit: () => void; onDelete: () => void; mainText: string; subText?: string; usageCount: number; usageLabel: string; colorIndicator?: string; }> = ({ onEdit, onDelete, mainText, subText, usageCount, usageLabel, colorIndicator }) => (
-    <div className="flex justify-between items-center p-3 bg-slate-100 dark:bg-slate-800 rounded-lg group">
+const InfoListItem: React.FC<{ onEdit: () => void; onDelete: () => void; mainText: string; subText?: string; usageCount: number; usageLabel: string; colorIndicator?: string; 'data-tour-id'?: string; }> = ({ onEdit, onDelete, mainText, subText, usageCount, usageLabel, colorIndicator, ...props }) => (
+    <div className="flex justify-between items-center p-3 bg-slate-100 dark:bg-slate-800 rounded-lg group" data-tour-id={props['data-tour-id']}>
         <div className="flex items-center flex-grow truncate mr-4">
             {colorIndicator && <span className="w-4 h-4 rounded-full mr-3 flex-shrink-0" style={{ backgroundColor: colorIndicator }}></span>}
             <div className="truncate">
@@ -88,9 +89,17 @@ const RoleSettingsPanel: React.FC<SettingsProps> = ({ roles, employees, onAddRol
     const footer = ( <> <button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button> </> );
 
     return (
-        <SettingsPanel title={t('settings.manageRoles')} description={t('settings.rolesDescription')} buttonText={t('settings.addRole')} onAdd={() => openModal()}>
-            {roles.map(role => (
-                <InfoListItem key={role.id} mainText={role.name} usageCount={countEmployeesInRole(role.name)} usageLabel={t('settings.usersCount')} onEdit={() => openModal(role)} onDelete={() => { if (window.confirm(t('modals.confirmDeleteRole', { name: role.name }))) { onDeleteRole(role.id); }}} />
+        <SettingsPanel data-tour-id="settings-add-item" title={t('settings.manageRoles')} description={t('settings.rolesDescription')} buttonText={t('settings.addRole')} onAdd={() => openModal()}>
+            {roles.map((role, index) => (
+                <InfoListItem 
+                    key={role.id} 
+                    mainText={role.name} 
+                    usageCount={countEmployeesInRole(role.name)} 
+                    usageLabel={t('settings.usersCount')} 
+                    onEdit={() => openModal(role)} 
+                    onDelete={() => { if (window.confirm(t('modals.confirmDeleteRole', { name: role.name }))) { onDeleteRole(role.id); }}}
+                    data-tour-id={index === 0 ? "settings-hover-item" : undefined}
+                />
             ))}
             <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.role ? t('settings.editRole') : t('settings.addRole')} footer={footer} size="md">
                 <div className="space-y-2">
@@ -231,10 +240,16 @@ const CalendarSettingsPanel: React.FC<SettingsProps> = ({ specialDayTypes, speci
 };
 // #endregion
 
+const settingsTourSteps: TourStep[] = [
+    { selector: "[data-tour-id='settings-add-item']", titleKey: 'tour.settings.addItemTitle', contentKey: 'tour.settings.addItemContent', position: 'bottom' },
+    { selector: "[data-tour-id='settings-hover-item']", titleKey: 'tour.settings.hoverEditTitle', contentKey: 'tour.settings.hoverEditContent', position: 'bottom' },
+];
+
 // Main Settings Component
 const Settings: React.FC<SettingsProps> = (props) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('roles');
+    const [isTourActive, setIsTourActive] = useState(false);
 
     const navItems = [
         { id: 'roles', label: t('settings.roles'), icon: <Users size={20} /> },
@@ -257,7 +272,18 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-6">{t('settings.title')}</h2>
+            {isTourActive && <FeatureTour steps={settingsTourSteps} onClose={() => setIsTourActive(false)} />}
+            <div className="flex justify-between items-start mb-6">
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">{t('settings.title')}</h2>
+                 <button 
+                    onClick={() => setIsTourActive(true)}
+                    title={t('tour.quickTips')}
+                    className="flex items-center text-yellow-600 dark:text-yellow-400 font-bold py-2 px-3 rounded-lg transition-colors duration-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900"
+                >
+                    <Lightbulb size={18} className="mr-2" />
+                    <span className="text-sm">{t('tour.quickTips')}</span>
+                </button>
+            </div>
             <div className="flex flex-col md:flex-row gap-8 items-start">
                 <aside className="w-full md:w-56 flex-shrink-0 bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl shadow-md">
                     <nav className="flex flex-row md:flex-col gap-2">

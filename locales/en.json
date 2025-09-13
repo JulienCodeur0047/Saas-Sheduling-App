@@ -442,5 +442,40 @@
     "dashboardTitle": "Dashboard is a Pro Feature",
     "dashboardDesc": "Please upgrade your plan to access insightful analytics and reports on your team's performance.",
     "upgradeButton": "Upgrade Plan"
+  },
+  "tour": {
+    "next": "Next",
+    "done": "Done",
+    "quickTips": "Quick Tips",
+    "schedule": {
+      "dragDropTitle": "Drag & Drop Shifts",
+      "dragDropContent": "Quickly reschedule by dragging a shift card and dropping it onto a new day. This is the fastest way to handle changes.",
+      "quickAddTitle": "Quick Add Shift",
+      "quickAddContent": "Double-click on any empty space within a day's column to instantly open the 'Add Shift' dialog for that specific date.",
+      "multiSelectTitle": "Bulk Actions",
+      "multiSelectContent": "Activate selection mode to choose multiple shifts. This allows you to delete them all at once, saving you clicks.",
+      "zoomTitle": "Adjust Your View",
+      "zoomContent": "Cycle through Compact, Default, and Detailed views to see the information that matters most to you in the moment.",
+      "lockTitle": "Lock Your Schedule",
+      "lockContent": "Once your schedule is finalized, lock it to prevent accidental drags or edits. Click again to unlock and make changes.",
+      "filterTitle": "Powerful Filtering",
+      "filterContent": "Use the filter bar to narrow down the displayed schedule by specific employees, roles, or departments to focus your view."
+    },
+    "employees": {
+      "viewToggleTitle": "Switch Your View",
+      "viewToggleContent": "Toggle between a visual grid layout and a compact list view to see your team in the way that best suits your task.",
+      "quickEditTitle": "Quick Edit",
+      "quickEditContent": "Click anywhere on an employee's card or row to immediately open the editor and update their details or availability.",
+      "filterTitle": "Find Employees Fast",
+      "filterContent": "Use the search bar and advanced filters for roles and gender to instantly locate any employee in your roster.",
+      "importTitle": "Bulk Import",
+      "importContent": "Save time on setup by importing your entire employee roster at once using a formatted CSV file."
+    },
+    "settings": {
+      "addItemTitle": "Quick Add",
+      "addItemContent": "Use the 'Add' button in each panel to easily create new items like roles, locations, or absence types.",
+      "hoverEditTitle": "Hover to Edit",
+      "hoverEditContent": "Simply hover your mouse over any item in a list to reveal the edit and delete buttons for quick modifications."
+    }
   }
 }
