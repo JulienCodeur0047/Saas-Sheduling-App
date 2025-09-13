@@ -199,8 +199,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     };
     const planDetails: { [key in Plan]: { key: string; featureCount: number } } = {
         'Gratuit': { key: 'freePlan', featureCount: 3 },
-        'Pro': { key: 'proPlan', featureCount: 4 },
-        'Pro Plus': { key: 'proPlusPlan', featureCount: 4 },
+        'Pro': { key: 'proPlan', featureCount: 5 },
+        'Pro Plus': { key: 'proPlusPlan', featureCount: 7 },
     };
     const selectedPlanDetails = planDetails[plan];
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
