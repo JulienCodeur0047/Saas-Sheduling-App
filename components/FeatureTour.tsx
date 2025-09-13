@@ -19,7 +19,7 @@ const FeatureTour: React.FC<FeatureTourProps> = ({ steps, onClose }) => {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-  const [highlightStyle, setHighlightStyle] = useState({});
+  const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({});
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   const step = steps[currentStep];
@@ -52,11 +52,12 @@ const FeatureTour: React.FC<FeatureTourProps> = ({ steps, onClose }) => {
         targetElement.classList.add('tour-highlight-active');
       };
       
-      // Allow time for scroll before measuring
-      setTimeout(updatePosition, 300); 
+      const timer = setTimeout(updatePosition, 300); 
+      return () => clearTimeout(timer);
 
     } else {
         setTargetRect(null);
+        setHighlightStyle({ display: 'none' });
     }
     
     return () => {
@@ -86,11 +87,18 @@ const FeatureTour: React.FC<FeatureTourProps> = ({ steps, onClose }) => {
   };
 
   const getTooltipPosition = () => {
-    if (!targetRect || !tooltipRef.current) return { top: '-9999px', left: '-9999px' };
+    if (!tooltipRef.current) return { top: '-9999px', left: '-9999px' };
 
     const tooltipHeight = tooltipRef.current.offsetHeight;
     const tooltipWidth = tooltipRef.current.offsetWidth;
     const spacing = 16;
+    
+    if (!targetRect) {
+        return {
+            top: `calc(50% - ${tooltipHeight / 2}px)`,
+            left: `calc(50% - ${tooltipWidth / 2}px)`,
+        };
+    }
 
     let top = 0, left = 0;
     
@@ -113,7 +121,6 @@ const FeatureTour: React.FC<FeatureTourProps> = ({ steps, onClose }) => {
         break;
     }
     
-    // Boundary checks
     if (top < spacing) top = spacing;
     if (left < spacing) left = spacing;
     if (left + tooltipWidth > window.innerWidth) left = window.innerWidth - tooltipWidth - spacing;
@@ -124,7 +131,7 @@ const FeatureTour: React.FC<FeatureTourProps> = ({ steps, onClose }) => {
 
   return ReactDOM.createPortal(
     <>
-      <div className="fixed inset-0 z-50 animate-fade-in-backdrop"></div>
+      <div className="fixed inset-0 z-50 animate-fade-in-backdrop" style={targetRect ? { backgroundColor: 'transparent' } : { backgroundColor: 'rgba(0,0,0,0.6)'}}></div>
       <div className="fixed pointer-events-none z-[60] border-2 border-blue-500 rounded-lg" style={highlightStyle}></div>
       <style>{`
         .tour-highlight-active {
