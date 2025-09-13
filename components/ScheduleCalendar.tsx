@@ -400,14 +400,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                 </div>
                 <div className="flex items-center space-x-2">
                      <button 
-                        onClick={() => setIsTourActive(true)}
-                        title={t('tour.quickTips')}
-                        className="flex items-center text-yellow-600 dark:text-yellow-400 font-bold py-2 px-4 rounded-lg transition-colors duration-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900"
-                     >
-                        <Lightbulb size={20} className="mr-2" />
-                        {t('tour.quickTips')}
-                    </button>
-                     <button 
                         onClick={() => permissions.canExport && setIsExportModalOpen(true)}
                         disabled={!permissions.canExport}
                         title={!permissions.canExport ? t('tooltips.proFeature') : ''}
@@ -430,6 +422,14 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     <button onClick={() => openAddShiftModal(new Date())} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         <Plus size={20} className="mr-2" />
                         {t('schedule.addShift')}
+                    </button>
+                    <button 
+                        onClick={() => setIsTourActive(true)}
+                        title={t('tour.quickTips')}
+                        className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 transition-colors"
+                        aria-label={t('tour.quickTips')}
+                     >
+                        <Lightbulb size={20} className="text-yellow-400" />
                     </button>
                 </div>
             </header>

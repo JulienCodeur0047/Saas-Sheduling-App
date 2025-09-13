@@ -278,10 +278,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
                  <button 
                     onClick={() => setIsTourActive(true)}
                     title={t('tour.quickTips')}
-                    className="flex items-center text-yellow-600 dark:text-yellow-400 font-bold py-2 px-3 rounded-lg transition-colors duration-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900"
+                    className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 transition-colors"
+                    aria-label={t('tour.quickTips')}
                 >
-                    <Lightbulb size={18} className="mr-2" />
-                    <span className="text-sm">{t('tour.quickTips')}</span>
+                    <Lightbulb size={20} className="text-yellow-400" />
                 </button>
             </div>
             <div className="flex flex-col md:flex-row gap-8 items-start">

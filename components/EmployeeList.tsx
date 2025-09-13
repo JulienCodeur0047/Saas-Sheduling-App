@@ -162,14 +162,6 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                         </div>
                     </div>
                 </div>
-                <button 
-                    onClick={() => setIsTourActive(true)}
-                    title={t('tour.quickTips')}
-                    className="flex items-center text-yellow-600 dark:text-yellow-400 font-bold py-2 px-3 rounded-lg transition-colors duration-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900"
-                >
-                    <Lightbulb size={18} className="mr-2" />
-                    <span className="text-sm">{t('tour.quickTips')}</span>
-                </button>
             </div>
             
             {/* Controls Bar */}
@@ -214,6 +206,14 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                             className={`p-2 rounded-lg transition-colors duration-300 text-white ${atEmployeeLimit ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                         >
                             <PlusCircle size={20} />
+                        </button>
+                        <button 
+                            onClick={() => setIsTourActive(true)}
+                            title={t('tour.quickTips')}
+                            className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 transition-colors"
+                            aria-label={t('tour.quickTips')}
+                        >
+                            <Lightbulb size={20} className="text-yellow-400" />
                         </button>
                     </div>
                 </div>
