@@ -85,12 +85,12 @@ const DEMO_SPECIAL_DAY_TYPES: SpecialDayType[] = [
 ];
 
 const DEMO_EMPLOYEES: Employee[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', role: 'Manager', avatarUrl: null, phone: '555-0101', gender: 'Female', companyId: DEMO_COMPANY_ID },
-  { id: '2', name: 'Bob Williams', email: 'bob@example.com', role: 'Cashier', avatarUrl: null, phone: '555-0102', gender: 'Male', companyId: DEMO_COMPANY_ID },
-  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', role: 'Stocker', avatarUrl: null, phone: '555-0103', gender: 'Male', companyId: DEMO_COMPANY_ID },
-  { id: '4', name: 'Diana Miller', email: 'diana@example.com', role: 'Clerk', avatarUrl: null, phone: '555-0104', gender: 'Female', companyId: DEMO_COMPANY_ID },
-  { id: '5', name: 'Ethan Davis', email: 'ethan@example.com', role: 'Cashier', avatarUrl: null, phone: '555-0105', gender: 'Male', companyId: DEMO_COMPANY_ID },
-  { id: '6', name: 'Fiona Garcia', email: 'fiona@example.com', role: 'Stocker', avatarUrl: null, phone: '555-0106', gender: 'Female', companyId: DEMO_COMPANY_ID },
+  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', role: 'Manager', avatarUrl: null, phone: '555-0101', gender: 'Female', companyId: DEMO_COMPANY_ID, accessCode: '123456' },
+  { id: '2', name: 'Bob Williams', email: 'bob@example.com', role: 'Cashier', avatarUrl: null, phone: '555-0102', gender: 'Male', companyId: DEMO_COMPANY_ID, accessCode: '654321' },
+  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', role: 'Stocker', avatarUrl: null, phone: '555-0103', gender: 'Male', companyId: DEMO_COMPANY_ID, accessCode: '112233' },
+  { id: '4', name: 'Diana Miller', email: 'diana@example.com', role: 'Clerk', avatarUrl: null, phone: '555-0104', gender: 'Female', companyId: DEMO_COMPANY_ID, accessCode: '445566' },
+  { id: '5', name: 'Ethan Davis', email: 'ethan@example.com', role: 'Cashier', avatarUrl: null, phone: '555-0105', gender: 'Male', companyId: DEMO_COMPANY_ID, accessCode: '778899' },
+  { id: '6', name: 'Fiona Garcia', email: 'fiona@example.com', role: 'Stocker', avatarUrl: null, phone: '555-0106', gender: 'Female', companyId: DEMO_COMPANY_ID, accessCode: '998877' },
 ];
 
 const createShift = (employeeIndex: number, dayOffset: number, startHour: number, endHour: number, locationIndex?: number): Shift => {

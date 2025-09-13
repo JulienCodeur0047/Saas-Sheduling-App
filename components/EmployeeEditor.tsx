@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Employee, Role, EmployeeAvailability, WeeklyAvailability } from '../types';
-import { Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload, KeyRound, RefreshCw } from 'lucide-react';
 import Modal from './Modal';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -15,9 +15,11 @@ interface EmployeeEditorProps {
     onDelete?: (employeeId: string) => void;
     employeeAvailability?: EmployeeAvailability;
     onSaveAvailability: (employeeId: string, availability: WeeklyAvailability) => void;
+    onRegenerateAccessCode: (employeeId: string) => void;
 }
 
 const GENDERS: Employee['gender'][] = ['Male', 'Female', 'Other', 'Prefer not to say'];
+const generateAccessCode = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const getInitialFormData = (employee: Employee | null, roles: Role[]): Partial<Employee> => ({
     name: employee?.name || '',
@@ -26,9 +28,10 @@ const getInitialFormData = (employee: Employee | null, roles: Role[]): Partial<E
     avatarUrl: employee?.avatarUrl || null,
     phone: employee?.phone || '',
     gender: employee?.gender || 'Prefer not to say',
+    accessCode: employee?.accessCode || '',
 });
 
-const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave, onClose, onDelete, employeeAvailability, onSaveAvailability }) => {
+const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave, onClose, onDelete, employeeAvailability, onSaveAvailability, onRegenerateAccessCode }) => {
     const { t } = useLanguage();
     const { user } = useAuth();
     const [formData, setFormData] = useState<Partial<Employee>>(getInitialFormData(employee, roles));
@@ -38,10 +41,15 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
 
 
     useEffect(() => {
-        setFormData(getInitialFormData(employee, roles));
+        const initialData = getInitialFormData(employee, roles);
+        // If it's a new employee for a Pro Plus user, generate an access code
+        if (!employee && user?.plan === 'Pro Plus') {
+            initialData.accessCode = generateAccessCode();
+        }
+        setFormData(initialData);
         setError('');
         setActiveTab('details');
-    }, [employee, roles]);
+    }, [employee, roles, user?.plan]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -75,6 +83,7 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
             phone: formData.phone || '',
             gender: formData.gender || 'Prefer not to say',
             companyId: user!.companyId,
+            accessCode: formData.accessCode,
         };
         onSave(employeeToSave, isNew);
     };
@@ -84,6 +93,14 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
             onDelete(employee.id);
         }
     };
+
+    const handleRegenerate = () => {
+        if (employee && window.confirm(t('profile.confirmRegenerateCode', { name: employee.name }))) {
+            const newCode = generateAccessCode();
+            setFormData(prev => ({ ...prev, accessCode: newCode }));
+            // We call the main save function to persist this, which gives the user a chance to cancel
+        }
+    }
     
     const title = employee ? t('modals.editEmployee') : t('modals.addEmployee');
 
@@ -166,6 +183,21 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
                             </select>
                         </div>
                     </div>
+                     {user?.plan === 'Pro Plus' && (
+                        <div className="pt-4 mt-4 border-t dark:border-slate-800">
+                             <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 flex items-center mb-2"><KeyRound size={18} className="mr-2 text-blue-500" />{t('profile.mobileAccess')}</h4>
+                            <div>
+                                <label htmlFor="accessCode" className="label-style">{t('profile.accessCode')}</label>
+                                <div className="flex items-center space-x-2">
+                                    <input id="accessCode" name="accessCode" type="text" value={formData.accessCode} readOnly className="input-style mt-1 font-mono tracking-widest bg-slate-100 dark:bg-slate-800" />
+                                    <button type="button" onClick={handleRegenerate} title={t('profile.regenerateCode')} className="p-2.5 rounded-md bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+                                        <RefreshCw size={16} />
+                                    </button>
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('profile.accessCodeDescription')}</p>
+                            </div>
+                        </div>
+                    )}
                 </form>
             )}
 

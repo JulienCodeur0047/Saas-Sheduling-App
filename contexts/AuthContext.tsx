@@ -34,6 +34,7 @@ interface CompanyDataContextType {
 interface DataHandlerContextType {
     handleSaveEmployee: (employee: Employee, isNew: boolean) => void;
     handleDeleteEmployee: (employeeId: string) => void;
+    handleRegenerateAccessCode: (employeeId: string) => void;
     handleSaveShift: (shift: Shift) => void;
     handleDeleteShift: (shiftId: string) => void;
     handleDeleteMultipleShifts: (shiftIds: string[]) => void;
@@ -84,6 +85,8 @@ const initialCompanyData: CompanyDataContextType = {
     employees: [], shifts: [], roles: [], locations: [], departments: [], absences: [],
     absenceTypes: [], specialDays: [], specialDayTypes: [], inboxMessages: [], employeeAvailabilities: [],
 };
+
+const generateAccessCode = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -255,7 +258,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const handleSaveEmployee = (employee: Employee, isNew: boolean) => {
       setData(prev => {
-          const newEmployees = isNew ? [...prev.employees, employee] : prev.employees.map(e => e.id === employee.id ? employee : e);
+          let employeeToSave = { ...employee };
+          if (isNew && user?.plan === 'Pro Plus' && !employeeToSave.accessCode) {
+              employeeToSave.accessCode = generateAccessCode();
+          }
+          const newEmployees = isNew ? [...prev.employees, employeeToSave] : prev.employees.map(e => e.id === employeeToSave.id ? employeeToSave : e);
           updateCompanyData(user!.companyId, 'employees', newEmployees);
           return { ...prev, employees: newEmployees };
       });
@@ -270,6 +277,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           updateCompanyData(user!.companyId, 'shifts', newShifts);
           updateCompanyData(user!.companyId, 'absences', newAbsences);
           return { ...prev, employees: newEmployees, shifts: newShifts, absences: newAbsences };
+      });
+  };
+
+  const handleRegenerateAccessCode = (employeeId: string) => {
+      setData(prev => {
+          const newEmployees = prev.employees.map(e => 
+              e.id === employeeId ? { ...e, accessCode: generateAccessCode() } : e
+          );
+          updateCompanyData(user!.companyId, 'employees', newEmployees);
+          return { ...prev, employees: newEmployees };
       });
   };
   
@@ -378,11 +395,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         importedData.forEach(data => {
             const email = data.email?.toLowerCase();
             if (email && data.name && !existingEmails.has(email)) {
+                let accessCode = data.accessCode;
+                if (user?.plan === 'Pro Plus' && !accessCode) {
+                    accessCode = generateAccessCode();
+                }
+
                 newEmployees.push({
                     id: `emp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                     name: data.name, email: data.email, phone: data.phone || '',
                     gender: data.gender || 'Prefer not to say', role: data.role || 'Unassigned',
-                    avatarUrl: null, companyId: user!.companyId
+                    avatarUrl: null, companyId: user!.companyId,
+                    accessCode: accessCode
                 });
                 existingEmails.add(email);
             }
@@ -403,7 +426,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     user, permissions, login, logout, register, updateUser, verifyUser, changePassword,
     subscription, paymentHistory,
     ...data,
-    handleSaveEmployee, handleDeleteEmployee,
+    handleSaveEmployee, handleDeleteEmployee, handleRegenerateAccessCode,
     handleSaveShift: createDataUpdater('shifts'), handleDeleteShift: createDataDeleter('shifts'),
     handleDeleteMultipleShifts: (shiftIds: string[]) => setData(prev => {
         const newShifts = prev.shifts.filter(s => !shiftIds.includes(s.id));

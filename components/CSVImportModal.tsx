@@ -19,7 +19,8 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
     const [fileName, setFileName] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    const REQUIRED_HEADERS = ['name', 'email', 'phone', 'gender', 'role'];
+    const REQUIRED_HEADERS = ['name', 'email'];
+    const ALL_HEADERS = ['name', 'email', 'phone', 'gender', 'role', 'accesscode'];
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -37,7 +38,7 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
                     throw new Error("CSV file must contain a header row and at least one data row.");
                 }
 
-                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\s/g, ''));
                 
                 const missingHeaders = REQUIRED_HEADERS.filter(h => !headers.includes(h));
                 if (missingHeaders.length > 0) {
@@ -50,7 +51,7 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
                     const values = lines[i].split(',');
                     const entry: any = {};
                     headers.forEach((header, index) => {
-                        if (REQUIRED_HEADERS.includes(header)) {
+                        if (ALL_HEADERS.includes(header)) {
                              entry[header] = values[index]?.trim() || '';
                         }
                     });
@@ -61,7 +62,8 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
                             email: entry.email,
                             phone: entry.phone || '',
                             gender: ['Male', 'Female', 'Other', 'Prefer not to say'].includes(entry.gender) ? entry.gender : 'Prefer not to say',
-                            role: entry.role || 'Unassigned'
+                            role: entry.role || 'Unassigned',
+                            accessCode: entry.accesscode || undefined
                         });
                     }
                 }
@@ -118,10 +120,13 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
                             {t('modals.importInstructions')}
                         </p>
                         <code className="mt-2 block text-xs bg-slate-200 dark:bg-slate-900 p-2 rounded-md font-mono">
-                            name,email,phone,gender,role
+                            name,email,phone,gender,role,accessCode
                         </code>
                         <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
                            {t('modals.importGenderHint')}
+                        </p>
+                         <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                           {t('modals.importAccessCodeHint')}
                         </p>
                     </div>
                     {error && <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-center"><AlertTriangle size={16} className="mr-2"/>{error}</div>}

@@ -50,6 +50,7 @@ export interface Employee {
   phone: string;
   gender: 'Male' | 'Female' | 'Other' | 'Prefer not to say';
   companyId: string;
+  accessCode?: string;
 }
 
 export interface Shift {

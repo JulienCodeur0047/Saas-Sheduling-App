@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Employee, Role } from '../types';
-import { PlusCircle, Edit, Trash2, Phone, LayoutGrid, List, Upload, Gem, Mail, Filter, ChevronDown, X, Lightbulb } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Phone, LayoutGrid, List, Upload, Gem, Mail, Filter, ChevronDown, X, Lightbulb, KeyRound } from 'lucide-react';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,9 +24,10 @@ interface EmployeeCardProps {
     onEdit: (employee: Employee) => void;
     onDelete: (employeeId: string) => void;
     tourId?: string;
+    showAccessCode?: boolean;
 }
 
-const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete, tourId }) => {
+const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete, tourId, showAccessCode }) => {
     const roleColor = getRoleColor(employee.role);
     return (
         <div 
@@ -48,6 +49,12 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onEdit, onDelete,
                         <Phone size={12} className="mr-2.5 flex-shrink-0" />
                         <span>{employee.phone || 'N/A'}</span>
                     </div>
+                    {showAccessCode && employee.accessCode && (
+                         <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <KeyRound size={12} className="mr-2.5 flex-shrink-0" />
+                            <span className="font-mono tracking-wider">{employee.accessCode}</span>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="mt-2 flex justify-center space-x-2 h-12 items-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -89,7 +96,7 @@ const employeeTourSteps: TourStep[] = [
 ];
 
 const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, onEdit, onDelete, onImport }) => {
-    const { permissions } = useAuth();
+    const { user, permissions } = useAuth();
     const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState<string[]>([]);
@@ -256,6 +263,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                             onEdit={onEdit} 
                             onDelete={handleDeleteWithConfirm}
                             tourId={index === 0 ? "employee-quick-edit" : undefined}
+                            showAccessCode={user?.plan === 'Pro Plus'}
                         />
                     ))}
                 </div>
@@ -267,6 +275,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                                 <th scope="col" className="px-6 py-3">{t('employees.tableHeaderEmployee')}</th>
                                 <th scope="col" className="px-6 py-3">{t('employees.tableHeaderContact')}</th>
                                 <th scope="col" className="px-6 py-3">{t('employees.tableHeaderRole')}</th>
+                                {user?.plan === 'Pro Plus' && <th scope="col" className="px-6 py-3">{t('employees.tableHeaderAccessCode')}</th>}
                                 <th scope="col" className="px-6 py-3 text-right">{t('employees.tableHeaderActions')}</th>
                             </tr>
                         </thead>
@@ -293,6 +302,13 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, roles, onAdd, on
                                     <td className="px-6 py-4">
                                         <span className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${roleColor.bg} ${roleColor.text}`}>{employee.role}</span>
                                     </td>
+                                     {user?.plan === 'Pro Plus' && (
+                                        <td className="px-6 py-4">
+                                            <span className="font-mono tracking-wider bg-gray-100 dark:bg-blue-night-800 px-2 py-1 rounded-md text-gray-700 dark:text-gray-300">
+                                                {employee.accessCode || 'N/A'}
+                                            </span>
+                                        </td>
+                                    )}
                                     <td className="px-6 py-4">
                                         <div 
                                             className="flex justify-end space-x-2"
