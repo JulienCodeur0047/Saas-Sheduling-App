@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { Shift, Employee, Location, Department, Absence, AbsenceType, SpecialDay, SpecialDayType, Role } from '../types';
-import { Calendar, List, Clock, Loader2 } from 'lucide-react';
+import { Calendar, List, Clock, Loader2, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Helper functions
@@ -56,15 +56,16 @@ interface ExportModalProps {
 const ExportOptionCard: React.FC<{ title: string; description: string; icon: React.ReactNode; isSelected: boolean; onClick: () => void; }> = ({ title, description, icon, isSelected, onClick }) => (
     <div
         onClick={onClick}
-        className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${isSelected ? 'border-blue-600 dark:border-blue-night-300 bg-blue-50 dark:bg-blue-night-800' : 'border-gray-200 dark:border-blue-night-800 hover:border-gray-300 dark:hover:border-blue-night-700'}`}
+        className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 relative ${isSelected ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}
     >
         <div className="flex items-center">
-            <div className="mr-4 text-blue-600 dark:text-blue-night-300">{icon}</div>
+            <div className="mr-4 text-blue-600 dark:text-blue-400">{icon}</div>
             <div>
-                <h4 className="font-bold text-lg">{title}</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+                <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100">{title}</h4>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
             </div>
         </div>
+        {isSelected && <div className="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white"><Check size={14} /></div>}
     </div>
 );
 
@@ -316,18 +317,26 @@ const ExportModal: React.FC<ExportModalProps> = (props) => {
         setIsGenerating(false);
         onClose();
     };
+
+    const footer = (
+         <button
+            type="button"
+            onClick={handleExport}
+            disabled={isGenerating || !startDate || !endDate}
+            className="w-full sm:w-auto flex justify-center items-center px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed"
+        >
+            {isGenerating ? <><Loader2 className="animate-spin mr-2" size={18} /> {t('modals.generating')}</> : t('modals.generateExport')}
+        </button>
+    );
     
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={t('modals.exportSchedule')}>
+        <Modal isOpen={isOpen} onClose={onClose} title={t('modals.exportSchedule')} footer={footer}>
             <style>{`
-                /* Make date picker icon visible in dark mode on WebKit browsers */
-                .dark input[type="date"]::-webkit-calendar-picker-indicator {
-                    filter: invert(1);
-                }
+                .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
             `}</style>
             <div className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('modals.exportFormat')}</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('modals.exportFormat')}</label>
                     <div className="space-y-3">
                         <ExportOptionCard title={t('modals.calendarView')} description={t('modals.calendarViewDesc')} icon={<Calendar size={24} />} isSelected={exportType === 'calendar'} onClick={() => setExportType('calendar')} />
                         <ExportOptionCard title={t('modals.listView')} description={t('modals.listViewDesc')} icon={<List size={24} />} isSelected={exportType === 'list'} onClick={() => setExportType('list')} />
@@ -336,22 +345,22 @@ const ExportModal: React.FC<ExportModalProps> = (props) => {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('modals.timeRange')}</label>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('modals.timeRangeHint')}</p>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('modals.timeRange')}</label>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{t('modals.timeRangeHint')}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                             <label htmlFor="startDate" className="block text-xs font-medium text-gray-500 dark:text-gray-400">{t('modals.weekStart')}</label>
+                             <label htmlFor="startDate" className="block text-xs font-medium text-slate-500 dark:text-slate-400">{t('modals.weekStart')}</label>
                             <input
                                 type="date"
                                 id="startDate"
                                 name="startDate"
                                 value={startDate ? toInputDateString(startDate) : ''}
                                 onChange={handleStartDateChange}
-                                className="mt-1 block w-full pl-3 pr-2 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-gray-50 dark:bg-blue-night-800 text-gray-900 dark:text-gray-100"
+                                className="mt-1 block w-full px-3 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                             />
                         </div>
                         <div>
-                            <label htmlFor="endDate" className="block text-xs font-medium text-gray-500 dark:text-gray-400">{t('modals.weekEnd')}</label>
+                            <label htmlFor="endDate" className="block text-xs font-medium text-slate-500 dark:text-slate-400">{t('modals.weekEnd')}</label>
                             <input
                                 type="date"
                                 id="endDate"
@@ -359,21 +368,10 @@ const ExportModal: React.FC<ExportModalProps> = (props) => {
                                 value={endDate ? toInputDateString(endDate) : ''}
                                 onChange={handleEndDateChange}
                                 min={startDate ? toInputDateString(startDate) : ''}
-                                className="mt-1 block w-full pl-3 pr-2 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-gray-50 dark:bg-blue-night-800 text-gray-900 dark:text-gray-100"
+                                className="mt-1 block w-full px-3 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                             />
                         </div>
                     </div>
-                </div>
-                
-                <div className="pt-4 flex justify-end">
-                    <button
-                        type="button"
-                        onClick={handleExport}
-                        disabled={isGenerating || !startDate || !endDate}
-                        className="w-full sm:w-auto flex justify-center items-center px-6 py-2.5 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:bg-blue-400 dark:disabled:bg-blue-night-700 disabled:cursor-not-allowed"
-                    >
-                        {isGenerating ? <><Loader2 className="animate-spin mr-2" size={18} /> {t('modals.generating')}</> : t('modals.generateExport')}
-                    </button>
                 </div>
             </div>
         </Modal>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Employee } from '../types';
 import Modal from './Modal';
-import { Upload, CheckCircle } from 'lucide-react';
+import { Upload, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Fix: Redefine ImportableEmployee to omit companyId, as it's added by the AuthContext.
@@ -96,30 +96,41 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
         setFileName('');
         setError(null);
     };
+    
+    const previewFooter = (
+        <>
+            <button type="button" onClick={handleReset} className="btn-secondary">
+                {t('modals.back')}
+            </button>
+            <button type="button" onClick={handleConfirmImport} className="btn-primary">
+                {t('modals.confirmImport')}
+            </button>
+        </>
+    );
 
     return (
-        <Modal isOpen={true} onClose={onClose} title={t('modals.importEmployees')}>
+        <Modal isOpen={true} onClose={onClose} title={t('modals.importEmployees')} footer={step === 'preview' ? previewFooter : undefined}>
             {step === 'upload' && (
                 <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-night-800/50 rounded-lg border border-blue-200 dark:border-blue-night-700">
-                        <h4 className="font-semibold text-gray-800 dark:text-gray-200">{t('modals.instructions')}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <div className="p-4 bg-blue-50 dark:bg-slate-800/50 rounded-lg border border-blue-200 dark:border-slate-700">
+                        <h4 className="font-semibold text-slate-800 dark:text-slate-200">{t('modals.instructions')}</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                             {t('modals.importInstructions')}
                         </p>
-                        <code className="mt-2 block text-xs bg-gray-200 dark:bg-blue-night-900 p-2 rounded-md">
+                        <code className="mt-2 block text-xs bg-slate-200 dark:bg-slate-900 p-2 rounded-md font-mono">
                             name,email,phone,gender,role
                         </code>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
                            {t('modals.importGenderHint')}
                         </p>
                     </div>
-                    {error && <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md text-sm">{error}</div>}
+                    {error && <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-center"><AlertTriangle size={16} className="mr-2"/>{error}</div>}
                     <label
                         htmlFor="csv-upload"
-                        className="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-blue-night-800"
+                        className="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     >
-                        <Upload className="w-10 h-10 text-gray-400" />
-                        <span className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Upload className="w-10 h-10 text-slate-400" />
+                        <span className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                             {fileName ? t('modals.selectedFile', { fileName }) : t('modals.selectFile')}
                         </span>
                         <input id="csv-upload" type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
@@ -129,24 +140,24 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
             {step === 'preview' && (
                 <div className="space-y-4">
                     <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg flex items-center">
-                        <CheckCircle className="w-5 h-5 text-green-600 mr-2 flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-2 flex-shrink-0" />
                         <p className="text-sm text-green-800 dark:text-green-300"
                            dangerouslySetInnerHTML={{ __html: t('modals.foundEmployees', { count: parsedData.length }) }}
                         >
                         </p>
                     </div>
-                    <div className="max-h-64 overflow-y-auto border dark:border-blue-night-700 rounded-md">
+                    <div className="max-h-64 overflow-y-auto border dark:border-slate-700 rounded-md">
                         <table className="w-full text-sm">
-                            <thead className="sticky top-0 bg-gray-100 dark:bg-blue-night-800">
+                            <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800">
                                 <tr>
-                                    <th className="p-2 text-left font-semibold">{t('modals.nameLabel')}</th>
-                                    <th className="p-2 text-left font-semibold">{t('modals.emailLabel')}</th>
-                                    <th className="p-2 text-left font-semibold">{t('modals.roleLabel')}</th>
+                                    <th className="p-2 text-left font-semibold text-slate-600 dark:text-slate-300">{t('modals.nameLabel')}</th>
+                                    <th className="p-2 text-left font-semibold text-slate-600 dark:text-slate-300">{t('modals.emailLabel')}</th>
+                                    <th className="p-2 text-left font-semibold text-slate-600 dark:text-slate-300">{t('modals.roleLabel')}</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                                 {parsedData.map((emp, index) => (
-                                    <tr key={index} className="border-t dark:border-blue-night-700">
+                                    <tr key={index} className="text-slate-700 dark:text-slate-300">
                                         <td className="p-2 truncate">{emp.name}</td>
                                         <td className="p-2 truncate">{emp.email}</td>
                                         <td className="p-2 truncate">{emp.role}</td>
@@ -155,16 +166,16 @@ const CSVImportModal: React.FC<CSVImportModalProps> = ({ onClose, onImport }) =>
                             </tbody>
                         </table>
                     </div>
-                     <div className="flex justify-between items-center pt-4">
-                        <button type="button" onClick={handleReset} className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-blue-night-800 hover:bg-gray-200 dark:hover:bg-blue-night-700">
-                            {t('modals.back')}
-                        </button>
-                        <button type="button" onClick={handleConfirmImport} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-                            {t('modals.confirmImport')}
-                        </button>
-                    </div>
                 </div>
             )}
+            <style>{`
+                .btn-primary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: white; background-color: #2563eb; transition: background-color 0.2s; }
+                .btn-primary:hover { background-color: #1d4ed8; }
+                .btn-secondary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #334155; background-color: #e2e8f0; }
+                .dark .btn-secondary { color: #e2e8f0; background-color: #334155; }
+                .btn-secondary:hover { background-color: #cbd5e1; }
+                .dark .btn-secondary:hover { background-color: #475569; }
+            `}</style>
         </Modal>
     );
 };

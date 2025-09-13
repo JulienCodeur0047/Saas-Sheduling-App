@@ -3,7 +3,7 @@ import Modal from './Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
-import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck, Loader2, CreditCard } from 'lucide-react';
+import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck, Loader2, CreditCard, AlertTriangle } from 'lucide-react';
 import Logo from './Logo';
 import { useCurrency } from '../contexts/CurrencyContext';
 
@@ -36,10 +36,10 @@ const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => voi
                     <div
                         key={plan}
                         onClick={() => onSelect(plan)}
-                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${isSelected ? 'border-blue-600 dark:border-blue-night-300 bg-blue-50 dark:bg-blue-night-800' : 'border-gray-200 dark:border-blue-night-700 hover:border-gray-400'}`}
+                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${isSelected ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'}`}
                     >
-                        <p className="font-bold text-sm">{t(`pricing.${planKey}Name`)}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="font-bold text-sm text-slate-800 dark:text-slate-100">{t(`pricing.${planKey}Name`)}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                             {price === 0 ? t('pricing.freePlanName') : `${formatCurrency(price)}${t('pricing.perMonth')}`}
                         </p>
                     </div>
@@ -51,12 +51,12 @@ const PlanSelector: React.FC<{ selectedPlan: Plan, onSelect: (plan: Plan) => voi
 
 const FeatureItem: React.FC<{icon: React.ReactNode, title: string, description: string}> = ({icon, title, description}) => (
     <div className="flex items-start">
-        <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-night-800">
+        <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-slate-800">
             {icon}
         </div>
         <div className="ml-4">
-            <p className="text-base font-semibold text-gray-800 dark:text-gray-200">{title}</p>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{description}</p>
+            <p className="text-base font-semibold text-slate-800 dark:text-slate-200">{title}</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{description}</p>
         </div>
     </div>
 );
@@ -189,8 +189,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     };
     
     const toggleText = authView === 'login' 
-        ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-night-200">${t('auth.signUp')}</button>` })
-        : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-night-200">${t('auth.signIn')}</button>` });
+        ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-400">${t('auth.signUp')}</button>` })
+        : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-400">${t('auth.signIn')}</button>` });
 
     const planKeys: { [key in Plan]: string } = {
         'Gratuit': 'freePlan',
@@ -205,7 +205,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const selectedPlanDetails = planDetails[plan];
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
-    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:opacity-75 disabled:cursor-not-allowed";
+    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-lg transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed";
 
     const PaymentView = () => {
         const { t } = useLanguage();
@@ -234,11 +234,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
 
         return (
             <div className="space-y-4 flex flex-col justify-center h-full">
-                <div className="p-4 border rounded-lg bg-gray-50 dark:bg-blue-night-950">
-                    <h4 className="font-semibold">{t('auth.planSummary')}</h4>
+                <div className="p-4 border rounded-lg bg-slate-100 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-200">{t('auth.planSummary')}</h4>
                     <div className="flex justify-between items-baseline mt-1">
-                        <span className="text-lg">{t(`pricing.${planKey}Name`)}</span>
-                        <span className="text-2xl font-bold">{formattedPrice}<span className="text-sm font-medium text-gray-500">{t('pricing.perMonth')}</span></span>
+                        <span className="text-lg text-slate-700 dark:text-slate-300">{t(`pricing.${planKey}Name`)}</span>
+                        <span className="text-2xl font-bold text-slate-900 dark:text-slate-50">{formattedPrice}<span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('pricing.perMonth')}</span></span>
                     </div>
                 </div>
 
@@ -251,7 +251,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                         <label htmlFor="cardNumber" className="label-style">{t('auth.cardNumber')}</label>
                         <div className="relative">
                             <input id="cardNumber" type="text" className="input-style pl-10" placeholder="•••• •••• •••• 4242" />
-                            <CreditCard size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <CreditCard size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -272,12 +272,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             <><Loader2 size={20} className="animate-spin mr-2" /> {t('auth.processingPayment')}</>
                         ) : ( t('auth.payNow', { amount: formattedPrice }) )}
                     </button>
-                    <button onClick={handleFail} disabled={isProcessing} className="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 py-1">
+                    <button onClick={handleFail} disabled={isProcessing} className="w-full text-center text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 py-1">
                         {t('auth.simulateFailure')}
                     </button>
                 </div>
                 <div className="text-center pt-2">
-                    <button type="button" onClick={() => setAuthView('register')} className="font-semibold text-blue-600 hover:underline dark:text-blue-night-200 text-sm">
+                    <button type="button" onClick={() => setAuthView('register')} className="font-semibold text-blue-600 hover:underline dark:text-blue-400 text-sm">
                         &larr; {t('auth.back')}
                     </button>
                 </div>
@@ -287,12 +287,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="5xl">
-            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' || authView === 'payment' ? 'min-h-[640px]' : ''} text-gray-900 dark:text-gray-100`}>
+            <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' || authView === 'payment' ? 'min-h-[640px]' : ''} text-slate-900 dark:text-slate-100`}>
                 <div className="flex flex-col">
                      {(authView === 'login' || authView === 'register') && (
-                        <div className="text-center mb-4">
+                        <div className="text-center mb-6">
                             <p 
-                                className="text-sm text-gray-600 dark:text-gray-400"
+                                className="text-sm text-slate-600 dark:text-slate-400"
                                 onClick={(e) => { if((e.target as HTMLElement).tagName === 'BUTTON') setAuthView(authView === 'login' ? 'register' : 'login')}}
                                 dangerouslySetInnerHTML={{ __html: toggleText }}
                             >
@@ -300,7 +300,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                         </div>
                     )}
 
-                    {error && <p className="mb-4 text-center text-sm text-red-500 bg-red-100 dark:bg-red-900/30 py-2 rounded-md">{error}</p>}
+                    {error && <p className="mb-4 text-center text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 py-2.5 px-4 rounded-lg flex items-center justify-center"><AlertTriangle size={16} className="mr-2"/>{error}</p>}
                     
                     {authView === 'login' && (
                         <form onSubmit={handleLogin} className="space-y-4 flex-grow flex flex-col justify-center">
@@ -313,22 +313,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
                             </div>
                              <div className="text-right">
-                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-night-200" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword');}}>
+                                <a href="#" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword');}}>
                                     {t('auth.forgotPassword')}
                                 </a>
                             </div>
                             <button type="submit" className={buttonPrimaryClasses}>{t('auth.signIn')}</button>
                             
                             <div className="flex items-center my-4">
-                                <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                                <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('auth.orSeparator')}</span>
-                                <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                                <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
+                                <span className="mx-4 text-sm text-slate-500 dark:text-slate-400">{t('auth.orSeparator')}</span>
+                                <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
                             </div>
                             
                             <div className="space-y-3">
                                 <button 
                                     type="button" 
-                                    className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-transparent text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-blue-night-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled
                                     title="Coming soon"
                                 >
@@ -345,7 +345,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                     )}
                     {authView === 'register' && (
                         <form onSubmit={handleRegister} className="space-y-4 overflow-y-auto pr-2 -mr-2">
-                            <h4 className="font-semibold border-b dark:border-blue-night-700 pb-1">{t('profile.profileDetails')}</h4>
+                            <h4 className="font-semibold border-b dark:border-slate-700 pb-2">{t('profile.profileDetails')}</h4>
                             <div>
                                 <label htmlFor="register-name" className="label-style">{t('auth.fullNameLabel')}</label>
                                 <input id="register-name" name="name" type="text" value={name} onChange={e => setName(e.target.value)} required className="input-style" />
@@ -361,7 +361,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 </div>
                             </div>
 
-                            <h4 className="font-semibold border-b dark:border-blue-night-700 pb-1 pt-2">{t('auth.companyInfo')}</h4>
+                            <h4 className="font-semibold border-b dark:border-slate-700 pb-2 pt-2">{t('auth.companyInfo')}</h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="businessType" className="label-style">{t('auth.businessTypeLabel')}</label>
@@ -395,12 +395,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <input id="address" name="address" type="text" value={address} onChange={e => setAddress(e.target.value)} className="input-style" />
                             </div>
 
-                            <h4 className="font-semibold border-b dark:border-blue-night-700 pb-1 pt-2">{t('auth.selectedPlanLabel')}</h4>
+                            <h4 className="font-semibold border-b dark:border-slate-700 pb-2 pt-2">{t('auth.selectedPlanLabel')}</h4>
                             <PlanSelector selectedPlan={plan} onSelect={setPlan} />
                             
-                            <div className="mt-2 p-3 bg-gray-50 dark:bg-blue-night-950 rounded-lg">
+                            <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-950/50 rounded-lg">
                                 <h5 className="font-bold text-base">{t(`pricing.${selectedPlanDetails.key}Name`)} - {t(`pricing.${selectedPlanDetails.key}Desc`)}</h5>
-                                <ul className="mt-2 space-y-2 text-sm">
+                                <ul className="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-300">
                                     {selectedPlanFeatures.map((feature, index) => (
                                          <li key={index} className="flex items-start">
                                             <Check size={16} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" /> 
@@ -423,9 +423,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </div>
                             <h3 className="mt-4 text-xl font-bold">{t('auth.registrationSuccessTitle')}</h3>
                             <p
-                                className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                                className="mt-2 text-sm text-slate-600 dark:text-slate-400"
                                 dangerouslySetInnerHTML={{
-                                    __html: t('auth.registrationSuccessBody', { email: `<strong class="font-medium">${registeredEmail}</strong>` })
+                                    __html: t('auth.registrationSuccessBody', { email: `<strong class="font-medium text-slate-800 dark:text-slate-200">${registeredEmail}</strong>` })
                                 }}
                             />
                             <button onClick={handleProceedToLogin} className={`mt-6 ${buttonPrimaryClasses}`}>
@@ -435,14 +435,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                     )}
                     {authView === 'forgotPassword' && (
                         <form onSubmit={handleForgotPassword} className="space-y-4 flex-grow flex flex-col justify-center">
-                            <p className="text-sm text-center text-gray-600 dark:text-gray-400">{t('auth.forgotPasswordInstruction')}</p>
+                            <p className="text-sm text-center text-slate-600 dark:text-slate-400">{t('auth.forgotPasswordInstruction')}</p>
                             <div>
                                 <label htmlFor="forgot-email" className="label-style">{t('auth.emailLabel')}</label>
                                 <input id="forgot-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
                             </div>
                             <button type="submit" className={buttonPrimaryClasses}>{t('auth.sendResetLink')}</button>
                             <div className="text-center">
-                                <button type="button" onClick={() => setAuthView('login')} className="font-semibold text-blue-600 hover:underline dark:text-blue-night-200 text-sm">
+                                <button type="button" onClick={() => setAuthView('login')} className="font-semibold text-blue-600 hover:underline dark:text-blue-400 text-sm">
                                     {t('auth.backToLogin')}
                                 </button>
                             </div>
@@ -455,9 +455,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </div>
                             <h3 className="mt-4 text-xl font-bold">{t('auth.resetLinkSentTitle')}</h3>
                             <p
-                                className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                                className="mt-2 text-sm text-slate-600 dark:text-slate-400"
                                 dangerouslySetInnerHTML={{
-                                    __html: t('auth.resetLinkSentBody', { email: `<strong class="font-medium">${email}</strong>` })
+                                    __html: t('auth.resetLinkSentBody', { email: `<strong class="font-medium text-slate-800 dark:text-slate-200">${email}</strong>` })
                                 }}
                             />
                             <button onClick={() => setAuthView('login')} className={`mt-6 ${buttonPrimaryClasses}`}>
@@ -467,28 +467,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                     )}
                 </div>
                 
-                <div className="hidden md:flex flex-col bg-gray-50 dark:bg-blue-night-950 p-8 rounded-lg h-full">
+                <div className="hidden md:flex flex-col bg-slate-100 dark:bg-slate-950 p-8 rounded-lg h-full">
                     {authView === 'register' || authView === 'payment' ? (
                         <div className="flex flex-col justify-center h-full">
-                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
                             <div className="space-y-5">
                                 <FeatureItem 
-                                    icon={<Calendar size={24} className="text-blue-500 dark:text-blue-night-300"/>}
+                                    icon={<Calendar size={24} className="text-blue-500 dark:text-blue-400"/>}
                                     title={t('auth.features.feature1Title')}
                                     description={t('auth.features.feature1Desc')}
                                 />
                                 <FeatureItem 
-                                    icon={<Users size={24} className="text-blue-500 dark:text-blue-night-300"/>}
+                                    icon={<Users size={24} className="text-blue-500 dark:text-blue-400"/>}
                                     title={t('auth.features.feature2Title')}
                                     description={t('auth.features.feature2Desc')}
                                 />
                                 <FeatureItem 
-                                    icon={<BarChart3 size={24} className="text-blue-500 dark:text-blue-night-300"/>}
+                                    icon={<BarChart3 size={24} className="text-blue-500 dark:text-blue-400"/>}
                                     title={t('auth.features.feature3Title')}
                                     description={t('auth.features.feature3Desc')}
                                 />
                                 <FeatureItem 
-                                    icon={<CalendarOff size={24} className="text-blue-500 dark:text-blue-night-300"/>}
+                                    icon={<CalendarOff size={24} className="text-blue-500 dark:text-blue-400"/>}
                                     title={t('auth.features.feature4Title')}
                                     description={t('auth.features.feature4Desc')}
                                 />
@@ -497,8 +497,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full">
                             <Logo className="w-16 h-16" />
-                            <h3 className="mt-4 text-2xl font-bold text-center text-gray-800 dark:text-white">{t('appName')}</h3>
-                            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                            <h3 className="mt-4 text-2xl font-bold text-center text-slate-800 dark:text-white">{t('appName')}</h3>
+                            <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
                                 {t('landingPage.heroSubtitle')}
                             </p>
                         </div>
@@ -506,10 +506,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                 </div>
             </div>
              <style>{`
-                .label-style { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #374151; text-align: left; }
-                .dark .label-style { color: #D1D5DB; }
-                .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
-                .dark .input-style { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
+                .label-style { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #475569; text-align: left; }
+                .dark .label-style { color: #cbd5e1; }
+                .input-style { display: block; width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b; transition: border-color 0.2s, box-shadow 0.2s; }
+                .dark .input-style { border-color: #475569; background-color: #1e293b; color: #f8fafc; }
+                .input-style:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
             `}</style>
         </Modal>
     );

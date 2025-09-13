@@ -74,7 +74,6 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
             avatarUrl: formData.avatarUrl || null,
             phone: formData.phone || '',
             gender: formData.gender || 'Prefer not to say',
-            // Fix: Add missing companyId property
             companyId: user!.companyId,
         };
         onSave(employeeToSave, isNew);
@@ -89,16 +88,33 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
     const title = employee ? t('modals.editEmployee') : t('modals.addEmployee');
 
     const tabClasses = (tabName: 'details' | 'availability') => 
-        `px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer ${
+        `px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
             activeTab === tabName
-                ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
         }`;
 
+    const detailsFooter = (
+        <div className="flex justify-between items-center w-full">
+            <div>
+                {employee && onDelete && (
+                    <button type="button" onClick={handleDelete} className="btn-danger p-2">
+                        <Trash2 size={20} />
+                    </button>
+                )}
+            </div>
+            <div className="flex space-x-2">
+                <button type="button" onClick={onClose} className="btn-secondary">{t('modals.cancel')}</button>
+                <button type="submit" form="employee-editor-form" className="btn-primary">{t('modals.save')}</button>
+            </div>
+        </div>
+    );
+
+
     return (
-        <Modal isOpen={true} onClose={onClose} title={title}>
-            <div className="mb-4 border-b border-gray-200 dark:border-blue-night-700">
-                <nav className="-mb-px flex space-x-4" aria-label="Tabs">
+        <Modal isOpen={true} onClose={onClose} title={title} footer={activeTab === 'details' ? detailsFooter : undefined}>
+            <div className="border-b border-slate-200 dark:border-slate-700 -mt-6 -mx-6 mb-6">
+                <nav className="flex space-x-2 px-6" aria-label="Tabs">
                     <button onClick={() => setActiveTab('details')} className={tabClasses('details')}>
                         {t('modals.details')}
                     </button>
@@ -111,7 +127,7 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
             </div>
             
             {activeTab === 'details' && (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form id="employee-editor-form" onSubmit={handleSubmit} className="space-y-4">
                     {error && <p className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</p>}
                     
                     <div className="flex flex-col items-center space-y-2">
@@ -124,44 +140,30 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
                         </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                         <div>
                             <label htmlFor="name" className="label-style">{t('modals.fullNameLabel')}</label>
-                            <input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required className="input-style" />
+                            <input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required className="input-style mt-1" />
                         </div>
                         <div>
                             <label htmlFor="email" className="label-style">{t('modals.emailLabel')}</label>
-                            <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required className="input-style" />
+                            <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required className="input-style mt-1" />
                         </div>
                          <div>
                             <label htmlFor="phone" className="label-style">{t('modals.phoneLabel')}</label>
-                            <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="input-style" />
+                            <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="input-style mt-1" />
                         </div>
                         <div>
                             <label htmlFor="gender" className="label-style">{t('modals.genderLabel')}</label>
-                            <select id="gender" name="gender" value={formData.gender} onChange={handleChange} className="input-style">
+                            <select id="gender" name="gender" value={formData.gender} onChange={handleChange} className="input-style mt-1">
                                 {GENDERS.map(g => <option key={g} value={g}>{t(`gender.${g.toLowerCase().replace(/ /g, '').replace(/[^a-zA-Z]/g, '')}`)}</option>)}
                             </select>
                         </div>
                          <div>
                             <label htmlFor="role" className="label-style">{t('modals.roleLabel')}</label>
-                            <select id="role" name="role" value={formData.role} onChange={handleChange} className="input-style">
+                            <select id="role" name="role" value={formData.role} onChange={handleChange} className="input-style mt-1">
                                 {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
                             </select>
-                        </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center pt-4">
-                        <div>
-                            {employee && onDelete && (
-                                <button type="button" onClick={handleDelete} className="p-2 rounded-md text-sm font-medium text-red-600 bg-red-100 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900/80">
-                                    <Trash2 size={20} />
-                                </button>
-                            )}
-                        </div>
-                        <div className="flex space-x-2">
-                            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-blue-night-800 hover:bg-gray-200 dark:hover:bg-blue-night-700">{t('modals.cancel')}</button>
-                            <button type="submit" className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">{t('modals.save')}</button>
                         </div>
                     </div>
                 </form>
@@ -176,10 +178,21 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
             )}
 
              <style>{`
-                .label-style { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #374151; }
-                .dark .label-style { color: #D1D5DB; }
-                .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
-                .dark .input-style { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
+                .label-style { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #475569; }
+                .dark .label-style { color: #cbd5e1; }
+                .input-style { display: block; width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b; }
+                .dark .input-style { border-color: #475569; background-color: #1e293b; color: #f8fafc; }
+                .input-style:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
+                .btn-primary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: white; background-color: #2563eb; transition: background-color 0.2s; }
+                .btn-primary:hover { background-color: #1d4ed8; }
+                .btn-secondary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #334155; background-color: #e2e8f0; }
+                .dark .btn-secondary { color: #e2e8f0; background-color: #334155; }
+                .btn-secondary:hover { background-color: #cbd5e1; }
+                .dark .btn-secondary:hover { background-color: #475569; }
+                .btn-danger { padding: 0.625rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #dc2626; background-color: #fee2e2; }
+                .dark .btn-danger { color: #f87171; background-color: rgba(153, 27, 27, 0.4); }
+                .btn-danger:hover { background-color: #fecaca; }
+                .dark .btn-danger:hover { background-color: rgba(153, 27, 27, 0.6); }
             `}</style>
         </Modal>
     );

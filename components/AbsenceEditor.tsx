@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Absence, Employee, AbsenceType, Shift, SpecialDay, SpecialDayType } from '../types';
-import { Trash2 } from 'lucide-react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import Modal from './Modal';
 
 interface AbsenceEditorProps {
     absence: Absence | null;
@@ -98,7 +99,6 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = (props) => {
             absenceTypeId: formData.absenceTypeId,
             startDate: newStartDate,
             endDate: newEndDate,
-            // Fix: Add missing companyId property
             companyId: user!.companyId,
         };
         onSave(updatedAbsence);
@@ -109,57 +109,75 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = (props) => {
             onDelete(absence.id);
         }
     };
+    
+    const title = absence ? t('schedule.editAbsence') : t('schedule.addAbsenceTitle');
+
+    const modalFooter = (
+        <div className="flex justify-between items-center w-full">
+            <div>
+                {absence && onDelete && (
+                     <button type="button" onClick={handleDelete} className="btn-danger p-2">
+                        <Trash2 size={20} />
+                    </button>
+                )}
+            </div>
+            <div className="flex space-x-2">
+                <button type="button" onClick={onCancel} className="btn-secondary">{t('modals.cancel')}</button>
+                <button type="submit" form="absence-editor-form" className="btn-primary">{t('modals.saveAbsence')}</button>
+            </div>
+        </div>
+    );
+
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <p className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</p>}
-            
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="employeeId" className="label-style">{t('modals.employeeLabel')}</label>
-                    <select id="employeeId" name="employeeId" value={formData.employeeId} onChange={handleChange} className="input-style mt-1">
-                        {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                    </select>
+        <Modal isOpen={true} onClose={onCancel} title={title} footer={modalFooter}>
+            <form id="absence-editor-form" onSubmit={handleSubmit} className="space-y-4">
+                {error && <p className="text-red-600 dark:text-red-400 text-sm bg-red-100 dark:bg-red-900/30 p-3 rounded-lg flex items-center"><AlertTriangle size={16} className="mr-2"/>{error}</p>}
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="employeeId" className="label-style">{t('modals.employeeLabel')}</label>
+                        <select id="employeeId" name="employeeId" value={formData.employeeId} onChange={handleChange} className="input-style mt-1">
+                            {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                        </select>
+                    </div>
+                     <div>
+                        <label htmlFor="absenceTypeId" className="label-style">{t('modals.absenceTypeLabel')}</label>
+                        <select id="absenceTypeId" name="absenceTypeId" value={formData.absenceTypeId} onChange={handleChange} className="input-style mt-1">
+                            {absenceTypes.map(at => <option key={at.id} value={at.id}>{at.name}</option>)}
+                        </select>
+                    </div>
                 </div>
-                 <div>
-                    <label htmlFor="absenceTypeId" className="label-style">{t('modals.absenceTypeLabel')}</label>
-                    <select id="absenceTypeId" name="absenceTypeId" value={formData.absenceTypeId} onChange={handleChange} className="input-style mt-1">
-                        {absenceTypes.map(at => <option key={at.id} value={at.id}>{at.name}</option>)}
-                    </select>
-                </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="startDate" className="label-style">{t('modals.startDateLabel')}</label>
-                    <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} className="input-style mt-1" />
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="startDate" className="label-style">{t('modals.startDateLabel')}</label>
+                        <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} className="input-style mt-1" />
+                    </div>
+                    <div>
+                        <label htmlFor="endDate" className="label-style">{t('modals.endDateLabel')}</label>
+                        <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} className="input-style mt-1" />
+                    </div>
                 </div>
-                <div>
-                    <label htmlFor="endDate" className="label-style">{t('modals.endDateLabel')}</label>
-                    <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} className="input-style mt-1" />
-                </div>
-            </div>
-
-            <div className="flex justify-between items-center pt-4">
-                <div>
-                    {absence && onDelete && (
-                        <button type="button" onClick={handleDelete} className="px-4 py-2 rounded-md text-sm font-medium text-red-600 bg-red-100 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900/80">
-                            <Trash2 size={16} />
-                        </button>
-                    )}
-                </div>
-                <div className="flex space-x-2">
-                    <button type="button" onClick={onCancel} className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-blue-night-800 hover:bg-gray-200 dark:hover:bg-blue-night-700">{t('modals.cancel')}</button>
-                    <button type="submit" className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">{t('modals.saveAbsence')}</button>
-                </div>
-            </div>
-             <style>{`
-                .label-style { display: block; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #374151; }
-                .dark .label-style { color: #D1D5DB; }
-                .input-style { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
-                .dark .input-style { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
-            `}</style>
-        </form>
+                <style>{`
+                    .label-style { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #475569; }
+                    .dark .label-style { color: #cbd5e1; }
+                    .input-style { display: block; width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b; }
+                    .dark .input-style { border-color: #475569; background-color: #1e293b; color: #f8fafc; }
+                    .input-style:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
+                    .btn-primary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: white; background-color: #2563eb; transition: background-color 0.2s; }
+                    .btn-primary:hover { background-color: #1d4ed8; }
+                    .btn-secondary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #334155; background-color: #e2e8f0; }
+                    .dark .btn-secondary { color: #e2e8f0; background-color: #334155; }
+                    .btn-secondary:hover { background-color: #cbd5e1; }
+                    .dark .btn-secondary:hover { background-color: #475569; }
+                    .btn-danger { padding: 0.625rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #dc2626; background-color: #fee2e2; }
+                    .dark .btn-danger { color: #f87171; background-color: rgba(153, 27, 27, 0.4); }
+                    .btn-danger:hover { background-color: #fecaca; }
+                    .dark .btn-danger:hover { background-color: rgba(153, 27, 27, 0.6); }
+                `}</style>
+            </form>
+        </Modal>
     );
 };
 

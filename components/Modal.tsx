@@ -8,10 +8,11 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  footer?: ReactNode;
   size?: 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'md' }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer, size = 'lg' }) => {
   if (!isOpen) return null;
 
   const sizeClasses = {
@@ -26,33 +27,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center"
+      className="fixed inset-0 z-50 flex justify-center items-center p-4 animate-fade-in-backdrop backdrop-blur-sm"
       onClick={onClose}
+      aria-modal="true"
+      role="dialog"
     >
       <div 
-        className={`bg-white dark:bg-blue-night-900 rounded-xl shadow-2xl w-full m-4 p-6 relative transform transition-all duration-300 ease-out scale-95 animate-scale-in ${sizeClasses[size]}`}
+        className={`bg-slate-50 dark:bg-slate-900 rounded-2xl shadow-2xl w-full flex flex-col max-h-[90vh] animate-modal-content-slide-in ${sizeClasses[size]}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-blue-night-800">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
+        <div className="flex justify-between items-center p-5 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+          <h3 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">{title}</h3>
           <button 
             onClick={onClose} 
-            className="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-blue-night-800 transition-colors"
+            className="p-1.5 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Close modal"
           >
             <X size={24} />
           </button>
         </div>
-        <div className="mt-4">
+        <div className="p-5 md:p-6 overflow-y-auto flex-grow">
           {children}
         </div>
+        {footer && (
+          <div className="flex justify-end items-center space-x-3 p-5 md:p-6 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
+            {footer}
+          </div>
+        )}
       </div>
-       <style>{`
-        @keyframes scale-in {
-            0% { transform: scale(0.95); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-in { animation: scale-in 0.2s ease-out forwards; }
-    `}</style>
     </div>
   );
 };

@@ -34,13 +34,13 @@ interface SettingsProps {
 
 // #region Helper & Panel Components
 const SettingsPanel: React.FC<{ title: string; description: string; buttonText: string; onAdd: () => void; children: React.ReactNode; }> = ({ title, description, buttonText, onAdd, children }) => (
-    <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-md animate-slide-in-up">
-        <div className="flex justify-between items-start mb-4 pb-4 border-b dark:border-blue-night-800">
+    <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl shadow-md animate-slide-in-up">
+        <div className="flex justify-between items-start mb-4 pb-4 border-b dark:border-slate-800">
             <div>
-                <h3 className="text-xl font-bold">{title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{title}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{description}</p>
             </div>
-            <button onClick={onAdd} className="flex-shrink-0 flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300">
+            <button onClick={onAdd} className="btn-primary flex-shrink-0">
                 <PlusCircle size={20} className="mr-2" />
                 {buttonText}
             </button>
@@ -50,18 +50,18 @@ const SettingsPanel: React.FC<{ title: string; description: string; buttonText: 
 );
 
 const InfoListItem: React.FC<{ onEdit: () => void; onDelete: () => void; mainText: string; subText?: string; usageCount: number; usageLabel: string; colorIndicator?: string; }> = ({ onEdit, onDelete, mainText, subText, usageCount, usageLabel, colorIndicator }) => (
-    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-blue-night-800 rounded-lg group">
+    <div className="flex justify-between items-center p-3 bg-slate-100 dark:bg-slate-800 rounded-lg group">
         <div className="flex items-center flex-grow truncate mr-4">
             {colorIndicator && <span className="w-4 h-4 rounded-full mr-3 flex-shrink-0" style={{ backgroundColor: colorIndicator }}></span>}
             <div className="truncate">
-                <p className="font-medium truncate">{mainText}</p>
-                {subText && <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{subText}</p>}
+                <p className="font-medium truncate text-slate-700 dark:text-slate-200">{mainText}</p>
+                {subText && <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{subText}</p>}
             </div>
         </div>
         <div className="flex items-center flex-shrink-0">
-             <span className="mr-4 text-sm bg-gray-200 dark:bg-blue-night-950 px-2 py-0.5 rounded-full whitespace-nowrap">{usageCount} {usageLabel}</span>
+             <span className="mr-4 text-sm bg-slate-200 dark:bg-slate-950/50 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full whitespace-nowrap">{usageCount} {usageLabel}</span>
             <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={onEdit} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-blue-night-700"><Edit size={16} /></button>
+                <button onClick={onEdit} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"><Edit size={16} /></button>
                 <button onClick={onDelete} className="p-2 rounded-full text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"><Trash2 size={16} /></button>
             </div>
         </div>
@@ -84,17 +84,18 @@ const RoleSettingsPanel: React.FC<SettingsProps> = ({ roles, employees, onAddRol
         closeModal();
     };
     const countEmployeesInRole = (roleName: string) => employees.filter(e => e.role === roleName).length;
+    
+    const footer = ( <> <button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button> </> );
 
     return (
         <SettingsPanel title={t('settings.manageRoles')} description={t('settings.rolesDescription')} buttonText={t('settings.addRole')} onAdd={() => openModal()}>
             {roles.map(role => (
                 <InfoListItem key={role.id} mainText={role.name} usageCount={countEmployeesInRole(role.name)} usageLabel={t('settings.usersCount')} onEdit={() => openModal(role)} onDelete={() => { if (window.confirm(t('modals.confirmDeleteRole', { name: role.name }))) { onDeleteRole(role.id); }}} />
             ))}
-            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.role ? t('settings.editRole') : t('settings.addRole')}>
-                <div className="space-y-4">
+            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.role ? t('settings.editRole') : t('settings.addRole')} footer={footer} size="md">
+                <div className="space-y-2">
                     <label className="label-style">{t('settings.roleName')}</label>
-                    <input type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('settings.newRolePlaceholder')} className="input-field"/>
-                    <div className="flex justify-end space-x-2 pt-2"><button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button></div>
+                    <input type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('settings.newRolePlaceholder')} className="input-style"/>
                 </div>
             </Modal>
         </SettingsPanel>
@@ -115,17 +116,18 @@ const LocationSettingsPanel: React.FC<SettingsProps> = ({ locations, shifts, onA
         closeModal();
     };
     const countShiftsAtLocation = (locId: string) => shifts.filter(s => s.locationId === locId).length;
+    
+    const footer = ( <> <button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button> </> );
 
     return (
         <SettingsPanel title={t('settings.manageLocations')} description={t('settings.locationsDescription')} buttonText={t('settings.addLocation')} onAdd={() => openModal()}>
             {locations.map(loc => (
                 <InfoListItem key={loc.id} mainText={loc.name} subText={loc.address} usageCount={countShiftsAtLocation(loc.id)} usageLabel={t('settings.shiftsCount')} onEdit={() => openModal(loc)} onDelete={() => { if (window.confirm(t('modals.confirmDeleteLocation', { name: loc.name }))) { onDeleteLocation(loc.id); }}} />
             ))}
-            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.loc ? t('settings.editLocation') : t('settings.addLocation')}>
+            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.loc ? t('settings.editLocation') : t('settings.addLocation')} footer={footer} size="md">
                  <div className="space-y-4">
-                    <div><label className="label-style">{t('settings.locationName')}</label><input type="text" value={locData.name} onChange={(e) => setLocData(d => ({ ...d, name: e.target.value }))} className="input-field"/></div>
-                    <div><label className="label-style">{t('settings.locationAddress')}</label><input type="text" value={locData.address} onChange={(e) => setLocData(d => ({ ...d, address: e.target.value }))} className="input-field"/></div>
-                    <div className="flex justify-end space-x-2 pt-2"><button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button></div>
+                    <div><label className="label-style">{t('settings.locationName')}</label><input type="text" value={locData.name} onChange={(e) => setLocData(d => ({ ...d, name: e.target.value }))} className="input-style"/></div>
+                    <div><label className="label-style">{t('settings.locationAddress')}</label><input type="text" value={locData.address} onChange={(e) => setLocData(d => ({ ...d, address: e.target.value }))} className="input-style"/></div>
                 </div>
             </Modal>
         </SettingsPanel>
@@ -147,16 +149,17 @@ const DepartmentSettingsPanel: React.FC<SettingsProps> = ({ departments, shifts,
     };
     const countShiftsInDept = (deptId: string) => shifts.filter(s => s.departmentId === deptId).length;
     
+    const footer = ( <> <button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button> </> );
+
     return (
         <SettingsPanel title={t('settings.manageDepartments')} description={t('settings.departmentsDescription')} buttonText={t('settings.addDepartment')} onAdd={() => openModal()}>
             {departments.map(dept => (
                 <InfoListItem key={dept.id} mainText={dept.name} usageCount={countShiftsInDept(dept.id)} usageLabel={t('settings.shiftsCount')} onEdit={() => openModal(dept)} onDelete={() => { if (window.confirm(t('modals.confirmDeleteDepartment', { name: dept.name }))) { onDeleteDepartment(dept.id); }}} />
             ))}
-            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.dept ? t('settings.editDepartment') : t('settings.addDepartment')}>
-                <div className="space-y-4">
+            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.dept ? t('settings.editDepartment') : t('settings.addDepartment')} footer={footer} size="md">
+                <div className="space-y-2">
                     <label className="label-style">{t('settings.departmentName')}</label>
-                    <input type="text" value={deptName} onChange={(e) => setDeptName(e.target.value)} className="input-field"/>
-                    <div className="flex justify-end space-x-2 pt-2"><button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button></div>
+                    <input type="text" value={deptName} onChange={(e) => setDeptName(e.target.value)} className="input-style"/>
                 </div>
             </Modal>
         </SettingsPanel>
@@ -177,17 +180,18 @@ const AbsenceSettingsPanel: React.FC<SettingsProps> = ({ absenceTypes, absences,
         closeModal();
     };
     const countAbsencesOfType = (typeId: string) => absences.filter(a => a.absenceTypeId === typeId).length;
+    
+    const footer = ( <> <button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button> </> );
 
     return (
         <SettingsPanel title={t('settings.manageAbsenceTypes')} description={t('settings.absenceTypesDescription')} buttonText={t('settings.addAbsenceType')} onAdd={() => openModal()}>
             {absenceTypes.map(at => (
                 <InfoListItem key={at.id} mainText={at.name} usageCount={countAbsencesOfType(at.id)} usageLabel={t('settings.absencesCount')} colorIndicator={at.color} onEdit={() => openModal(at)} onDelete={() => { if (window.confirm(t('modals.confirmDeleteAbsenceType', { name: at.name }))) { onDeleteAbsenceType(at.id); }}} />
             ))}
-            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.at ? t('settings.editAbsenceType') : t('settings.addAbsenceType')}>
+            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.at ? t('settings.editAbsenceType') : t('settings.addAbsenceType')} footer={footer} size="md">
                 <div className="space-y-4">
-                    <div><label className="label-style">{t('settings.absenceTypeName')}</label><input type="text" value={atData.name} onChange={(e) => setAtData(d => ({ ...d, name: e.target.value }))} className="input-field"/></div>
-                    <div><label className="label-style">{t('settings.absenceTypeColor')}</label><input type="color" value={atData.color} onChange={(e) => setAtData(d => ({ ...d, color: e.target.value }))} className="h-10 w-full p-1 rounded-md bg-gray-50 dark:bg-blue-night-700 border dark:border-blue-night-600"/></div>
-                    <div className="flex justify-end space-x-2 pt-2"><button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button></div>
+                    <div><label className="label-style">{t('settings.absenceTypeName')}</label><input type="text" value={atData.name} onChange={(e) => setAtData(d => ({ ...d, name: e.target.value }))} className="input-style"/></div>
+                    <div><label className="label-style">{t('settings.absenceTypeColor')}</label><input type="color" value={atData.color} onChange={(e) => setAtData(d => ({ ...d, color: e.target.value }))} className="h-10 w-full p-1 rounded-md bg-slate-50 dark:bg-slate-700 border dark:border-slate-600"/></div>
                 </div>
             </Modal>
         </SettingsPanel>
@@ -208,17 +212,18 @@ const CalendarSettingsPanel: React.FC<SettingsProps> = ({ specialDayTypes, speci
         closeModal();
     };
     const countSpecialDaysOfType = (typeId: string) => specialDays.filter(sd => sd.typeId === typeId).length;
+    
+    const footer = ( <> <button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button> </> );
 
     return (
         <SettingsPanel title={t('settings.manageSpecialDayTypes')} description={t('settings.specialDayTypesDescription')} buttonText={t('settings.addSpecialDayType')} onAdd={() => openModal()}>
             {specialDayTypes.map(sdt => (
                 <InfoListItem key={sdt.id} mainText={sdt.name} subText={sdt.isHoliday ? t('settings.holidayBlocking') : t('settings.eventNonBlocking')} usageCount={countSpecialDaysOfType(sdt.id)} usageLabel={t('settings.daysCount')} onEdit={() => openModal(sdt)} onDelete={() => { if (window.confirm(t('modals.confirmDeleteSpecialDayType', { name: sdt.name }))) { onDeleteSpecialDayType(sdt.id); }}} />
             ))}
-            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.sdt ? t('settings.editSpecialDayType') : t('settings.addSpecialDayType')}>
+            <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.sdt ? t('settings.editSpecialDayType') : t('settings.addSpecialDayType')} footer={footer} size="md">
                 <div className="space-y-4">
-                    <div><label className="label-style">{t('settings.specialDayTypeName')}</label><input type="text" value={sdtData.name} onChange={(e) => setSdtData(d => ({...d, name: e.target.value}))} className="input-field"/></div>
-                    <label className="flex items-center space-x-3 text-sm p-2 bg-gray-50 dark:bg-blue-night-800 rounded-md"><input type="checkbox" checked={sdtData.isHoliday} onChange={(e) => setSdtData(d => ({...d, isHoliday: e.target.checked}))} className="rounded w-4 h-4"/><span className="font-medium">{t('settings.blocksShifts')}</span></label>
-                    <div className="flex justify-end space-x-2 pt-2"><button onClick={closeModal} className="btn-secondary">{t('modals.cancel')}</button><button onClick={handleSave} className="btn-primary">{t('modals.save')}</button></div>
+                    <div><label className="label-style">{t('settings.specialDayTypeName')}</label><input type="text" value={sdtData.name} onChange={(e) => setSdtData(d => ({...d, name: e.target.value}))} className="input-style"/></div>
+                    <label className="flex items-center space-x-3 text-sm p-3 bg-slate-100 dark:bg-slate-800 rounded-lg"><input type="checkbox" checked={sdtData.isHoliday} onChange={(e) => setSdtData(d => ({...d, isHoliday: e.target.checked}))} className="rounded w-4 h-4 text-blue-600 focus:ring-blue-500"/><span className="font-medium text-slate-700 dark:text-slate-200">{t('settings.blocksShifts')}</span></label>
                 </div>
             </Modal>
         </SettingsPanel>
@@ -252,15 +257,15 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">{t('settings.title')}</h2>
+            <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-6">{t('settings.title')}</h2>
             <div className="flex flex-col md:flex-row gap-8 items-start">
-                <aside className="w-full md:w-56 flex-shrink-0 bg-white dark:bg-blue-night-900 p-4 rounded-xl shadow-md">
+                <aside className="w-full md:w-56 flex-shrink-0 bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl shadow-md">
                     <nav className="flex flex-row md:flex-col gap-2">
                         {navItems.map(item => (
                             <button
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
-                                className={`w-full flex items-center p-3 rounded-lg text-sm font-semibold transition-colors duration-200 text-left ${activeTab === item.id ? 'bg-blue-600 text-white dark:bg-blue-night-200 dark:text-blue-night-900' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-blue-night-800'}`}
+                                className={`w-full flex items-center p-3 rounded-lg text-sm font-semibold transition-colors duration-200 text-left ${activeTab === item.id ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                             >
                                 {item.icon}
                                 <span className="ml-3 hidden md:inline">{item.label}</span>
@@ -273,16 +278,17 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 </main>
             </div>
             <style>{`
-                .label-style { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #374151; }
-                .dark .label-style { color: #D1D5DB; }
-                .input-field { display: block; width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #111827; }
-                .dark .input-field { border-color: #4B5563; background-color: #1F2937; color: #F9FAFB; }
-                .btn-primary { padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; color: white; background-color: #2563EB; }
-                .btn-primary:hover { background-color: #1D4ED8; }
-                .btn-secondary { padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; color: #374151; background-color: #F3F4F6; }
-                .dark .btn-secondary { color: #D1D5DB; background-color: #374151; }
-                .btn-secondary:hover { background-color: #E5E7EB; }
-                .dark .btn-secondary:hover { background-color: #4B5563; }
+                .label-style { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #475569; }
+                .dark .label-style { color: #cbd5e1; }
+                .input-style { display: block; width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b; }
+                .dark .input-style { border-color: #475569; background-color: #1e293b; color: #f8fafc; }
+                .input-style:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
+                .btn-primary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: white; background-color: #2563eb; transition: background-color 0.2s; }
+                .btn-primary:hover { background-color: #1d4ed8; }
+                .btn-secondary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #334155; background-color: #e2e8f0; }
+                .dark .btn-secondary { color: #e2e8f0; background-color: #334155; }
+                .btn-secondary:hover { background-color: #cbd5e1; }
+                .dark .btn-secondary:hover { background-color: #475569; }
             `}</style>
         </div>
     );

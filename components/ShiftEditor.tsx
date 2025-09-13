@@ -3,6 +3,7 @@ import { Shift, Employee, Location, Department, Absence, AbsenceType, SpecialDay
 import { Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import Modal from './Modal';
 
 interface ShiftEditorProps {
     shift: Shift | null;
@@ -171,7 +172,6 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             endTime: newEndTime,
             locationId: formData.locationId || undefined,
             departmentId: formData.departmentId || undefined,
-            // Fix: Add missing companyId property
             companyId: user!.companyId,
         };
         onSave(updatedShift);
@@ -182,105 +182,106 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             onDelete(shift.id);
         }
     };
+    
+    const title = shift ? (shift.employeeId ? t('schedule.editShift') : t('schedule.assignShift')) : t('schedule.addShiftTitle');
 
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-             {error && <p className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</p>}
+    const modalFooter = (
+        <div className="flex justify-between items-center w-full">
             <div>
-                <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.employeeLabel')}</label>
-                <select
-                    id="employeeId"
-                    name="employeeId"
-                    value={formData.employeeId || ''}
-                    onChange={handleChange}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-blue-night-800 text-gray-900 dark:text-gray-100"
-                >
-                    <option value="">{t('modals.unassignedShift')}</option>
-                    {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                </select>
-                {formData.employeeId && (
-                    <div className="mt-2 text-xs flex items-center">
-                        {availabilityStatus === 'preferred' && <span className="flex items-center text-green-600 dark:text-green-400"><CheckCircle size={14} className="mr-1.5"/>{t('modals.preferredTime')}</span>}
-                        {availabilityStatus === 'unavailable' && <span className="flex items-center text-red-600 dark:text-red-400"><AlertTriangle size={14} className="mr-1.5"/>{t('modals.employeeUnavailable')}</span>}
-                    </div>
+                {shift && onDelete && (
+                    <button type="button" onClick={handleDelete} className="btn-danger p-2">
+                        <Trash2 size={20} />
+                    </button>
                 )}
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex space-x-2">
+                <button type="button" onClick={onCancel} className="btn-secondary">{t('modals.cancel')}</button>
+                <button type="submit" form="shift-editor-form" className="btn-primary">{t('modals.saveShift')}</button>
+            </div>
+        </div>
+    );
+
+    return (
+        <Modal isOpen={true} onClose={onCancel} title={title} footer={modalFooter}>
+            <form id="shift-editor-form" onSubmit={handleSubmit} className="space-y-4">
+                 {error && <p className="text-red-600 dark:text-red-400 text-sm bg-red-100 dark:bg-red-900/30 p-3 rounded-lg flex items-center"><AlertTriangle size={16} className="mr-2"/>{error}</p>}
                 <div>
-                    <label htmlFor="locationId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.locationLabel')}</label>
-                    <select id="locationId" name="locationId" value={formData.locationId} onChange={handleChange} className="mt-1 input-field">
-                        <option value="">{t('modals.none')}</option>
-                        {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+                    <label htmlFor="employeeId" className="label-style">{t('modals.employeeLabel')}</label>
+                    <select
+                        id="employeeId"
+                        name="employeeId"
+                        value={formData.employeeId || ''}
+                        onChange={handleChange}
+                        className="input-style mt-1"
+                    >
+                        <option value="">{t('modals.unassignedShift')}</option>
+                        {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                     </select>
-                </div>
-                <div>
-                    <label htmlFor="departmentId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.departmentLabel')}</label>
-                    <select id="departmentId" name="departmentId" value={formData.departmentId} onChange={handleChange} className="mt-1 input-field">
-                        <option value="">{t('modals.none')}</option>
-                        {departments.map(dep => <option key={dep.id} value={dep.id}>{dep.name}</option>)}
-                    </select>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.startDateLabel')}</label>
-                    <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} className="mt-1 input-field" />
-                </div>
-                <div>
-                    <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.startTimeLabel')}</label>
-                    <input type="time" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} className="mt-1 input-field" />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.endDateLabel')}</label>
-                    <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} className="mt-1 input-field" />
-                </div>
-                <div>
-                    <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modals.endTimeLabel')}</label>
-                    <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} className="mt-1 input-field" />
-                </div>
-            </div>
-
-            <div className="flex justify-between items-center pt-4">
-                <div>
-                    {shift && onDelete && (
-                        <button type="button" onClick={handleDelete} className="px-4 py-2 rounded-md text-sm font-medium text-red-600 bg-red-100 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900/80">
-                            <Trash2 size={16} />
-                        </button>
+                    {formData.employeeId && (
+                        <div className="mt-2 text-xs flex items-center">
+                            {availabilityStatus === 'preferred' && <span className="flex items-center text-green-600 dark:text-green-400"><CheckCircle size={14} className="mr-1.5"/>{t('modals.preferredTime')}</span>}
+                            {availabilityStatus === 'unavailable' && <span className="flex items-center text-red-600 dark:text-red-400"><AlertTriangle size={14} className="mr-1.5"/>{t('modals.employeeUnavailable')}</span>}
+                        </div>
                     )}
                 </div>
-                <div className="flex space-x-2">
-                    <button type="button" onClick={onCancel} className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-blue-night-800 hover:bg-gray-200 dark:hover:bg-blue-night-700">{t('modals.cancel')}</button>
-                    <button type="submit" className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">{t('modals.saveShift')}</button>
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="locationId" className="label-style">{t('modals.locationLabel')}</label>
+                        <select id="locationId" name="locationId" value={formData.locationId} onChange={handleChange} className="input-style mt-1">
+                            <option value="">{t('modals.none')}</option>
+                            {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="departmentId" className="label-style">{t('modals.departmentLabel')}</label>
+                        <select id="departmentId" name="departmentId" value={formData.departmentId} onChange={handleChange} className="input-style mt-1">
+                            <option value="">{t('modals.none')}</option>
+                            {departments.map(dep => <option key={dep.id} value={dep.id}>{dep.name}</option>)}
+                        </select>
+                    </div>
                 </div>
-            </div>
-             <style>{`
-                .input-field {
-                    display: block;
-                    width: 100%;
-                    padding-left: 0.75rem;
-                    padding-right: 0.75rem;
-                    padding-top: 0.5rem;
-                    padding-bottom: 0.5rem;
-                    font-size: 0.875rem;
-                    line-height: 1.25rem;
-                    border-width: 1px;
-                    border-radius: 0.375rem;
-                    border-color: #D1D5DB;
-                    background-color: #FFFFFF;
-                    color: #111827;
-                }
-                .dark .input-field {
-                    border-color: #4B5563;
-                    background-color: #1F2937;
-                    color: #F9FAFB;
-                }
-            `}</style>
-        </form>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="startDate" className="label-style">{t('modals.startDateLabel')}</label>
+                        <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} className="input-style mt-1" />
+                    </div>
+                    <div>
+                        <label htmlFor="startTime" className="label-style">{t('modals.startTimeLabel')}</label>
+                        <input type="time" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} className="input-style mt-1" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="endDate" className="label-style">{t('modals.endDateLabel')}</label>
+                        <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} className="input-style mt-1" />
+                    </div>
+                    <div>
+                        <label htmlFor="endTime" className="label-style">{t('modals.endTimeLabel')}</label>
+                        <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} className="input-style mt-1" />
+                    </div>
+                </div>
+                 <style>{`
+                    .label-style { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #475569; }
+                    .dark .label-style { color: #cbd5e1; }
+                    .input-style { display: block; width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b; }
+                    .dark .input-style { border-color: #475569; background-color: #1e293b; color: #f8fafc; }
+                    .input-style:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
+                    .btn-primary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: white; background-color: #2563eb; transition: background-color 0.2s; }
+                    .btn-primary:hover { background-color: #1d4ed8; }
+                    .btn-secondary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #334155; background-color: #e2e8f0; }
+                    .dark .btn-secondary { color: #e2e8f0; background-color: #334155; }
+                    .btn-secondary:hover { background-color: #cbd5e1; }
+                    .dark .btn-secondary:hover { background-color: #475569; }
+                    .btn-danger { padding: 0.625rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #dc2626; background-color: #fee2e2; }
+                    .dark .btn-danger { color: #f87171; background-color: rgba(153, 27, 27, 0.4); }
+                    .btn-danger:hover { background-color: #fecaca; }
+                    .dark .btn-danger:hover { background-color: rgba(153, 27, 27, 0.6); }
+                `}</style>
+            </form>
+        </Modal>
     );
 };
 

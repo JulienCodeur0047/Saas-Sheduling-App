@@ -340,6 +340,18 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         1: t('schedule.zoomLevelDefault'),
         2: t('schedule.zoomLevelDetailed'),
     };
+    
+    const dayDetailFooter = (
+        <button 
+            onClick={() => { setDayDetailModal({isOpen: false, date: null}); openAddShiftModal(dayDetailModal.date!); }} 
+            disabled={isLocked} 
+            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+            <Plus size={20} className="mr-2" />
+            {t('schedule.addShift')}
+        </button>
+    );
+
 
     return (
         <div className="h-full flex flex-col">
@@ -383,7 +395,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                         <UserMinus size={20} className="mr-2" />
                         {t('schedule.addAbsence')}
                     </button>
-                    <button onClick={() => openAddShiftModal(new Date())} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed">
+                    <button onClick={() => openAddShiftModal(new Date())} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         <Plus size={20} className="mr-2" />
                         {t('schedule.addShift')}
                     </button>
@@ -567,7 +579,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
             )}
 
 
-            <Modal isOpen={shiftEditorState.isOpen} onClose={() => setShiftEditorState({isOpen: false, shift: null})} title={getShiftEditorTitle()}>
+            {shiftEditorState.isOpen && (
                 <ShiftEditor 
                     shift={shiftEditorState.shift} 
                     employees={employees}
@@ -583,8 +595,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     allSpecialDayTypes={specialDayTypes}
                     allEmployeeAvailabilities={employeeAvailabilities}
                 />
-            </Modal>
-             <Modal isOpen={absenceEditorState.isOpen} onClose={() => setAbsenceEditorState({isOpen: false, absence: null})} title={absenceEditorState.absence ? t('schedule.editAbsence') : t('schedule.addAbsenceTitle')}>
+            )}
+             {absenceEditorState.isOpen && (
                 <AbsenceEditor
                     absence={absenceEditorState.absence}
                     employees={employees}
@@ -596,27 +608,26 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     allSpecialDays={specialDays}
                     allSpecialDayTypes={specialDayTypes}
                 />
-            </Modal>
-            <Modal isOpen={specialDayEditorState.isOpen} onClose={() => setSpecialDayEditorState({isOpen: false, specialDay: null, date: null})} title={specialDayEditorState.specialDay ? t('schedule.editSpecialDay') : t('schedule.markSpecialDay')}>
-                 {specialDayEditorState.date && (
-                    <SpecialDayEditor 
-                        date={specialDayEditorState.date}
-                        specialDay={specialDayEditorState.specialDay}
-                        specialDayTypes={specialDayTypes}
-                        onSave={handleSpecialDaySave}
-                        onCancel={() => setSpecialDayEditorState({isOpen: false, specialDay: null, date: null})}
-                        onDelete={specialDayEditorState.specialDay ? handleSpecialDayDelete : undefined}
-                    />
-                 )}
-            </Modal>
+            )}
+            {specialDayEditorState.isOpen && specialDayEditorState.date && (
+                <SpecialDayEditor 
+                    date={specialDayEditorState.date}
+                    specialDay={specialDayEditorState.specialDay}
+                    specialDayTypes={specialDayTypes}
+                    onSave={handleSpecialDaySave}
+                    onCancel={() => setSpecialDayEditorState({isOpen: false, specialDay: null, date: null})}
+                    onDelete={specialDayEditorState.specialDay ? handleSpecialDayDelete : undefined}
+                />
+            )}
              <Modal 
                 isOpen={dayDetailModal.isOpen} 
                 onClose={() => setDayDetailModal({isOpen: false, date: null})} 
                 title={t('schedule.dayScheduleTitle', { date: dayDetailModal.date?.toLocaleDateString() || '' })}
+                footer={dayDetailFooter}
              >
                 {dayDetailModal.date && (
                     <div>
-                        <div className="max-h-96 overflow-y-auto space-y-2 pr-2">
+                        <div className="max-h-96 overflow-y-auto space-y-2 pr-2 -mr-2">
                             {filteredCalendarItems.absences.filter(a => isDateBetween(dayDetailModal.date!, a.startDate, a.endDate)).map(absence => (
                                 <AbsenceCard key={absence.id} absence={absence} employee={employees.find(e => e.id === absence.employeeId)} absenceType={absenceTypes.find(at => at.id === absence.absenceTypeId)} onClick={() => openEditAbsenceModal(absence)} onDelete={onDeleteAbsence} zoomLevel={2} isLocked={isLocked}/>
                             ))}
@@ -627,12 +638,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                filteredCalendarItems.absences.filter(a => isDateBetween(dayDetailModal.date!, a.startDate, a.endDate)).length === 0) &&
                                 <p className="text-center text-gray-500 py-4">No events scheduled for this day.</p>
                              }
-                        </div>
-                        <div className="mt-4 pt-4 border-t dark:border-blue-night-700 flex justify-end">
-                            <button onClick={() => { setDayDetailModal({isOpen: false, date: null}); openAddShiftModal(dayDetailModal.date!); }} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed">
-                                <Plus size={20} className="mr-2" />
-                                {t('schedule.addShift')}
-                            </button>
                         </div>
                     </div>
                 )}
