@@ -99,6 +99,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         number: false,
         special: false,
     });
+    const infoButtonRef = useRef<HTMLButtonElement>(null);
     const infoPopoverRef = useRef<HTMLDivElement>(null);
 
 
@@ -131,9 +132,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (infoPopoverRef.current && !infoPopoverRef.current.contains(event.target as Node)) {
-                setInfoPopoverVisible(false);
+            if (
+                infoPopoverRef.current?.contains(event.target as Node) ||
+                infoButtonRef.current?.contains(event.target as Node)
+            ) {
+                return;
             }
+            setInfoPopoverVisible(false);
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -250,10 +255,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
             default: return '';
         }
     };
-    
-    const toggleText = authView === 'login' 
-        ? t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-400">${t('auth.signUp')}</button>` })
-        : t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-400">${t('auth.signIn')}</button>` });
 
     const planKeys: { [key in Plan]: string } = {
         'Gratuit': 'freePlan',
@@ -352,12 +353,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         <Modal isOpen={isOpen} onClose={onClose} title={getTitle()} size="5xl">
             <div className={`grid md:grid-cols-2 md:gap-10 ${authView === 'register' || authView === 'payment' ? 'min-h-[640px]' : ''} text-slate-900 dark:text-slate-100`}>
                 <div className="flex flex-col">
-                     {(authView === 'login' || authView === 'register') && (
+                     {authView === 'login' && (
                         <div className="text-center mb-6">
                             <p 
-                                className="text-sm text-slate-600 dark:text-slate-400"
-                                onClick={(e) => { if((e.target as HTMLElement).tagName === 'BUTTON') setAuthView(authView === 'login' ? 'register' : 'login')}}
-                                dangerouslySetInnerHTML={{ __html: toggleText }}
+                                className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer"
+                                onClick={() => setAuthView('register')}
+                                dangerouslySetInnerHTML={{ __html: t('auth.dontHaveAccount', { signUp: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-400">${t('auth.signUp')}</button>` }) }}
                             >
                             </p>
                         </div>
@@ -418,60 +419,61 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <input id="register-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <div className="flex items-center justify-between mb-1.5">
-                                        <label htmlFor="register-password" className="label-style !mb-0">{t('auth.passwordLabel')}</label>
-                                        <div className="relative" ref={infoPopoverRef}>
-                                            <button type="button" onClick={() => setInfoPopoverVisible(prev => !prev)} aria-label={t('auth.showPasswordInfo')}>
+                            <div className="relative">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label htmlFor="register-password" className="label-style !mb-0">{t('auth.passwordLabel')}</label>
+                                            <button ref={infoButtonRef} type="button" onClick={() => setInfoPopoverVisible(prev => !prev)} aria-label={t('auth.showPasswordInfo')}>
                                                 <Info size={16} className="text-slate-400 cursor-pointer" />
                                             </button>
-                                            {infoPopoverVisible && (
-                                                <div className="absolute bottom-full right-0 mb-2 w-60 p-3 bg-slate-800 text-white rounded-lg shadow-lg z-10">
-                                                    <p className="font-semibold text-sm mb-2">{t('auth.passwordReqTitle')}</p>
-                                                    <ul className="space-y-1">
-                                                        <PasswordRequirement isValid={passwordValidity.length} text={t('auth.passwordReqLength')} />
-                                                        <PasswordRequirement isValid={passwordValidity.uppercase} text={t('auth.passwordReqUppercase')} />
-                                                        <PasswordRequirement isValid={passwordValidity.number} text={t('auth.passwordReqNumber')} />
-                                                        <PasswordRequirement isValid={passwordValidity.special} text={t('auth.passwordReqSpecial')} />
-                                                    </ul>
-                                                </div>
-                                            )}
+                                        </div>
+                                        <div className="relative">
+                                            <input 
+                                                id="register-password" 
+                                                name="password" 
+                                                type={showPassword ? 'text' : 'password'} 
+                                                value={password} 
+                                                onChange={handlePasswordChange}
+                                                onFocus={() => setInfoPopoverVisible(true)}
+                                                required 
+                                                className="input-style" 
+                                            />
+                                            <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
+                                                {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="relative">
-                                        <input 
-                                            id="register-password" 
-                                            name="password" 
-                                            type={showPassword ? 'text' : 'password'} 
-                                            value={password} 
-                                            onChange={handlePasswordChange}
-                                            onFocus={() => setInfoPopoverVisible(true)}
-                                            required 
-                                            className="input-style" 
-                                        />
-                                        <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
-                                            {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
-                                        </button>
+                                    <div>
+                                        <label htmlFor="register-confirm-password" className="label-style">{t('auth.confirmPasswordLabel')}</label>
+                                        <div className="relative">
+                                            <input 
+                                                id="register-confirm-password" 
+                                                name="confirmPassword" 
+                                                type={showConfirmPassword ? 'text' : 'password'} 
+                                                value={confirmPassword} 
+                                                onChange={e => setConfirmPassword(e.target.value)} 
+                                                required 
+                                                className="input-style" 
+                                            />
+                                            <button type="button" onClick={() => setShowConfirmPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
+                                                {showConfirmPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label htmlFor="register-confirm-password" className="label-style">{t('auth.confirmPasswordLabel')}</label>
-                                    <div className="relative">
-                                        <input 
-                                            id="register-confirm-password" 
-                                            name="confirmPassword" 
-                                            type={showConfirmPassword ? 'text' : 'password'} 
-                                            value={confirmPassword} 
-                                            onChange={e => setConfirmPassword(e.target.value)} 
-                                            required 
-                                            className="input-style" 
-                                        />
-                                        <button type="button" onClick={() => setShowConfirmPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
-                                            {showConfirmPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
-                                        </button>
+                                
+                                {infoPopoverVisible && (
+                                    <div ref={infoPopoverRef} className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 p-3 bg-slate-800 text-white rounded-lg shadow-lg z-10">
+                                        <p className="font-semibold text-sm mb-2">{t('auth.passwordReqTitle')}</p>
+                                        <ul className="space-y-1">
+                                            <PasswordRequirement isValid={passwordValidity.length} text={t('auth.passwordReqLength')} />
+                                            <PasswordRequirement isValid={passwordValidity.uppercase} text={t('auth.passwordReqUppercase')} />
+                                            <PasswordRequirement isValid={passwordValidity.number} text={t('auth.passwordReqNumber')} />
+                                            <PasswordRequirement isValid={passwordValidity.special} text={t('auth.passwordReqSpecial')} />
+                                        </ul>
                                     </div>
-                                </div>
+                                )}
                             </div>
                            
                             <h4 className="font-semibold border-b dark:border-slate-700 pb-2 pt-2">{t('auth.companyInfo')}</h4>
@@ -582,31 +584,41 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                 
                 <div className="hidden md:flex flex-col bg-slate-100 dark:bg-slate-950 p-8 rounded-lg h-full">
                     {authView === 'register' || authView === 'payment' ? (
-                        <div className="flex flex-col justify-center h-full">
-                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
-                            <div className="space-y-5">
-                                <FeatureItem 
-                                    icon={<Calendar size={24} className="text-blue-500 dark:text-blue-400"/>}
-                                    title={t('auth.features.feature1Title')}
-                                    description={t('auth.features.feature1Desc')}
-                                />
-                                <FeatureItem 
-                                    icon={<Users size={24} className="text-blue-500 dark:text-blue-400"/>}
-                                    title={t('auth.features.feature2Title')}
-                                    description={t('auth.features.feature2Desc')}
-                                />
-                                <FeatureItem 
-                                    icon={<BarChart3 size={24} className="text-blue-500 dark:text-blue-400"/>}
-                                    title={t('auth.features.feature3Title')}
-                                    description={t('auth.features.feature3Desc')}
-                                />
-                                <FeatureItem 
-                                    icon={<CalendarOff size={24} className="text-blue-500 dark:text-blue-400"/>}
-                                    title={t('auth.features.feature4Title')}
-                                    description={t('auth.features.feature4Desc')}
-                                />
+                        <>
+                            <div className="flex flex-col justify-center flex-grow">
+                                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">{t('auth.features.title')}</h3>
+                                <div className="space-y-5">
+                                    <FeatureItem 
+                                        icon={<Calendar size={24} className="text-blue-500 dark:text-blue-400"/>}
+                                        title={t('auth.features.feature1Title')}
+                                        description={t('auth.features.feature1Desc')}
+                                    />
+                                    <FeatureItem 
+                                        icon={<Users size={24} className="text-blue-500 dark:text-blue-400"/>}
+                                        title={t('auth.features.feature2Title')}
+                                        description={t('auth.features.feature2Desc')}
+                                    />
+                                    <FeatureItem 
+                                        icon={<BarChart3 size={24} className="text-blue-500 dark:text-blue-400"/>}
+                                        title={t('auth.features.feature3Title')}
+                                        description={t('auth.features.feature3Desc')}
+                                    />
+                                    <FeatureItem 
+                                        icon={<CalendarOff size={24} className="text-blue-500 dark:text-blue-400"/>}
+                                        title={t('auth.features.feature4Title')}
+                                        description={t('auth.features.feature4Desc')}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                            <div className="mt-auto text-center pt-6">
+                                <p 
+                                    className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer"
+                                    onClick={() => setAuthView('login')}
+                                    dangerouslySetInnerHTML={{ __html: t('auth.alreadyHaveAccount', { signIn: `<button class="font-semibold text-blue-600 hover:underline dark:text-blue-400">${t('auth.signIn')}</button>` }) }}
+                                >
+                                </p>
+                            </div>
+                        </>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full">
                             <Logo className="w-16 h-16" />
