@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Facebook, Zap, Eye, UsersRound, ArrowRight } from 'lucide-react';
+import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Facebook, Zap, Eye, UsersRound, ArrowRight, UserCheck, CalendarOff, Briefcase, FileDown, Bell, Smartphone } from 'lucide-react';
 import Pricing from './Pricing';
 import ThemeToggle from './ThemeToggle';
 import { Plan } from '../types';
@@ -81,6 +81,16 @@ const TestimonialCard: React.FC<{ quote: string; name: string; role: string; com
     </div>
 );
 
+const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string; }> = ({ icon, title, description }) => (
+  <div className="bg-white dark:bg-blue-night-900 p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+    <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-950 rounded-lg mb-4">
+      {icon}
+    </div>
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h4>
+    <p className="mt-1 text-gray-600 dark:text-gray-400">{description}</p>
+  </div>
+);
+
 
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick }) => {
   const { t } = useLanguage();
@@ -125,13 +135,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
         {/* Features Section */}
         <section id="features" className="py-24 bg-white dark:bg-blue-night-900">
           <div className="container mx-auto px-6 space-y-24">
-            <div className="text-center mb-16">
+            <div className="text-center">
                 <h2 className="text-4xl font-bold text-gray-900 dark:text-white">{t('landingPage.featuresTitle')}</h2>
                 <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
                     {t('landingPage.featuresSubtitle')}
                 </p>
             </div>
-             <FeatureShowcase 
+            
+            <FeatureShowcase 
                 title={t('landingPage.feature1Title')}
                 description={t('landingPage.feature1Desc')}
                 demo={<AnimatedDemos.CalendarDemo />}
@@ -149,6 +160,47 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
                 demo={<AnimatedDemos.RosterDemo />}
                 align="right"
             />
+
+            <div>
+              <div className="text-center mb-12">
+                <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{t('landingPage.featuresGridTitle')}</h3>
+                <p className="mt-3 text-lg max-w-3xl mx-auto text-gray-600 dark:text-gray-400">
+                  {t('landingPage.featuresGridSubtitle')}
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <FeatureCard 
+                      icon={<UserCheck size={28} className="text-blue-600 dark:text-blue-400"/>}
+                      title={t('landingPage.featureGrid1Title')}
+                      description={t('landingPage.featureGrid1Desc')}
+                  />
+                  <FeatureCard 
+                      icon={<CalendarOff size={28} className="text-blue-600 dark:text-blue-400"/>}
+                      title={t('landingPage.featureGrid2Title')}
+                      description={t('landingPage.featureGrid2Desc')}
+                  />
+                  <FeatureCard 
+                      icon={<Briefcase size={28} className="text-blue-600 dark:text-blue-400"/>}
+                      title={t('landingPage.featureGrid3Title')}
+                      description={t('landingPage.featureGrid3Desc')}
+                  />
+                  <FeatureCard 
+                      icon={<FileDown size={28} className="text-blue-600 dark:text-blue-400"/>}
+                      title={t('landingPage.featureGrid4Title')}
+                      description={t('landingPage.featureGrid4Desc')}
+                  />
+                  <FeatureCard 
+                      icon={<Bell size={28} className="text-blue-600 dark:text-blue-400"/>}
+                      title={t('landingPage.featureGrid5Title')}
+                      description={t('landingPage.featureGrid5Desc')}
+                  />
+                  <FeatureCard 
+                      icon={<Smartphone size={28} className="text-blue-600 dark:text-blue-400"/>}
+                      title={t('landingPage.featureGrid6Title')}
+                      description={t('landingPage.featureGrid6Desc')}
+                  />
+              </div>
+            </div>
           </div>
         </section>
 
