@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Github, Zap, Eye, UsersRound, ArrowRight } from 'lucide-react';
+import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Facebook, Zap, Eye, UsersRound, ArrowRight } from 'lucide-react';
 import Pricing from './Pricing';
 import ThemeToggle from './ThemeToggle';
 import { Plan } from '../types';
@@ -15,15 +15,14 @@ interface LandingPageProps {
   onRegisterClick: (plan: Plan) => void;
 }
 
-const LandingHeader: React.FC<{ onLoginClick: () => void, onRegisterClick: (plan: Plan) => void }> = ({ onLoginClick, onRegisterClick }) => {
+interface LandingHeaderProps {
+  onLoginClick: () => void;
+  onRegisterClick: (plan: Plan) => void;
+  handleScroll: (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => void;
+}
+
+const LandingHeader: React.FC<LandingHeaderProps> = ({ onLoginClick, onRegisterClick, handleScroll }) => {
   const { t } = useLanguage();
-  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
-    const targetElement = document.getElementById(targetId);
-    if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
 
   return (
     <header className="sticky top-0 bg-white/80 dark:bg-blue-night-950/80 backdrop-blur-sm z-40 shadow-sm">
@@ -85,9 +84,16 @@ const TestimonialCard: React.FC<{ quote: string; name: string; role: string; com
 
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick }) => {
   const { t } = useLanguage();
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
   return (
     <div className="bg-gray-50 dark:bg-blue-night-950 text-gray-800 dark:text-gray-300 font-sans">
-      <LandingHeader onLoginClick={onLoginClick} onRegisterClick={onRegisterClick} />
+      <LandingHeader onLoginClick={onLoginClick} onRegisterClick={onRegisterClick} handleScroll={handleScroll} />
 
       <main>
         {/* Hero Section */}
@@ -210,8 +216,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
       {/* Footer */}
       <footer className="bg-white dark:bg-blue-night-900 border-t border-gray-200 dark:border-blue-night-800">
         <div className="container mx-auto px-6 py-12">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-                <div className="col-span-2 md:col-span-1">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="col-span-2 md:col-span-2">
                      <div className="flex items-center">
                         <Logo className="w-8 h-8" />
                         <h1 className="text-xl font-bold ml-3 text-gray-800 dark:text-white">{t('appName')}</h1>
@@ -223,16 +229,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
                 <div>
                     <h4 className="font-semibold text-gray-800 dark:text-white">{t('landingPage.footerProduct')}</h4>
                     <ul className="mt-4 space-y-2 text-sm">
-                        <li><a href="#features" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.navFeatures')}</a></li>
-                        <li><a href="#pricing" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.navPricing')}</a></li>
+                        <li><a href="#features" onClick={(e) => handleScroll(e, 'features')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.navFeatures')}</a></li>
+                        <li><a href="#pricing" onClick={(e) => handleScroll(e, 'pricing')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.navPricing')}</a></li>
                         <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerUpdates')}</a></li>
-                    </ul>
-                </div>
-                 <div>
-                    <h4 className="font-semibold text-gray-800 dark:text-white">{t('landingPage.footerCompany')}</h4>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerAbout')}</a></li>
-                        <li><a href="#" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white">{t('landingPage.footerContact')}</a></li>
                     </ul>
                 </div>
                 <div>
@@ -247,9 +246,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
             <div className="mt-8 pt-8 border-t border-gray-200 dark:border-blue-night-800 flex flex-col sm:flex-row justify-between items-center">
                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('landingPage.footer', { year: new Date().getFullYear() })}</p>
                  <div className="flex space-x-4 mt-4 sm:mt-0">
-                    <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Twitter size={20}/></a>
-                    <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Github size={20}/></a>
-                    <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Linkedin size={20}/></a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Twitter size={20}/></a>
+                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Facebook size={20}/></a>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-500 dark:hover:text-white"><Linkedin size={20}/></a>
                  </div>
             </div>
         </div>
