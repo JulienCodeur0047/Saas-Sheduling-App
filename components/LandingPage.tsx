@@ -257,7 +257,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
                  <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
                     {t('landingPage.ctaSubtitle')}
                 </p>
-                <button onClick={() => onRegisterClick('Pro')} className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition-transform duration-300 transform hover:scale-105 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 shadow-lg shadow-blue-500/30">
+                <button onClick={() => onRegisterClick('Gratuit')} className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition-transform duration-300 transform hover:scale-105 dark:bg-blue-night-200 dark:text-blue-night-900 dark:hover:bg-blue-night-300 shadow-lg shadow-blue-500/30">
                      {t('landingPage.ctaButton')}
                 </button>
             </div>
