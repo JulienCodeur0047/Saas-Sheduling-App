@@ -72,6 +72,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [plan, setPlan] = useState<Plan>(initialPlan);
     const [businessType, setBusinessType] = useState<BusinessType>('Company');
     const [activitySector, setActivitySector] = useState<ActivitySector | ''>('');
@@ -95,6 +96,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         setName('');
         setEmail('');
         setPassword('');
+        setConfirmPassword('');
         setBusinessType('Company');
         setActivitySector('');
         setCompanyName('');
@@ -127,6 +129,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (password !== confirmPassword) {
+            setError(t('auth.passwordMismatch'));
+            return;
+        }
+        if (password.length < 8) {
+            setError(t('auth.passwordLengthError'));
+            return;
+        }
+        if (!/[A-Z]/.test(password)) {
+            setError(t('auth.passwordUppercaseError'));
+            return;
+        }
+        if (!/\d/.test(password)) {
+            setError(t('auth.passwordNumberError'));
+            return;
+        }
+        if (!/[^A-Za-z0-9]/.test(password)) {
+            setError(t('auth.passwordSpecialCharError'));
+            return;
+        }
         
         const finalCompanyName = companyName.trim() || name.trim();
         if (!finalCompanyName) {
@@ -350,15 +373,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <label htmlFor="register-name" className="label-style">{t('auth.fullNameLabel')}</label>
                                 <input id="register-name" name="name" type="text" value={name} onChange={e => setName(e.target.value)} required className="input-style" />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="register-email" className="label-style">{t('auth.emailLabel')}</label>
-                                    <input id="register-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
-                                </div>
+                            <div>
+                                <label htmlFor="register-email" className="label-style">{t('auth.emailLabel')}</label>
+                                <input id="register-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="register-password" className="label-style">{t('auth.passwordLabel')}</label>
                                     <input id="register-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
                                 </div>
+                                <div>
+                                    <label htmlFor="register-confirm-password" className="label-style">{t('auth.confirmPasswordLabel')}</label>
+                                    <input id="register-confirm-password" name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="input-style" />
+                                </div>
+                            </div>
+                            <div className="pt-1">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('auth.passwordRequirements')}</p>
                             </div>
 
                             <h4 className="font-semibold border-b dark:border-slate-700 pb-2 pt-2">{t('auth.companyInfo')}</h4>
