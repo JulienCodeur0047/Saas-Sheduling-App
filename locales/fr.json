@@ -291,11 +291,7 @@
     "passwordLabel": "Mot de passe",
     "confirmPasswordLabel": "Confirmez le mot de passe",
     "passwordMismatch": "Les mots de passe ne correspondent pas.",
-    "passwordRequirements": "Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule, un chiffre et un caractère spécial.",
-    "passwordLengthError": "Le mot de passe doit contenir au moins 8 caractères.",
-    "passwordUppercaseError": "Le mot de passe doit contenir au moins une lettre majuscule.",
-    "passwordNumberError": "Le mot de passe doit contenir au moins un chiffre.",
-    "passwordSpecialCharError": "Le mot de passe doit contenir au moins un caractère spécial.",
+    "passwordDoesNotMeetRequirements": "Le mot de passe ne respecte pas toutes les exigences.",
     "forgotPassword": "Mot de passe oublié ?",
     "orSeparator": "OU",
     "continueWithGoogle": "Continuer avec Google",
@@ -353,7 +349,14 @@
     "processingPayment": "Traitement...",
     "simulateFailure": "Simuler l'échec du paiement",
     "paymentFailedError": "Le paiement a échoué. Veuillez vérifier les détails de votre carte et réessayer.",
-    "back": "Retour"
+    "back": "Retour",
+    "togglePasswordVisibility": "Afficher/Masquer le mot de passe",
+    "showPasswordInfo": "Afficher les exigences du mot de passe",
+    "passwordReqTitle": "Le mot de passe doit contenir :",
+    "passwordReqLength": "Au moins 8 caractères",
+    "passwordReqUppercase": "Une lettre majuscule (A-Z)",
+    "passwordReqNumber": "Un chiffre (0-9)",
+    "passwordReqSpecial": "Un caractère spécial (!@#...)"
   },
   "modals": {
     "save": "Enregistrer",

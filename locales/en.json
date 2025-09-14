@@ -291,11 +291,7 @@
     "passwordLabel": "Password",
     "confirmPasswordLabel": "Confirm Password",
     "passwordMismatch": "Passwords do not match.",
-    "passwordRequirements": "Must be at least 8 characters and include an uppercase letter, a number, and a special character.",
-    "passwordLengthError": "Password must be at least 8 characters long.",
-    "passwordUppercaseError": "Password must contain at least one uppercase letter.",
-    "passwordNumberError": "Password must contain at least one number.",
-    "passwordSpecialCharError": "Password must contain at least one special character.",
+    "passwordDoesNotMeetRequirements": "Password does not meet all requirements.",
     "forgotPassword": "Forgot Password?",
     "orSeparator": "OR",
     "continueWithGoogle": "Continue with Google",
@@ -353,7 +349,14 @@
     "processingPayment": "Processing...",
     "simulateFailure": "Simulate Payment Failure",
     "paymentFailedError": "Payment failed. Please check your card details and try again.",
-    "back": "Back"
+    "back": "Back",
+    "togglePasswordVisibility": "Toggle password visibility",
+    "showPasswordInfo": "Show password requirements",
+    "passwordReqTitle": "Password must contain:",
+    "passwordReqLength": "At least 8 characters",
+    "passwordReqUppercase": "An uppercase letter (A-Z)",
+    "passwordReqNumber": "A number (0-9)",
+    "passwordReqSpecial": "A special character (!@#...)"
   },
   "modals": {
     "save": "Save",

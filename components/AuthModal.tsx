@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Modal from './Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plan, BusinessType, ActivitySector } from '../types';
-import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck, Loader2, CreditCard, AlertTriangle } from 'lucide-react';
+import { Check, Calendar, Users, BarChart3, CalendarOff, MailCheck, Loader2, CreditCard, AlertTriangle, Eye, EyeOff, Info, CheckCircle, Circle } from 'lucide-react';
 import Logo from './Logo';
 import { useCurrency } from '../contexts/CurrencyContext';
 
@@ -61,6 +61,13 @@ const FeatureItem: React.FC<{icon: React.ReactNode, title: string, description: 
     </div>
 );
 
+const PasswordRequirement: React.FC<{isValid: boolean; text: string}> = ({ isValid, text }) => (
+    <li className={`flex items-center text-xs transition-colors ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>
+        {isValid ? <CheckCircle size={14} className="mr-2 flex-shrink-0"/> : <Circle size={14} className="mr-2 flex-shrink-0"/> }
+        {text}
+    </li>
+);
+
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'login', initialPlan = 'Pro' }) => {
     const [authView, setAuthView] = useState<AuthView>(initialView);
@@ -82,6 +89,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const [registeredEmail, setRegisteredEmail] = useState('');
     const [registrationData, setRegistrationData] = useState<any>(null);
 
+    // Password UI state
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [infoPopoverVisible, setInfoPopoverVisible] = useState(false);
+    const [passwordValidity, setPasswordValidity] = useState({
+        length: false,
+        uppercase: false,
+        number: false,
+        special: false,
+    });
+    const infoPopoverRef = useRef<HTMLDivElement>(null);
+
+
     useEffect(() => {
         if (isOpen) {
             setAuthView(initialView);
@@ -102,7 +122,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         setCompanyName('');
         setAddress('');
         setRegistrationData(null);
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+        setInfoPopoverVisible(false);
+        setPasswordValidity({ length: false, uppercase: false, number: false, special: false });
+
     }, [authView, isOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (infoPopoverRef.current && !infoPopoverRef.current.contains(event.target as Node)) {
+                setInfoPopoverVisible(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const validatePassword = (pass: string) => {
+        setPasswordValidity({
+            length: pass.length >= 8,
+            uppercase: /[A-Z]/.test(pass),
+            number: /\d/.test(pass),
+            special: /[^A-Za-z0-9]/.test(pass),
+        });
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newPassword = e.target.value;
+        setPassword(newPassword);
+        validatePassword(newPassword);
+    };
+
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -129,25 +180,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        const allValid = Object.values(passwordValidity).every(v => v);
 
         if (password !== confirmPassword) {
             setError(t('auth.passwordMismatch'));
             return;
         }
-        if (password.length < 8) {
-            setError(t('auth.passwordLengthError'));
-            return;
-        }
-        if (!/[A-Z]/.test(password)) {
-            setError(t('auth.passwordUppercaseError'));
-            return;
-        }
-        if (!/\d/.test(password)) {
-            setError(t('auth.passwordNumberError'));
-            return;
-        }
-        if (!/[^A-Za-z0-9]/.test(password)) {
-            setError(t('auth.passwordSpecialCharError'));
+        if (!allValid) {
+            setError(t('auth.passwordDoesNotMeetRequirements'));
             return;
         }
         
@@ -380,18 +420,60 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="register-password" className="label-style">{t('auth.passwordLabel')}</label>
-                                    <input id="register-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <label htmlFor="register-password" className="label-style !mb-0">{t('auth.passwordLabel')}</label>
+                                        <div className="relative" ref={infoPopoverRef}>
+                                            <button type="button" onClick={() => setInfoPopoverVisible(prev => !prev)} aria-label={t('auth.showPasswordInfo')}>
+                                                <Info size={16} className="text-slate-400 cursor-pointer" />
+                                            </button>
+                                            {infoPopoverVisible && (
+                                                <div className="absolute bottom-full right-0 mb-2 w-60 p-3 bg-slate-800 text-white rounded-lg shadow-lg z-10">
+                                                    <p className="font-semibold text-sm mb-2">{t('auth.passwordReqTitle')}</p>
+                                                    <ul className="space-y-1">
+                                                        <PasswordRequirement isValid={passwordValidity.length} text={t('auth.passwordReqLength')} />
+                                                        <PasswordRequirement isValid={passwordValidity.uppercase} text={t('auth.passwordReqUppercase')} />
+                                                        <PasswordRequirement isValid={passwordValidity.number} text={t('auth.passwordReqNumber')} />
+                                                        <PasswordRequirement isValid={passwordValidity.special} text={t('auth.passwordReqSpecial')} />
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="relative">
+                                        <input 
+                                            id="register-password" 
+                                            name="password" 
+                                            type={showPassword ? 'text' : 'password'} 
+                                            value={password} 
+                                            onChange={handlePasswordChange}
+                                            onFocus={() => setInfoPopoverVisible(true)}
+                                            required 
+                                            className="input-style" 
+                                        />
+                                        <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
+                                            {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label htmlFor="register-confirm-password" className="label-style">{t('auth.confirmPasswordLabel')}</label>
-                                    <input id="register-confirm-password" name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="input-style" />
+                                    <div className="relative">
+                                        <input 
+                                            id="register-confirm-password" 
+                                            name="confirmPassword" 
+                                            type={showConfirmPassword ? 'text' : 'password'} 
+                                            value={confirmPassword} 
+                                            onChange={e => setConfirmPassword(e.target.value)} 
+                                            required 
+                                            className="input-style" 
+                                        />
+                                        <button type="button" onClick={() => setShowConfirmPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
+                                            {showConfirmPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="pt-1">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('auth.passwordRequirements')}</p>
-                            </div>
-
+                           
                             <h4 className="font-semibold border-b dark:border-slate-700 pb-2 pt-2">{t('auth.companyInfo')}</h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
